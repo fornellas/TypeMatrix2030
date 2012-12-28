@@ -53,28 +53,28 @@ void TypeMatrix::dvorakR3(){
 // U
 void TypeMatrix::dvorakP4(){
   if(shift)
-    KP('F');
-  else
-    KP('f');
-};
-void TypeMatrix::dvorakR4(){
-  KR('F');
-  KR('f');
-};
-// I
-void TypeMatrix::dvorakP5(){
-  if(shift)
     KP('G');
   else
     KP('g');
 };
-void TypeMatrix::dvorakR5(){
+void TypeMatrix::dvorakR4(){
   KR('G');
   KR('g');
 };
+// I
+void TypeMatrix::dvorakP5(){
+  if(shift)
+    KP('C');
+  else
+    KP('c');
+};
+void TypeMatrix::dvorakR5(){
+  KR('C');
+  KR('c');
+};
 // O/Tab
 void TypeMatrix::dvorakP6(){
-  if(fn||numLock)
+  if(fn||keypad)
     KP(KEY_TAB);
   else
     if(shift)
@@ -89,7 +89,7 @@ void TypeMatrix::dvorakR6(){
 };
 // P/
 void TypeMatrix::dvorakP7(){
-  if(fn||numLock)
+  if(fn||keypad)
     KP(KEY_KP_SLASH);
   else
     if(shift)
@@ -114,6 +114,7 @@ void TypeMatrix::dvorakP8(){
   }
 };
 void TypeMatrix::dvorakR8(){
+  // FIXME Play
 };
 // Tab
 void TypeMatrix::dvorakP9(){
@@ -122,16 +123,16 @@ void TypeMatrix::dvorakP9(){
 void TypeMatrix::dvorakR9(){
   KR(KEY_TAB);
 };
-// CL/AC
+// CapsLock/Clear
 void TypeMatrix::dvorakP10(){
-  if(fn){
-    // FIXME calc
+  if(fn||keypad){
+    ; // FIXME clear
   }else{
     KP(KEY_CAPS_LOCK);
   }
 };
 void TypeMatrix::dvorakR10(){
-//  KR(); // FIXME calc
+  // FIXME clear
   KR(KEY_CAPS_LOCK);
 };
 // F3
@@ -144,28 +145,28 @@ void TypeMatrix::dvorakR11(){
 // G
 void TypeMatrix::dvorakP12(){
   if(shift)
-    KP('I');
+    KP('Y');
   else
-    KP('i');
+    KP('y');
 };
 void TypeMatrix::dvorakR12(){
-  KR('I');
-  KR('i');
+  KR('Y');
+  KR('y');
 };
-// H/Home
+// Y
 void TypeMatrix::dvorakP13(){
   if(fn||keypad)
     KP(KEY_HOME);
   else
     if(shift)
-      KP('D');
+      KP('F');
     else
-      KP('d');
+      KP('f');
 };
 void TypeMatrix::dvorakR13(){
   KR(KEY_HOME);
-  KR('D');
-  KR('d');
+  KR('F');
+  KR('F');
 };
 // ]}-
 void TypeMatrix::dvorakP14(){
@@ -185,7 +186,7 @@ void TypeMatrix::dvorakR14(){
 // F7/Pwr
 void TypeMatrix::dvorakP15(){
   if(fn)
-    KP(KEY_POWER);
+    KP(KEY_POWER); // FIXME not working
   else
     KP(KEY_F7);
 };
@@ -211,7 +212,7 @@ void TypeMatrix::dvorakR16(){
 // Bs/V+
 void TypeMatrix::dvorakP17(){
   if(fn)
-    KP(KEY_VOLUME_UP);
+    KP(KEY_VOLUME_UP); // FIXME not working
   else
     KP(KEY_BACKSPACE);
 };
@@ -224,7 +225,7 @@ void TypeMatrix::dvorakP18(){
   // FIXME calc
 };
 void TypeMatrix::dvorakR18(){
-  // FIXME
+  // FIXME calc
 };
 // LSft
 void TypeMatrix::dvorakP19(){
@@ -558,7 +559,7 @@ void TypeMatrix::dvorakR47(){
 };
 // RSft/+
 void TypeMatrix::dvorakP48(){
-  if(shift||fn)
+  if(fn||keypad)
     KP(KEY_KP_PLUS);
   else {
     KP(KEY_RIGHT_SHIFT);
@@ -572,10 +573,12 @@ void TypeMatrix::dvorakR48(){
 };
 // Dsk/Pv
 void TypeMatrix::dvorakP49(){
-  // FIXME
+  // FIXME Deskpot
+  // FIXME Prev
 };
 void TypeMatrix::dvorakR49(){
-  // FIXME
+  // FIXME Desktop
+  // FIXME Prev
 };
 // F1/Dvk
 void TypeMatrix::dvorakP50(){
@@ -691,10 +694,12 @@ void TypeMatrix::dvorakR60(){
 };
 // Mil/BTb
 void TypeMatrix::dvorakP61(){
-  // FIXME
+  // FIXME Mail
+  // FIXME BackTab
 };
 void TypeMatrix::dvorakR61(){
-  // FIXME
+  // FIXME Mail
+  // FIXME BackTab
 };
 // Del/Ins
 void TypeMatrix::dvorakP62(){
@@ -725,7 +730,7 @@ void TypeMatrix::dvorakR64(){
   KR('I');
   KR('i');
 };
-// H/Home
+// D/Home
 void TypeMatrix::dvorakP65(){
   if(fn||keypad)
     KP(KEY_HOME);
@@ -770,13 +775,11 @@ void TypeMatrix::dvorakR67(){
 void TypeMatrix::dvorakP68(){
   if(fn)
     KP(KEY_SCROLL_LOCK);
-    // FIXME LED
   else
     KP(KEY_F11);
 };
 void TypeMatrix::dvorakR68(){
   KR(KEY_SCROLL_LOCK);
-  // FIXME LEiD
   KR(KEY_F11);
 };
 // Up/2
@@ -914,7 +917,6 @@ void TypeMatrix::dvorakR79(){
 void TypeMatrix::dvorakP80(){
   if(fn)
     KP(KEY_NUM_LOCK);
-    // FIXME LED
   else
     keypad=!keypad;
 };

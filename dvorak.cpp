@@ -2,89 +2,136 @@
 
 #include <Arduino.h>
 
-#define KP(key) Keyboard.press(key);
-#define KR(key) Keyboard.release(key);
+#define KP(key) Keyboard.press(key)
+#define KR(key) Keyboard.release(key)
 
 // Q
 void TypeMatrix::dvorakP0(){
   if(shift)
-    Keyboard.press('"');
+    KP('"');
   else
-    Keyboard.press('\'');
+    KP('\'');
 };
 void TypeMatrix::dvorakR0(){
-  Keyboard.release('"');
-  Keyboard.release('\'');
+  KR('"');
+  KR('\'');
 };
 // W
 void TypeMatrix::dvorakP1(){
-  
+  if(shift)
+    KP('<');
+  else
+    KP(',');
 };
 void TypeMatrix::dvorakR1(){
-  
+  KR('<');
+  KR(',');
 };
 // E
 void TypeMatrix::dvorakP2(){
-  
+  if(shift)
+   KP('>');
+  else
+   KP('.');
 };
 void TypeMatrix::dvorakR2(){
-  
+  KR('>');
+  KR('.');
 };
 // R
 void TypeMatrix::dvorakP3(){
-  
+  if(shift)
+    KP('P');
+  else
+    KP('p');
 };
 void TypeMatrix::dvorakR3(){
-  
+  KR('P');
+  KR('p');
 };
 // U
 void TypeMatrix::dvorakP4(){
-  
+  if(shift)
+    KP('F');
+  else
+    KP('f');
 };
 void TypeMatrix::dvorakR4(){
-  
+  KR('F');
+  KR('f');
 };
 // I
 void TypeMatrix::dvorakP5(){
-  
+  if(shift)
+    KP('G');
+  else
+    KP('g');
 };
 void TypeMatrix::dvorakR5(){
-  
+  KR('G');
+  KR('g');
 };
 // O/Tab
 void TypeMatrix::dvorakP6(){
-  
+  if(fn||numLock)
+    KP(KEY_TAB);
+  else
+    if(shift)
+      KP('R');
+    else
+      KP('r');
 };
 void TypeMatrix::dvorakR6(){
-  
+  KR(KEY_TAB);
+  KR('R');
+  KR('r');
 };
 // P/
 void TypeMatrix::dvorakP7(){
-  
+  if(fn||numLock)
+    KP('/'); // FIXME keypad
+  else
+    if(shift)
+      KP('L');
+    else
+      KP('l');
 };
 void TypeMatrix::dvorakR7(){
-  
+  KR('/');
+  KR('L');
+  KR('l');
 };
 // Ply/CX
 void TypeMatrix::dvorakP8(){
-  
+  if(fn){
+    KP(KEY_LEFT_CTRL);
+    KP('x');
+    KR('x');
+    KR(KEY_LEFT_CTRL);
+  }else{
+    // FIXME Play
+  }
 };
 void TypeMatrix::dvorakR8(){
   
 };
 // Tab
 void TypeMatrix::dvorakP9(){
-  
+  KP(KEY_TAB);
 };
 void TypeMatrix::dvorakR9(){
-  
+  KR(KEY_TAB);
 };
-// RSft/AC
+// CL/AC
 void TypeMatrix::dvorakP10(){
-  
+  if(fn){
+    // FIXME calc
+  }else{
+    KP(KEY_CAPS_LOCK);
+  }
 };
 void TypeMatrix::dvorakR10(){
-  
+  KR(KEY_CAPS_LOCK);
 };
 // F3
 void TypeMatrix::dvorakP11(){
@@ -151,12 +198,21 @@ void TypeMatrix::dvorakR19(){
   KR(KEY_LEFT_SHIFT);
   shift=0;
 };
-// LAlt
+// AT/CV
 void TypeMatrix::dvorakP20(){
-  
+  if(fn){
+    KP(KEY_LEFT_CTRL);
+    KP('v');
+    KR('v');
+    KR(KEY_LEFT_CTRL);
+  }else{
+    KP(KEY_LEFT_ALT);
+    KP(KEY_TAB);
+    KR(KEY_TAB);
+  }
 };
 void TypeMatrix::dvorakR20(){
-  
+  KR(KEY_LEFT_ALT);
 };
 // Start
 void TypeMatrix::dvorakP21(){
@@ -251,10 +307,10 @@ void TypeMatrix::dvorakR33(){
 };
 // Fn
 void TypeMatrix::dvorakP34(){
-  
+  fn=1;
 };
 void TypeMatrix::dvorakR34(){
-  
+  fn=0;
 };
 // A
 void TypeMatrix::dvorakP35(){
@@ -272,10 +328,10 @@ void TypeMatrix::dvorakR36(){
 };
 // Esc
 void TypeMatrix::dvorakP37(){
-  
+  KP(KEY_ESC);
 };
 void TypeMatrix::dvorakR37(){
-  
+  KR(KEY_ESC);
 };
 // Z
 void TypeMatrix::dvorakP38(){
@@ -349,10 +405,17 @@ void TypeMatrix::dvorakR47(){
 };
 // RSft/+
 void TypeMatrix::dvorakP48(){
-  
+  if(shift||fn)
+    KP('+'); // FIXME keypad
+  else {
+    KP(KEY_RIGHT_SHIFT);
+    shift=1;
+  }
 };
 void TypeMatrix::dvorakR48(){
-  
+  KR(KEY_RIGHT_SHIFT);
+  KR('+'); // FIXME keypad
+  shift=0;
 };
 // Dsk/Pv
 void TypeMatrix::dvorakP49(){
@@ -503,10 +566,10 @@ void TypeMatrix::dvorakR69(){
 };
 // LAlt
 void TypeMatrix::dvorakP70(){
-  
+  KP(KEY_LEFT_ALT);
 };
 void TypeMatrix::dvorakR70(){
-  
+  KR(KEY_LEFT_ALT);
 };
 // Spc/Mte
 void TypeMatrix::dvorakP71(){
@@ -566,10 +629,14 @@ void TypeMatrix::dvorakR78(){
 };
 // RCtl/Ret
 void TypeMatrix::dvorakP79(){
-  
+  if(fn||keypad)
+    KP(KEY_RETURN); // FIXME keypad
+  else
+    KP(KEY_RIGHT_CTRL);
 };
 void TypeMatrix::dvorakR79(){
-  
+  KR(KEY_RETURN); // FIXME keypad
+  KR(KEY_RIGHT_CTRL);
 };
 // NLock
 void TypeMatrix::dvorakP80(){
@@ -594,10 +661,10 @@ void TypeMatrix::dvorakR82(){
 };
 // Menu/CC
 void TypeMatrix::dvorakP83(){
-  
+
 };
 void TypeMatrix::dvorakR83(){
-  
+
 };
 // /?5
 void TypeMatrix::dvorakP84(){
@@ -629,10 +696,10 @@ void TypeMatrix::dvorakR87(){
 };
 // RAlt/Nx
 void TypeMatrix::dvorakP88(){
-  
+  KP(KEY_RIGHT_ALT);
 };
 void TypeMatrix::dvorakR88(){
-  
+  KR(KEY_RIGHT_ALT);
 };
 // Dwn/00
 void TypeMatrix::dvorakP89(){

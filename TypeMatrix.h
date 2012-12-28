@@ -23,9 +23,9 @@ private:
   // States
   uint8_t numLock;
   uint8_t shift;
-  uint8_t capsLock;
   uint8_t keypad;
   uint8_t fn;
+  uint8_t capsLock;
   uint8_t dvorakQWERTY;
   uint8_t keyState[NUM_KEYS];
   // Dvorak

@@ -114,7 +114,6 @@ void TypeMatrix::dvorakP8(){
   }
 };
 void TypeMatrix::dvorakR8(){
-  
 };
 // Tab
 void TypeMatrix::dvorakP9(){
@@ -136,45 +135,77 @@ void TypeMatrix::dvorakR10(){
 };
 // F3
 void TypeMatrix::dvorakP11(){
-  
+  KP(KEY_F3);
 };
 void TypeMatrix::dvorakR11(){
-  
+  KR(KEY_F3);
 };
 // G
 void TypeMatrix::dvorakP12(){
-  
+  if(shift)
+    KP('I');
+  else
+    KP('i');
 };
 void TypeMatrix::dvorakR12(){
-  
+  KR('I');
+  KR('i');
 };
 // H/Home
 void TypeMatrix::dvorakP13(){
-  
+  if(fn||keypad)
+    KP(KEY_HOME);
+  else
+    if(shift)
+      KP('D');
+    else
+      KP('d');
 };
 void TypeMatrix::dvorakR13(){
-  
+  KR(KEY_HOME);
+  KR('D');
+  KR('d');
 };
 // ]}-
 void TypeMatrix::dvorakP14(){
-  
+  if(fn||keypad)
+    KP(KEY_KP_MINUS);
+  else
+    if(shift)
+      KP('+');
+    else
+      KP('=');
 };
 void TypeMatrix::dvorakR14(){
-  
+  KR(KEY_KP_MINUS);
+  KR('+');
+  KR('=');
 };
 // F7/Pwr
 void TypeMatrix::dvorakP15(){
-  
+  if(fn)
+    KP(KEY_POWER);
+  else
+    KP(KEY_F7);
 };
 void TypeMatrix::dvorakR15(){
-  
+  KR(KEY_POWER);
+  KR(KEY_F7);
 };
 // [{*
 void TypeMatrix::dvorakP16(){
-  
+  if(fn||keypad)
+    KP(KEY_KP_ASTERISK);
+  else
+    if(shift)
+      KP('?');
+    else
+      KP('/');
 };
 void TypeMatrix::dvorakR16(){
-  
+  KR(KEY_KP_ASTERISK);
+  KR('?');
+  KR('/');
 };
 // Bs/V+
 void TypeMatrix::dvorakP17(){
@@ -511,10 +542,14 @@ void TypeMatrix::dvorakR61(){
 };
 // Del/Ins
 void TypeMatrix::dvorakP62(){
-  
+  if(fn)
+    KP(KEY_INSERT);
+  else
+    KP(KEY_DELETE);
 };
 void TypeMatrix::dvorakR62(){
-  
+  KR(KEY_INSERT);
+  KR(KEY_DELETE);
 };
 // F4
 void TypeMatrix::dvorakP63(){

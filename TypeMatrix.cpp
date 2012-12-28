@@ -62,6 +62,7 @@ TypeMatrix::TypeMatrix(){
   shift=0;
   keypad=0;
   capsLock=0;
+  alt=0;
   fn=0;
   dvorakQWERTY=0; // FIXME load from EEPROM
   // Dvorak callbacks (should go to PROGMEM...)

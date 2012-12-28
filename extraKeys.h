@@ -16,7 +16,7 @@
 #define KEY_KP_8_UP			(96+136)
 #define KEY_KP_9_PAGE_UP		(97+136)
 #define KEY_KP_0_INSERT			(98+136)
-#define KEY_KP_._DELETE			(99+136)
+#define KEY_KP_DOT_DELETE		(99+136)
 #define KEY_APPLIC			(101+136)
 #define KEY_POWER			(102+136)
 #define KEY_KP_EQUALS			(103+136)

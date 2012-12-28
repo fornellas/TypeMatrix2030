@@ -1,6 +1,7 @@
 #include "TypeMatrix.h"
 
 #include <Arduino.h>
+#include "extraKeys.h"
 
 #define KP(key) Keyboard.press(key)
 #define KR(key) Keyboard.release(key)
@@ -89,7 +90,7 @@ void TypeMatrix::dvorakR6(){
 // P/
 void TypeMatrix::dvorakP7(){
   if(fn||numLock)
-    KP('/'); // FIXME keypad
+    KP(KEY_KP_SLASH);
   else
     if(shift)
       KP('L');
@@ -97,7 +98,7 @@ void TypeMatrix::dvorakP7(){
       KP('l');
 };
 void TypeMatrix::dvorakR7(){
-  KR('/');
+  KR(KEY_KP_SLASH);
   KR('L');
   KR('l');
 };
@@ -216,10 +217,10 @@ void TypeMatrix::dvorakR20(){
 };
 // Start
 void TypeMatrix::dvorakP21(){
-  
+  KP(KEY_LEFT_GUI);
 };
 void TypeMatrix::dvorakR21(){
-  
+  KR(KEY_LEFT_GUI);
 };
 // 1!
 void TypeMatrix::dvorakP22(){
@@ -406,7 +407,7 @@ void TypeMatrix::dvorakR47(){
 // RSft/+
 void TypeMatrix::dvorakP48(){
   if(shift||fn)
-    KP('+'); // FIXME keypad
+    KP(KEY_KP_PLUS);
   else {
     KP(KEY_RIGHT_SHIFT);
     shift=1;
@@ -414,7 +415,7 @@ void TypeMatrix::dvorakP48(){
 };
 void TypeMatrix::dvorakR48(){
   KR(KEY_RIGHT_SHIFT);
-  KR('+'); // FIXME keypad
+  KR(KEY_KP_PLUS);
   shift=0;
 };
 // Dsk/Pv
@@ -630,12 +631,12 @@ void TypeMatrix::dvorakR78(){
 // RCtl/Ret
 void TypeMatrix::dvorakP79(){
   if(fn||keypad)
-    KP(KEY_RETURN); // FIXME keypad
+    KP(KEY_KP_RETURN);
   else
     KP(KEY_RIGHT_CTRL);
 };
 void TypeMatrix::dvorakR79(){
-  KR(KEY_RETURN); // FIXME keypad
+  KR(KEY_KP_RETURN);
   KR(KEY_RIGHT_CTRL);
 };
 // NLock

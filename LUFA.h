@@ -1,5 +1,5 @@
-#ifndef TYPEMATRIX2030_H
-#define TYPEMATRIX2030_H
+#ifndef LUFA_H
+#define LUFA_H
 
 #include <avr/io.h>
 #include <avr/wdt.h>

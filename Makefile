@@ -63,6 +63,11 @@ MONITOR_PORT=/dev/serial/by-id/usb-TypeMatrix_2030_USB_Keyb_840323030343514161C1
 
 all:
 
+waitforport:
+	while ! [ -e $(AVRDUDE_PORT) ] ; do true ; done
+
+avrdude: waitforport
+
 monitor:
 	while ! [ -e $(MONITOR_PORT) ] ; do true ; done
 	screen $(MONITOR_PORT)

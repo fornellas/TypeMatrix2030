@@ -3,23 +3,25 @@
 
 #include <inttypes.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 #define NUM_KEYS 90
 
 class Keyboard {
 private:
+FILE *Stream;
   // reset MCP
-  inline void MCPreset(uint8_t ddr, uint8_t port, uint8_t bit);
+   void MCPreset(volatile uint8_t *ddr, volatile uint8_t *port, uint8_t bit);
   // writes two 8/16bit vales starting at baseReg address
-  inline void MCPwrite8(uint8_t i2cAddr, uint8_t baseReg, uint8_t v);
-  inline void MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2);
+   void MCPwrite8(uint8_t i2cAddr, uint8_t baseReg, uint8_t v);
+   void MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2);
   // reads 16bit values starting at baseReg
-  inline uint16_t MCPread16(uint8_t i2cAddr, uint8_t baseReg);
+   uint16_t MCPread16(uint8_t i2cAddr, uint8_t baseReg);
   // set lowPin to low and scan other asked pins for low signal. Last arg must be -1.
-  inline void scanPairs(uint8_t lowPin, ...);
+   void scanPairs(uint8_t lowPin, ...);
   // Process key event
-  inline void processRawEvent(uint8_t a, uint8_t b, uint8_t state);
-  inline void processKeyEvent(uint8_t key, uint8_t state);
+   void processRawEvent(uint8_t a, uint8_t b, uint8_t state);
+   void processKeyEvent(uint8_t key, uint8_t state);
   // key pressses
   void press(uint8_t key);
   void release(uint8_t key);
@@ -126,7 +128,7 @@ private:
   void dvorakP88(); void dvorakR88();
   void dvorakP89(); void dvorakR89();
 public:
-  Keyboard();
+  Keyboard(FILE *S);
   void scanAll();
 };
 

@@ -1,4 +1,6 @@
-#include "TypeMatrix2030.h"
+#include "LUFA.h"
+
+extern FILE USBSerialStream;
 
 /** Buffer to hold the previously generated Keyboard HID report, for comparison purposes inside the HID class driver. */
 static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
@@ -44,36 +46,6 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface = {
          },
      },
   };
-
-/** Standard file stream for the CDC interface when set up, so that the virtual CDC COM port can be
- *  used like any regular character stream in the C APIs
- */
-static FILE USBSerialStream;
-
-/** Main program entry point. This routine contains the overall program flow, including initial
- *  setup of all components and the main program loop.
- */
-int main(void){
-  SetupHardware();
-  LEDs_SetAllLEDs(LEDS_NO_LEDS);
-
-  /* Create a regular character stream for the interface so that it can be used with the stdio.h functions */
-  CDC_Device_CreateStream(&VirtualSerial_CDC_Interface, &USBSerialStream);
-
-  GlobalInterruptEnable();
-
-  for (;;){
-//    fputs("MainLoop\r\n", &USBSerialStream);
-
-    /* Must throw away unused bytes from the host, or it will lock up while waiting for the device */
-    CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
-    CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
-    // Keyboard
-    HID_Device_USBTask(&Keyboard_HID_Interface);
-
-    USB_USBTask();
-  }
-}
 
 /** Configures the board hardware and chip peripherals for the demo's functionality. */
 void SetupHardware(void){
@@ -145,6 +117,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint8_t ReportType,
                                           const void* ReportData,
                                           const uint16_t ReportSize){
+return;
   uint8_t  LEDMask   = LEDS_NO_LEDS;
   uint8_t* LEDReport = (uint8_t*)ReportData;
   if (*LEDReport & HID_KEYBOARD_LED_NUMLOCK)

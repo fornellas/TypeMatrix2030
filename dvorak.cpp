@@ -1,1031 +1,854 @@
-#include "TypeMatrix.h"
+#include "Keyboard.h"
 
-#include <Arduino.h>
+#include <LUFA/Drivers/USB/USB.h>
+
 #include "extraKeys.h"
 
-#define KP(key) Keyboard.press(key)
-#define KR(key) Keyboard.release(key)
+#define KP(key) press(key)
+#define KR(key) release(key)
 
 // Q
-void TypeMatrix::dvorakP0(){
-  if(shift)
-    KP('"');
-  else
-    KP('\'');
+void Keyboard::dvorakP0(){
+  KP(HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE);
 };
-void TypeMatrix::dvorakR0(){
-  KR('"');
-  KR('\'');
+void Keyboard::dvorakR0(){
+  KR(HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE);
 };
 // W
-void TypeMatrix::dvorakP1(){
-  if(shift)
-    KP('<');
-  else
-    KP(',');
+void Keyboard::dvorakP1(){
+  KP(HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN);
 };
-void TypeMatrix::dvorakR1(){
-  KR('<');
-  KR(',');
+void Keyboard::dvorakR1(){
+  KR(HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN);
 };
 // E
-void TypeMatrix::dvorakP2(){
-  if(shift)
-   KP('>');
-  else
-   KP('.');
+void Keyboard::dvorakP2(){
+  KP(HID_KEYBOARD_SC_DOT_AND_GREATER_THAN_SIGN);
 };
-void TypeMatrix::dvorakR2(){
-  KR('>');
-  KR('.');
+void Keyboard::dvorakR2(){
+  KR(HID_KEYBOARD_SC_DOT_AND_GREATER_THAN_SIGN);
 };
 // R
-void TypeMatrix::dvorakP3(){
-  if(shift)
-    KP('P');
-  else
-    KP('p');
+void Keyboard::dvorakP3(){
+  KP(HID_KEYBOARD_SC_P);
 };
-void TypeMatrix::dvorakR3(){
-  KR('P');
-  KR('p');
+void Keyboard::dvorakR3(){
+  KR(HID_KEYBOARD_SC_P);
 };
 // U
-void TypeMatrix::dvorakP4(){
-  if(shift)
-    KP('G');
-  else
-    KP('g');
+void Keyboard::dvorakP4(){
+  KP(HID_KEYBOARD_SC_G);
 };
-void TypeMatrix::dvorakR4(){
-  KR('G');
-  KR('g');
+void Keyboard::dvorakR4(){
+  KR(HID_KEYBOARD_SC_G);
 };
 // I
-void TypeMatrix::dvorakP5(){
-  if(shift)
-    KP('C');
-  else
-    KP('c');
+void Keyboard::dvorakP5(){
+  KP(HID_KEYBOARD_SC_C);
 };
-void TypeMatrix::dvorakR5(){
-  KR('C');
-  KR('c');
+void Keyboard::dvorakR5(){
+  KR(HID_KEYBOARD_SC_C);
 };
 // O/Tab
-void TypeMatrix::dvorakP6(){
+void Keyboard::dvorakP6(){
   if(fn||keypad)
-    KP(KEY_TAB);
+    KP(HID_KEYBOARD_SC_TAB );
   else
-    if(shift)
-      KP('R');
-    else
-      KP('r');
+    KP(HID_KEYBOARD_SC_R);
 };
-void TypeMatrix::dvorakR6(){
-  KR(KEY_TAB);
-  KR('R');
-  KR('r');
+void Keyboard::dvorakR6(){
+  KR(HID_KEYBOARD_SC_TAB );
+  KR(HID_KEYBOARD_SC_R);
 };
 // P/
-void TypeMatrix::dvorakP7(){
+void Keyboard::dvorakP7(){
   if(fn||keypad)
-    KP(KEY_KP_SLASH);
+    KP(HID_KEYBOARD_SC_KEYPAD_SLASH);
   else
-    if(shift)
-      KP('L');
-    else
-      KP('l');
+    KP(HID_KEYBOARD_SC_L);
 };
-void TypeMatrix::dvorakR7(){
-  KR(KEY_KP_SLASH);
-  KR('L');
-  KR('l');
+void Keyboard::dvorakR7(){
+  KR(HID_KEYBOARD_SC_KEYPAD_SLASH);
+  KR(HID_KEYBOARD_SC_L);
 };
 // Ply/CX
-void TypeMatrix::dvorakP8(){
+void Keyboard::dvorakP8(){
   if(fn){
-    KP(KEY_LEFT_CTRL);
-    KP('x');
-    KR('x');
-    KR(KEY_LEFT_CTRL);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+    KP(HID_KEYBOARD_SC_X);
+    KR(HID_KEYBOARD_SC_X);
+    KR(HID_KEYBOARD_SC_LEFT_CONTROL);
   }else{
-    // FIXME Play
+    KP(HID_KEYBOARD_SC_EXSEL);
   }
 };
-void TypeMatrix::dvorakR8(){
-  // FIXME Play
+void Keyboard::dvorakR8(){
+  KR(HID_KEYBOARD_SC_EXSEL);
 };
 // Tab
-void TypeMatrix::dvorakP9(){
-  KP(KEY_TAB);
+void Keyboard::dvorakP9(){
+  KP(HID_KEYBOARD_SC_TAB);
 };
-void TypeMatrix::dvorakR9(){
-  KR(KEY_TAB);
+void Keyboard::dvorakR9(){
+  KR(HID_KEYBOARD_SC_TAB);
 };
 // CapsLock/Clear
-void TypeMatrix::dvorakP10(){
+void Keyboard::dvorakP10(){
   if(fn||keypad){
-    ; // FIXME clear
+    KP(HID_KEYBOARD_SC_ERROR_ROLLOVER);
   }else{
-    KP(KEY_CAPS_LOCK);
+    KP(HID_KEYBOARD_SC_CAPS_LOCK);
   }
 };
-void TypeMatrix::dvorakR10(){
-  // FIXME clear
-  KR(KEY_CAPS_LOCK);
+void Keyboard::dvorakR10(){
+  KR(HID_KEYBOARD_SC_ERROR_ROLLOVER);
+  KR(HID_KEYBOARD_SC_CAPS_LOCK);
 };
 // F3
-void TypeMatrix::dvorakP11(){
-  KP(KEY_F3);
+void Keyboard::dvorakP11(){
+  KP(HID_KEYBOARD_SC_F3);
 };
-void TypeMatrix::dvorakR11(){
-  KR(KEY_F3);
+void Keyboard::dvorakR11(){
+  KR(HID_KEYBOARD_SC_F3);
 };
 // G
-void TypeMatrix::dvorakP12(){
-  if(shift)
-    KP('Y');
-  else
-    KP('y');
+void Keyboard::dvorakP12(){
+  KP(HID_KEYBOARD_SC_Y);
 };
-void TypeMatrix::dvorakR12(){
-  KR('Y');
-  KR('y');
+void Keyboard::dvorakR12(){
+  KR(HID_KEYBOARD_SC_Y);
 };
 // Y
-void TypeMatrix::dvorakP13(){
+void Keyboard::dvorakP13(){
   if(fn||keypad)
-    KP(KEY_HOME);
+    KP(HID_KEYBOARD_SC_HOME);
   else
-    if(shift)
-      KP('F');
-    else
-      KP('f');
+    KP(HID_KEYBOARD_SC_F);
 };
-void TypeMatrix::dvorakR13(){
-  KR(KEY_HOME);
-  KR('F');
-  KR('F');
+void Keyboard::dvorakR13(){
+  KR(HID_KEYBOARD_SC_HOME);
+  KR(HID_KEYBOARD_SC_F);
 };
 // ]}-
-void TypeMatrix::dvorakP14(){
+void Keyboard::dvorakP14(){
   if(fn||keypad)
-    KP(KEY_KP_MINUS);
+    KP(HID_KEYBOARD_SC_KEYPAD_MINUS);
   else
-    if(shift)
-      KP('+');
-    else
-      KP('=');
+    KP(HID_KEYBOARD_SC_EQUAL_AND_PLUS);
 };
-void TypeMatrix::dvorakR14(){
-  KR(KEY_KP_MINUS);
-  KR('+');
-  KR('=');
+void Keyboard::dvorakR14(){
+  KR(HID_KEYBOARD_SC_KEYPAD_MINUS);
+  KR(HID_KEYBOARD_SC_EQUAL_AND_PLUS);
 };
 // F7/Pwr
-void TypeMatrix::dvorakP15(){
+void Keyboard::dvorakP15(){
   if(fn)
-    KP(KEY_POWER); // FIXME not working
+    KP(HID_KEYBOARD_SC_POWER);
   else
-    KP(KEY_F7);
+    KP(HID_KEYBOARD_SC_F7);
 };
-void TypeMatrix::dvorakR15(){
-  KR(KEY_POWER);
-  KR(KEY_F7);
+void Keyboard::dvorakR15(){
+  KR(HID_KEYBOARD_SC_POWER);
+  KR(HID_KEYBOARD_SC_F7);
 };
 // [{*
-void TypeMatrix::dvorakP16(){
+void Keyboard::dvorakP16(){
   if(fn||keypad)
-    KP(KEY_KP_ASTERISK);
+    KP(HID_KEYBOARD_SC_KEYPAD_ASTERISK);
   else
-    if(shift)
-      KP('?');
-    else
-      KP('/');
+    KP(HID_KEYBOARD_SC_SLASH_AND_QUESTION_MARK);
 };
-void TypeMatrix::dvorakR16(){
-  KR(KEY_KP_ASTERISK);
-  KR('?');
-  KR('/');
+void Keyboard::dvorakR16(){
+  KR(HID_KEYBOARD_SC_KEYPAD_ASTERISK);
+  KR(HID_KEYBOARD_SC_SLASH_AND_QUESTION_MARK);
 };
 // Bs/V+
-void TypeMatrix::dvorakP17(){
+void Keyboard::dvorakP17(){
   if(fn)
-    KP(KEY_VOLUME_UP); // FIXME not working
+    KP(HID_KEYBOARD_SC_F24);
   else
-    KP(KEY_BACKSPACE);
+    KP(HID_KEYBOARD_SC_KEYPAD_BACKSPACE);
 };
-void TypeMatrix::dvorakR17(){
-  KR(KEY_VOLUME_UP);
-  KR(KEY_BACKSPACE);
+void Keyboard::dvorakR17(){
+  KR(HID_KEYBOARD_SC_F24);
+  KR(HID_KEYBOARD_SC_KEYPAD_BACKSPACE);
 };
 // Calc
-void TypeMatrix::dvorakP18(){
-  // FIXME calc
+void Keyboard::dvorakP18(){
+  KP(HID_KEYBOARD_SC_INTERNATIONAL6);
 };
-void TypeMatrix::dvorakR18(){
-  // FIXME calc
+void Keyboard::dvorakR18(){
+  KR(HID_KEYBOARD_SC_INTERNATIONAL6);
 };
 // LSft
-void TypeMatrix::dvorakP19(){
-  KP(KEY_LEFT_SHIFT);
+void Keyboard::dvorakP19(){
+  KP(HID_KEYBOARD_SC_LEFT_SHIFT);
   shift++;
 };
-void TypeMatrix::dvorakR19(){
-  KR(KEY_LEFT_SHIFT);
+void Keyboard::dvorakR19(){
+  KR(HID_KEYBOARD_SC_LEFT_SHIFT);
   shift--;
 };
 // AT/CV
-void TypeMatrix::dvorakP20(){
+void Keyboard::dvorakP20(){
   if(fn){
-    KP(KEY_LEFT_CTRL);
-    KP('v');
-    KR('v');
-    KR(KEY_LEFT_CTRL);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+    KP(HID_KEYBOARD_SC_V);
+    KR(HID_KEYBOARD_SC_V);
+    KR(HID_KEYBOARD_SC_LEFT_CONTROL);
   }else{
-    KP(KEY_LEFT_ALT);
-    KP(KEY_TAB);
-    KR(KEY_TAB);
+    KP(HID_KEYBOARD_SC_LEFT_ALT);
+    KP(HID_KEYBOARD_SC_TAB);
+    KR(HID_KEYBOARD_SC_TAB);
   }
 };
-void TypeMatrix::dvorakR20(){
-  KR(KEY_LEFT_ALT);
+void Keyboard::dvorakR20(){
+  KR(HID_KEYBOARD_SC_LEFT_ALT);
 };
 // Start
-void TypeMatrix::dvorakP21(){
-  KP(KEY_LEFT_GUI);
+void Keyboard::dvorakP21(){
+  KP(HID_KEYBOARD_SC_LEFT_GUI);
 };
-void TypeMatrix::dvorakR21(){
-  KR(KEY_LEFT_GUI);
+void Keyboard::dvorakR21(){
+  KR(HID_KEYBOARD_SC_LEFT_GUI);
 };
 // 1!
-void TypeMatrix::dvorakP22(){
-  if(shift)
-    KP('!');
-  else
-    KP('1');
+void Keyboard::dvorakP22(){
+  KP(HID_KEYBOARD_SC_1_AND_EXCLAMATION);
 };
-void TypeMatrix::dvorakR22(){
-  KR('!');
-  KR('1');
+void Keyboard::dvorakR22(){
+  KR(HID_KEYBOARD_SC_1_AND_EXCLAMATION);
 };
 // 2@
-void TypeMatrix::dvorakP23(){
-  if(shift)
-    KP('@');
-  else
-    KP('2');
+void Keyboard::dvorakP23(){
+  KP(HID_KEYBOARD_SC_2_AND_AT);
 };
-void TypeMatrix::dvorakR23(){
-  KR('@');
-  KR('2');
+void Keyboard::dvorakR23(){
+  KR(HID_KEYBOARD_SC_2_AND_AT);
 };
 // 3#
-void TypeMatrix::dvorakP24(){
-  if(shift)
-    KP('#');
-  else
-    KP('3');
+void Keyboard::dvorakP24(){
+  KP(HID_KEYBOARD_SC_3_AND_HASHMARK);
 };
-void TypeMatrix::dvorakR24(){
-  KR('#');
-  KR('3');
+void Keyboard::dvorakR24(){
+  KR(HID_KEYBOARD_SC_3_AND_HASHMARK);
 };
 // 4$
-void TypeMatrix::dvorakP25(){
-  if(shift)
-    KP('$');
-  else
-    KP('4');
+void Keyboard::dvorakP25(){
+  KP(HID_KEYBOARD_SC_4_AND_DOLLAR);
 };
-void TypeMatrix::dvorakR25(){
-  KR('$');
-  KR('4');
+void Keyboard::dvorakR25(){
+  KR(HID_KEYBOARD_SC_4_AND_DOLLAR);
 };
 // 7&
-void TypeMatrix::dvorakP26(){
-  if(shift)
-    KP('&');
-  else
-    KP('7');
+void Keyboard::dvorakP26(){
+  KP(HID_KEYBOARD_SC_7_AND_AND_AMPERSAND);
 };
-void TypeMatrix::dvorakR26(){
-  KR('&');
-  KR('7');
+void Keyboard::dvorakR26(){
+  KR(HID_KEYBOARD_SC_7_AND_AND_AMPERSAND);
 };
 // 8*
-void TypeMatrix::dvorakP27(){
-  if(shift)
-    KP('*');
-  else
-    KP('8');
+void Keyboard::dvorakP27(){
+  KP(HID_KEYBOARD_SC_8_AND_ASTERISK);
 };
-void TypeMatrix::dvorakR27(){
-  KR('*');
-  KR('8');
+void Keyboard::dvorakR27(){
+  KR(HID_KEYBOARD_SC_8_AND_ASTERISK);
 };
 // 9(
-void TypeMatrix::dvorakP28(){
-  if(shift)
-    KP('(');
-  else
-    KP('9');
+void Keyboard::dvorakP28(){
+  KP(HID_KEYBOARD_SC_9_AND_OPENING_PARENTHESIS);
 };
-void TypeMatrix::dvorakR28(){
-  KR('(');
-  KR('9');
+void Keyboard::dvorakR28(){
+  KR(HID_KEYBOARD_SC_9_AND_OPENING_PARENTHESIS);
 };
 // 0)
-void TypeMatrix::dvorakP29(){
-  if(shift)
-    KP(')');
-  else
-    KP('0');
+void Keyboard::dvorakP29(){
+  KP(HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS);
 };
-void TypeMatrix::dvorakR29(){
-  KR(')');
-  KR('0');
+void Keyboard::dvorakR29(){
+  KR(HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS);
 };
 // F10/PSc
-void TypeMatrix::dvorakP30(){
+void Keyboard::dvorakP30(){
   if(fn)
     if(alt)
-      KP(KEY_SYSRQ);
+      KP(HID_KEYBOARD_SC_SISREQ);
     else
-      KP(KEY_PRINT_SCREEN);
+      KP(HID_KEYBOARD_SC_PRINT_SCREEN);
   else
-    KP(KEY_F10);
+    KP(HID_KEYBOARD_SC_F10);
 };
-void TypeMatrix::dvorakR30(){
-  KR(KEY_SYSRQ);
-  KR(KEY_PRINT_SCREEN);
-  KR(KEY_F10);
+void Keyboard::dvorakR30(){
+  KR(HID_KEYBOARD_SC_SISREQ);
+  KR(HID_KEYBOARD_SC_PRINT_SCREEN);
+  KR(HID_KEYBOARD_SC_F10);
 };
 // End/3
-void TypeMatrix::dvorakP31(){
+void Keyboard::dvorakP31(){
   if(fn||keypad)
-    KP(KEY_KP_3_PAGE_DOWN);
+    KP(HID_KEYBOARD_SC_KEYPAD_3_AND_PAGE_DOWN);
   else
-    KP(KEY_END);
+    KP(HID_KEYBOARD_SC_END);
 };
-void TypeMatrix::dvorakR31(){
-  KR(KEY_KP_3_PAGE_DOWN);
-  KR(KEY_END);
+void Keyboard::dvorakR31(){
+  KR(HID_KEYBOARD_SC_KEYPAD_3_AND_PAGE_DOWN);
+  KR(HID_KEYBOARD_SC_END);
 };
 // PDwn/Nx
-void TypeMatrix::dvorakP32(){
+void Keyboard::dvorakP32(){
   if(fn)
-    ;// FIXME Next
+    KP(HID_KEYBOARD_SC_INTERNATIONAL6);
   else
-    KP(KEY_PAGE_DOWN);
+    KP(HID_KEYBOARD_SC_PAGE_DOWN);
 };
-void TypeMatrix::dvorakR32(){
-//  KR // FIXME Next
-  KR(KEY_PAGE_DOWN);
+void Keyboard::dvorakR32(){
+  KR(HID_KEYBOARD_SC_INTERNATIONAL6);
+  KR(HID_KEYBOARD_SC_PAGE_DOWN);
 };
 // F5
-void TypeMatrix::dvorakP33(){
-  KP(KEY_F5);
+void Keyboard::dvorakP33(){
+  KP(HID_KEYBOARD_SC_F5);
 };
-void TypeMatrix::dvorakR33(){
-  KR(KEY_F5);
+void Keyboard::dvorakR33(){
+  KR(HID_KEYBOARD_SC_F5);
 };
 // Fn
-void TypeMatrix::dvorakP34(){
+void Keyboard::dvorakP34(){
   fn=1;
 };
-void TypeMatrix::dvorakR34(){
+void Keyboard::dvorakR34(){
   fn=0;
 };
 // A
-void TypeMatrix::dvorakP35(){
-  if(shift)
-    KP('A');
-  else
-    KP('a');
+void Keyboard::dvorakP35(){
+  KP(HID_KEYBOARD_SC_A);
 };
-void TypeMatrix::dvorakR35(){
-  KR('A');
-  KR('a');
+void Keyboard::dvorakR35(){
+  KR(HID_KEYBOARD_SC_A);
 };
 // `~
-void TypeMatrix::dvorakP36(){
-  if(shift)
-    KP('~');
-  else
-    KP('`');
+void Keyboard::dvorakP36(){
+  KP(HID_KEYBOARD_SC_GRAVE_ACCENT_AND_TILDE);
 };
-void TypeMatrix::dvorakR36(){
-  KR('~');
-  KR('`');
+void Keyboard::dvorakR36(){
+  KR(HID_KEYBOARD_SC_GRAVE_ACCENT_AND_TILDE);
 };
 // Esc
-void TypeMatrix::dvorakP37(){
-  KP(KEY_ESC);
+void Keyboard::dvorakP37(){
+  KP(HID_KEYBOARD_SC_ESCAPE);
 };
-void TypeMatrix::dvorakR37(){
-  KR(KEY_ESC);
+void Keyboard::dvorakR37(){
+  KR(HID_KEYBOARD_SC_ESCAPE);
 };
 // Z
-void TypeMatrix::dvorakP38(){
-  if(shift)
-    KP(':');
-  else
-    KP(';');
+void Keyboard::dvorakP38(){
+  KP(HID_KEYBOARD_SC_SEMICOLON_AND_COLON);
 };
-void TypeMatrix::dvorakR38(){
-  KR(':');
-  KR(';');
+void Keyboard::dvorakR38(){
+  KR(HID_KEYBOARD_SC_SEMICOLON_AND_COLON);
 };
 // S
-void TypeMatrix::dvorakP39(){
-  if(shift)
-    KP('O');
-  else
-    KP('o');
+void Keyboard::dvorakP39(){
+  KP(HID_KEYBOARD_SC_O);
 };
-void TypeMatrix::dvorakR39(){
-  KR('O');
-  KR('o');
+void Keyboard::dvorakR39(){
+  KR(HID_KEYBOARD_SC_O);
 };
 // D
-void TypeMatrix::dvorakP40(){
-  if(shift)
-    KP('E');
-  else
-    KP('e');
+void Keyboard::dvorakP40(){
+  KP(HID_KEYBOARD_SC_E);
 };
-void TypeMatrix::dvorakR40(){
-  KR('E');
-  KR('e');
+void Keyboard::dvorakR40(){
+  KR(HID_KEYBOARD_SC_E);
 };
 // F
-void TypeMatrix::dvorakP41(){
-  if(shift)
-    KP('U');
-  else
-    KP('u');
+void Keyboard::dvorakP41(){
+  KP(HID_KEYBOARD_SC_U);
 };
-void TypeMatrix::dvorakR41(){
-  KR('U');
-  KR('u');
+void Keyboard::dvorakR41(){
+  KR(HID_KEYBOARD_SC_U);
 };
 // J/Up
-void TypeMatrix::dvorakP42(){
+void Keyboard::dvorakP42(){
   if(fn||keypad)
-    KP(KEY_UP_ARROW);
+    KP(HID_KEYBOARD_SC_UP_ARROW);
   else
-    if(shift)
-      KP('H');
-    else
-      KP('h');
+    KP(HID_KEYBOARD_SC_H);
 };
-void TypeMatrix::dvorakR42(){
-  KR(KEY_UP_ARROW);
-  KR('H');
-  KR('h');
+void Keyboard::dvorakR42(){
+  KR(HID_KEYBOARD_SC_UP_ARROW);
+  KR(HID_KEYBOARD_SC_H);
 };
 // K/End
-void TypeMatrix::dvorakP43(){
+void Keyboard::dvorakP43(){
   if(fn||keypad)
-    KP(KEY_END);
+    KP(HID_KEYBOARD_SC_END);
   else
-    if(shift)
-      KP('T');
-    else
-      KP('t');
+    KP(HID_KEYBOARD_SC_T);
 };
-void TypeMatrix::dvorakR43(){
-  KR(KEY_END);
-  KR('T');
-  KR('t');
+void Keyboard::dvorakR43(){
+  KR(HID_KEYBOARD_SC_END);
+  KR(HID_KEYBOARD_SC_T);
 };
 // L/7
-void TypeMatrix::dvorakP44(){
+void Keyboard::dvorakP44(){
   if(fn||keypad)
-    KP(KEY_KP_7_HOME);
+    KP(HID_KEYBOARD_SC_KEYPAD_7_AND_HOME);
   else
-    if(shift)
-      KP('N');
-    else
-      KP('n');
+    KP(HID_KEYBOARD_SC_N);
 };
-void TypeMatrix::dvorakR44(){
-  KR(KEY_KP_7_HOME);
-  KR('N');
-  KR('n');
+void Keyboard::dvorakR44(){
+  KR(HID_KEYBOARD_SC_KEYPAD_7_AND_HOME);
+  KR(HID_KEYBOARD_SC_N);
 };
 // ;:8
-void TypeMatrix::dvorakP45(){
+void Keyboard::dvorakP45(){
   if(fn||keypad)
-    KP(KEY_KP_8_UP);
+    KP(HID_KEYBOARD_SC_KEYPAD_8_AND_UP_ARROW);
   else
-    if(shift)
-      KP('S');
-    else
-      KP('s');
+    KP(HID_KEYBOARD_SC_S);
 };
-void TypeMatrix::dvorakR45(){
-  KR(KEY_KP_8_UP);
-  KR('S');
-  KR('s');
+void Keyboard::dvorakR45(){
+  KR(HID_KEYBOARD_SC_KEYPAD_8_AND_UP_ARROW);
+  KR(HID_KEYBOARD_SC_S);
 };
 // \|6
-void TypeMatrix::dvorakP46(){
+void Keyboard::dvorakP46(){
   if(fn||keypad)
-    KP(KEY_KP_6_RIGHT);
+    KP(HID_KEYBOARD_SC_KEYPAD_6_AND_RIGHT_ARROW);
   else
-    if(shift)
-      KP('|');
-    else
-      KP('\\');
+    KP(HID_KEYBOARD_SC_NON_US_BACKSLASH_AND_PIPE);
 };
-void TypeMatrix::dvorakR46(){
-  KR(KEY_KP_6_RIGHT);
-  KR('|');
-  KR('\\');
+void Keyboard::dvorakR46(){
+  KR(HID_KEYBOARD_SC_KEYPAD_6_AND_RIGHT_ARROW);
+  KR(HID_KEYBOARD_SC_NON_US_BACKSLASH_AND_PIPE);
 };
 // www/Bs
-void TypeMatrix::dvorakP47(){
+void Keyboard::dvorakP47(){
   if(fn||keypad)
-    KP(KEY_BACKSPACE);
+    KP(HID_KEYBOARD_SC_KEYPAD_BACKSPACE);
   else
-    ; // FIXME www
+    KP(KEY_WWW);
 };
-void TypeMatrix::dvorakR47(){
-  KR(KEY_BACKSPACE);
-  // FIXME www
+void Keyboard::dvorakR47(){
+  KR(HID_KEYBOARD_SC_KEYPAD_BACKSPACE);
+  KR(KEY_WWW);
 };
 // RSft/+
-void TypeMatrix::dvorakP48(){
+void Keyboard::dvorakP48(){
   if(fn||keypad)
-    KP(KEY_KP_PLUS);
+    KP(HID_KEYBOARD_SC_KEYPAD_PLUS);
   else {
-    KP(KEY_RIGHT_SHIFT);
+    KP(HID_KEYBOARD_SC_RIGHT_SHIFT);
     shift++;
   }
 };
-void TypeMatrix::dvorakR48(){
-  KR(KEY_RIGHT_SHIFT);
-  KR(KEY_KP_PLUS);
+void Keyboard::dvorakR48(){
+  KR(HID_KEYBOARD_SC_KEYPAD_PLUS);
+  KR(HID_KEYBOARD_SC_RIGHT_SHIFT);
   shift--;
 };
 // Dsk/Pv
-void TypeMatrix::dvorakP49(){
-  // FIXME Deskpot
-  // FIXME Prev
+void Keyboard::dvorakP49(){
+  if(fn)
+    KP(KEY_MEDIA_PREV);
+  else{
+    KP(HID_KEYBOARD_SC_LEFT_GUI);
+    KP(HID_KEYBOARD_SC_D);
+    KR(HID_KEYBOARD_SC_D);
+    KR(HID_KEYBOARD_SC_LEFT_GUI);
+  }
 };
-void TypeMatrix::dvorakR49(){
-  // FIXME Desktop
-  // FIXME Prev
+void Keyboard::dvorakR49(){
+  KR(KEY_MEDIA_PREV);
 };
 // F1/Dvk
-void TypeMatrix::dvorakP50(){
+void Keyboard::dvorakP50(){
   if(fn)
     dvorakQWERTY=!dvorakQWERTY;
   else
-    KP(KEY_F1);
+    KP(HID_KEYBOARD_SC_F1);
 };
-void TypeMatrix::dvorakR50(){
-  KR(KEY_F1);
+void Keyboard::dvorakR50(){
+  KR(HID_KEYBOARD_SC_F1);
 };
 // F2
-void TypeMatrix::dvorakP51(){
-  KP(KEY_F2);
+void Keyboard::dvorakP51(){
+  KP(HID_KEYBOARD_SC_F2);
 };
-void TypeMatrix::dvorakR51(){
-  KR(KEY_F2);
+void Keyboard::dvorakR51(){
+  KR(HID_KEYBOARD_SC_F2);
 };
 // 5%
-void TypeMatrix::dvorakP52(){
-  if(shift)
-    KP('%');
-  else
-    KP('5');
+void Keyboard::dvorakP52(){
+  KP(HID_KEYBOARD_SC_5_AND_PERCENTAGE);
 };
-void TypeMatrix::dvorakR52(){
-  KR('%');
-  KR('5');
+void Keyboard::dvorakR52(){
+  KR(HID_KEYBOARD_SC_5_AND_PERCENTAGE);
 };
 // 6^
-void TypeMatrix::dvorakP53(){
-  if(shift)
-    KP('^');
-  else
-    KP('6');
+void Keyboard::dvorakP53(){
+  KP(HID_KEYBOARD_SC_6_AND_CARET);
 };
-void TypeMatrix::dvorakR53(){
-  KR('^');
-  KR('6');
+void Keyboard::dvorakR53(){
+  KR(HID_KEYBOARD_SC_6_AND_CARET);
 };
 // =+
-void TypeMatrix::dvorakP54(){
-  if(shift)
-    KP('}');
-  else
-    KP(']');
+void Keyboard::dvorakP54(){
+  KP(HID_KEYBOARD_SC_CLOSING_BRACKET_AND_CLOSING_BRACE);
 };
-void TypeMatrix::dvorakR54(){
-  KR('}');
-  KR(']');
+void Keyboard::dvorakR54(){
+  KR(HID_KEYBOARD_SC_CLOSING_BRACKET_AND_CLOSING_BRACE);
 };
 // F8/Slp
-void TypeMatrix::dvorakP55(){
+void Keyboard::dvorakP55(){
   if(fn)
-    ; // FIXME sleep
+    KP(HID_KEYBOARD_SC_INTERNATIONAL8);
   else
-    KP(KEY_F8);
+    KP(HID_KEYBOARD_SC_F8);
 };
-void TypeMatrix::dvorakR55(){
-  // FIXME sleep
-  KR(KEY_F8);
+void Keyboard::dvorakR55(){
+  KR(HID_KEYBOARD_SC_INTERNATIONAL8);
+  KR(HID_KEYBOARD_SC_F8);
 };
 // -_
-void TypeMatrix::dvorakP56(){
-  if(shift)
-    KP('{');
-  else
-    KP('[');
+void Keyboard::dvorakP56(){
+  KP(HID_KEYBOARD_SC_OPENING_BRACKET_AND_OPENING_BRACE);
 };
-void TypeMatrix::dvorakR56(){
-  KR('{');
-  KR('[');
+void Keyboard::dvorakR56(){
+  KR(HID_KEYBOARD_SC_OPENING_BRACKET_AND_OPENING_BRACE);
 };
 // F9/Wke
-void TypeMatrix::dvorakP57(){
+void Keyboard::dvorakP57(){
   if(fn)
-    ; // FIXME wake
+    KP(HID_KEYBOARD_SC_INTERNATIONAL9);
   else
-    KP(KEY_F9);
+    KP(HID_KEYBOARD_SC_F9);
 };
-void TypeMatrix::dvorakR57(){
-  // FIXME wake
-  KR(KEY_F9);
+void Keyboard::dvorakR57(){
+  KR(HID_KEYBOARD_SC_INTERNATIONAL9);
+  KR(HID_KEYBOARD_SC_F9);
 };
 // Home/1
-void TypeMatrix::dvorakP58(){
+void Keyboard::dvorakP58(){
   if(fn||keypad)
-    KP(KEY_KP_1_END);
+    KP(HID_KEYBOARD_SC_KEYPAD_1_AND_END);
   else
-    KP(KEY_HOME);
+    KP(HID_KEYBOARD_SC_HOME);
 };
-void TypeMatrix::dvorakR58(){
-  KR(KEY_KP_1_END);
-  KR(KEY_HOME);
+void Keyboard::dvorakR58(){
+  KR(HID_KEYBOARD_SC_KEYPAD_1_AND_END);
+  KR(HID_KEYBOARD_SC_HOME);
 };
 // PUp/Bck
-void TypeMatrix::dvorakP59(){
+void Keyboard::dvorakP59(){
   if(fn)
-    ; // FIXME back
+    KP(HID_KEYBOARD_SC_RETURN);
   else
-    KP(KEY_PAGE_UP);
+    KP(HID_KEYBOARD_SC_PAGE_UP);
 };
-void TypeMatrix::dvorakR59(){
-  // FIXME back
-  KR(KEY_PAGE_UP);
+void Keyboard::dvorakR59(){
+  KR(HID_KEYBOARD_SC_RETURN);
+  KR(HID_KEYBOARD_SC_PAGE_UP);
 };
 // LCtrl
-void TypeMatrix::dvorakP60(){
-  KP(KEY_LEFT_CTRL);
+void Keyboard::dvorakP60(){
+  KP(HID_KEYBOARD_SC_LEFT_CONTROL);
 };
-void TypeMatrix::dvorakR60(){
-  KR(KEY_LEFT_CTRL);
+void Keyboard::dvorakR60(){
+  KR(HID_KEYBOARD_SC_LEFT_CONTROL);
 };
 // Mil/BTb
-void TypeMatrix::dvorakP61(){
-  // FIXME Mail
-  // FIXME BackTab
+void Keyboard::dvorakP61(){
+  if(fn){
+    KP(HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN);
+    KP(HID_KEYBOARD_SC_L);
+    KR(HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN);
+    KR(HID_KEYBOARD_SC_L);
+  }else
+    KP(HID_KEYBOARD_SC_CANCEL);
 };
-void TypeMatrix::dvorakR61(){
-  // FIXME Mail
-  // FIXME BackTab
+void Keyboard::dvorakR61(){
+  KR(HID_KEYBOARD_SC_CANCEL);
 };
 // Del/Ins
-void TypeMatrix::dvorakP62(){
+void Keyboard::dvorakP62(){
   if(fn)
-    KP(KEY_INSERT);
+    KP(HID_KEYBOARD_SC_INSERT);
   else
-    KP(KEY_DELETE);
+    KP(HID_KEYBOARD_SC_DELETE);
 };
-void TypeMatrix::dvorakR62(){
-  KR(KEY_INSERT);
-  KR(KEY_DELETE);
+void Keyboard::dvorakR62(){
+  KR(HID_KEYBOARD_SC_INSERT);
+  KR(HID_KEYBOARD_SC_DELETE);
 };
 // F4
-void TypeMatrix::dvorakP63(){
-  KP(KEY_F4);
+void Keyboard::dvorakP63(){
+  KP(HID_KEYBOARD_SC_F4);
 };
-void TypeMatrix::dvorakR63(){
-  KR(KEY_F4);
+void Keyboard::dvorakR63(){
+  KR(HID_KEYBOARD_SC_F4);
 };
 // G
-void TypeMatrix::dvorakP64(){
-  if(shift)
-    KP('I');
-  else
-    KP('i');
+void Keyboard::dvorakP64(){
+  KP(HID_KEYBOARD_SC_I);
 };
-void TypeMatrix::dvorakR64(){
-  KR('I');
-  KR('i');
+void Keyboard::dvorakR64(){
+  KR(HID_KEYBOARD_SC_I);
 };
 // D/Home
-void TypeMatrix::dvorakP65(){
+void Keyboard::dvorakP65(){
   if(fn||keypad)
-    KP(KEY_HOME);
+    KP(HID_KEYBOARD_SC_HOME);
   else
-    if(shift)
-      KP('D');
-    else
-      KP('d');
+    KP(HID_KEYBOARD_SC_D);
 };
-void TypeMatrix::dvorakR65(){
-  KR(KEY_HOME);
-  KR('D');
-  KR('d');
+void Keyboard::dvorakR65(){
+  KR(HID_KEYBOARD_SC_HOME);
+  KR(HID_KEYBOARD_SC_D);
 };
 // F6/Ejct
-void TypeMatrix::dvorakP66(){
+void Keyboard::dvorakP66(){
   if(fn)
-    ; // FIXME Eject
+    KP(HID_KEYBOARD_SC_OPER);
   else
-    KP(KEY_F6);
+    KP(HID_KEYBOARD_SC_F6);
 };
-void TypeMatrix::dvorakR66(){
-  // FIXME Eject
-  KR(KEY_F6);
+void Keyboard::dvorakR66(){
+  KR(HID_KEYBOARD_SC_OPER);
+  KR(HID_KEYBOARD_SC_F6);
 };
 // '"9
-void TypeMatrix::dvorakP67(){
+void Keyboard::dvorakP67(){
   if(fn||keypad)
-    KP(KEY_KP_9_PAGE_UP);
+    KP(HID_KEYBOARD_SC_KEYPAD_9_AND_PAGE_UP);
   else
-    if(shift)
-      KP('_');
-    else
-      KP('-');
+    KP(HID_KEYBOARD_SC_MINUS_AND_UNDERSCORE);
 };
-void TypeMatrix::dvorakR67(){
-  KR(KEY_KP_9_PAGE_UP);
-  KR('_');
-  KR('-');
+void Keyboard::dvorakR67(){
+  KR(HID_KEYBOARD_SC_KEYPAD_9_AND_PAGE_UP);
+  KR(HID_KEYBOARD_SC_MINUS_AND_UNDERSCORE);
 };
 // F11/SLk
-void TypeMatrix::dvorakP68(){
+void Keyboard::dvorakP68(){
   if(fn)
-    KP(KEY_SCROLL_LOCK);
+    KP(HID_KEYBOARD_SC_SCROLL_LOCK);
   else
-    KP(KEY_F11);
+    KP(HID_KEYBOARD_SC_F11);
 };
-void TypeMatrix::dvorakR68(){
-  KR(KEY_SCROLL_LOCK);
-  KR(KEY_F11);
+void Keyboard::dvorakR68(){
+  KR(HID_KEYBOARD_SC_SCROLL_LOCK);
+  KR(HID_KEYBOARD_SC_F11);
 };
 // Up/2
-void TypeMatrix::dvorakP69(){
+void Keyboard::dvorakP69(){
   if(fn||keypad)
-    KP(KEY_KP_2_DOWN);
+    KP(HID_KEYBOARD_SC_KEYPAD_2_AND_DOWN_ARROW);
   else
-    KP(KEY_UP_ARROW);
+    KP(HID_KEYBOARD_SC_UP_ARROW);
 };
-void TypeMatrix::dvorakR69(){
-  KR(KEY_KP_2_DOWN);
-  KR(KEY_UP_ARROW);
+void Keyboard::dvorakR69(){
+  KR(HID_KEYBOARD_SC_KEYPAD_2_AND_DOWN_ARROW);
+  KR(HID_KEYBOARD_SC_UP_ARROW);
 };
 // LAlt
-void TypeMatrix::dvorakP70(){
-  KP(KEY_LEFT_ALT);
+void Keyboard::dvorakP70(){
+  KP(HID_KEYBOARD_SC_LEFT_ALT);
   alt++;
 };
-void TypeMatrix::dvorakR70(){
-  KR(KEY_LEFT_ALT);
+void Keyboard::dvorakR70(){
+  KR(HID_KEYBOARD_SC_LEFT_ALT);
   alt--;
 };
 // Spc/Mte
-void TypeMatrix::dvorakP71(){
+void Keyboard::dvorakP71(){
   if(fn)
-    KP(KEY_MUTE);
+    KP(HID_KEYBOARD_SC_F22);
   else
-    KP(' ');
+    KP(HID_KEYBOARD_SC_SPACE);
 };
-void TypeMatrix::dvorakR71(){
-  KR(KEY_MUTE);
-  KR(' ');
+void Keyboard::dvorakR71(){
+  KR(HID_KEYBOARD_SC_F22);
+  KR(HID_KEYBOARD_SC_SPACE);
 };
 // X
-void TypeMatrix::dvorakP72(){
-  if(shift)
-    KP('Q');
-  else
-    KP('q');
+void Keyboard::dvorakP72(){
+  KP(HID_KEYBOARD_SC_Q);
 };
-void TypeMatrix::dvorakR72(){
-  KR('Q');
-  KR('q');
+void Keyboard::dvorakR72(){
+  KR(HID_KEYBOARD_SC_Q);
 };
 // C
-void TypeMatrix::dvorakP73(){
-  if(shift)
-    KP('J');
-  else
-    KP('j');
+void Keyboard::dvorakP73(){
+  KP(HID_KEYBOARD_SC_J);
 };
-void TypeMatrix::dvorakR73(){
-  KR('J');
-  KR('j');
+void Keyboard::dvorakR73(){
+  KR(HID_KEYBOARD_SC_J);
 };
 // V
-void TypeMatrix::dvorakP74(){
-  if(shift)
-    KP('K');
-  else
-    KP('k');
+void Keyboard::dvorakP74(){
+  KP(HID_KEYBOARD_SC_K);
 };
-void TypeMatrix::dvorakR74(){
-  KR('K');
-  KR('k');
+void Keyboard::dvorakR74(){
+  KR(HID_KEYBOARD_SC_K);
 };
 // M/Dwn
-void TypeMatrix::dvorakP75(){
+void Keyboard::dvorakP75(){
   if(fn||keypad)
-    KP(KEY_DOWN_ARROW);
+    KP(HID_KEYBOARD_SC_DOWN_ARROW);
   else
-    if(shift)
-      KP('M');
-    else
-      KP('m');
+    KP(HID_KEYBOARD_SC_M);
 };
-void TypeMatrix::dvorakR75(){
-  KR(KEY_DOWN_ARROW);
-  KR('M');
-  KR('m');
+void Keyboard::dvorakR75(){
+  KR(HID_KEYBOARD_SC_DOWN_ARROW);
+  KR(HID_KEYBOARD_SC_M);
 };
 // ,</Rgt
-void TypeMatrix::dvorakP76(){
+void Keyboard::dvorakP76(){
   if(fn||keypad)
-    KP(KEY_RIGHT_ARROW);
+    KP(HID_KEYBOARD_SC_RIGHT_ARROW);
   else
-    if(shift)
-      KP('W');
-    else
-      KP('w');
+    KP(HID_KEYBOARD_SC_W);
 };
-void TypeMatrix::dvorakR76(){
-  KR(KEY_RIGHT_ARROW);
-  KR('W');
-  KR('w');
+void Keyboard::dvorakR76(){
+  KR(HID_KEYBOARD_SC_RIGHT_ARROW);
+  KR(HID_KEYBOARD_SC_W);
 };
 // .>4
-void TypeMatrix::dvorakP77(){
+void Keyboard::dvorakP77(){
   if(fn||keypad)
-    KP(KEY_KP_4_LEFT);
+    KP(HID_KEYBOARD_SC_KEYPAD_4_AND_LEFT_ARROW);
   else
-    if(shift)
-      KP('V');
-    else
-      KP('v');
+    KP(HID_KEYBOARD_SC_V);
 };
-void TypeMatrix::dvorakR77(){
-  KR(KEY_KP_4_LEFT);
-  KR('V');
-  KR('v');
+void Keyboard::dvorakR77(){
+  KR(HID_KEYBOARD_SC_KEYPAD_4_AND_LEFT_ARROW);
+  KR(HID_KEYBOARD_SC_V);
 };
 // Ret/V-
-void TypeMatrix::dvorakP78(){
+void Keyboard::dvorakP78(){
   if(fn)
-    KP(KEY_VOLUME_DOWN);
+    KP(HID_KEYBOARD_SC_F23);
   else
-    KP(KEY_RETURN);
+    KP(HID_KEYBOARD_SC_ENTER);
 };
-void TypeMatrix::dvorakR78(){
-  KR(KEY_VOLUME_DOWN);
-  KR(KEY_RETURN);  
+void Keyboard::dvorakR78(){
+  KR(HID_KEYBOARD_SC_F23);
+  KR(HID_KEYBOARD_SC_ENTER);
 };
 // RCtl/Ret
-void TypeMatrix::dvorakP79(){
+void Keyboard::dvorakP79(){
   if(fn||keypad)
-    KP(KEY_KP_RETURN);
+    KP(HID_KEYBOARD_SC_KEYPAD_ENTER);
   else
-    KP(KEY_RIGHT_CTRL);
+    KP(HID_KEYBOARD_SC_RIGHT_CONTROL);
 };
-void TypeMatrix::dvorakR79(){
-  KR(KEY_KP_RETURN);
-  KR(KEY_RIGHT_CTRL);
+void Keyboard::dvorakR79(){
+  KR(HID_KEYBOARD_SC_KEYPAD_ENTER);
+  KR(HID_KEYBOARD_SC_RIGHT_CONTROL);
 };
 // NLock
-void TypeMatrix::dvorakP80(){
+void Keyboard::dvorakP80(){
   if(fn)
-    KP(KEY_NUM_LOCK);
+    KP(HID_KEYBOARD_SC_NUM_LOCK);
   else
     keypad=!keypad;
 };
-void TypeMatrix::dvorakR80(){
-  KR(KEY_NUM_LOCK);
+void Keyboard::dvorakR80(){
+  KR(HID_KEYBOARD_SC_NUM_LOCK);
 };
 // B
-void TypeMatrix::dvorakP81(){
-  if(shift)
-    KP('X');
-  else
-    KP('x');
+void Keyboard::dvorakP81(){
+  KP(HID_KEYBOARD_SC_X);
 };
-void TypeMatrix::dvorakR81(){
-  KR('X');
-  KR('x');
+void Keyboard::dvorakR81(){
+  KR(HID_KEYBOARD_SC_X);
 };
 // N/Left
-void TypeMatrix::dvorakP82(){
+void Keyboard::dvorakP82(){
   if(fn||keypad)
-    KP(KEY_LEFT_ARROW);
+    KP(HID_KEYBOARD_SC_LEFT_ARROW);
   else
-    if(shift)
-      KP('B');
-    else
-      KP('b');
+    KP(HID_KEYBOARD_SC_B);
 };
-void TypeMatrix::dvorakR82(){
-  KR(KEY_LEFT_ARROW);
-  KR('B');
-  KR('b');
+void Keyboard::dvorakR82(){
+  KR(HID_KEYBOARD_SC_LEFT_ARROW);
+  KR(HID_KEYBOARD_SC_B);
 };
 // Menu/CC
-void TypeMatrix::dvorakP83(){
+void Keyboard::dvorakP83(){
   if(fn){
-    KP(KEY_RIGHT_CTRL);
-    KP('c');
-    KR('c');
-    KR(KEY_RIGHT_CTRL);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+    KP(HID_KEYBOARD_SC_C);
+    KR(HID_KEYBOARD_SC_C);
+    KR(HID_KEYBOARD_SC_LEFT_CONTROL);
   }else
-    KP(KEY_MENU);
+    KP(HID_KEYBOARD_SC_MUTE);
 };
-void TypeMatrix::dvorakR83(){
-  KR(KEY_MENU);
+void Keyboard::dvorakR83(){
+  KR(HID_KEYBOARD_SC_MUTE);
 };
 // /?5
-void TypeMatrix::dvorakP84(){
+void Keyboard::dvorakP84(){
   if(fn||keypad)
-    KP(KEY_KP_5);
+    KP(HID_KEYBOARD_SC_KEYPAD_5);
   else
-    if(shift)
-      KP('Z');
-    else
-      KP('z');
+    KP(HID_KEYBOARD_SC_Z);
 };
-void TypeMatrix::dvorakR84(){
-  KR(KEY_KP_5);
-  KR('Z');
-  KR('z');
+void Keyboard::dvorakR84(){
+  KR(HID_KEYBOARD_SC_KEYPAD_5);
+  KR(HID_KEYBOARD_SC_Z);
 };
 // F12/Pse
-void TypeMatrix::dvorakP85(){
+void Keyboard::dvorakP85(){
   if(fn)
-    ; // FIXME pause
+    KP(HID_KEYBOARD_SC_SELECT);
   else
-    KP(KEY_F12);
+    KP(HID_KEYBOARD_SC_F12);
 };
-void TypeMatrix::dvorakR85(){
-  // FIXME pause
-  KR(KEY_F12);
+void Keyboard::dvorakR85(){
+  KR(HID_KEYBOARD_SC_SELECT);
+  KR(HID_KEYBOARD_SC_F12);
 };
 // Left/0
-void TypeMatrix::dvorakP86(){
+void Keyboard::dvorakP86(){
   if(fn||keypad)
-    KP(KEY_KP_0_INSERT);
+    KP(HID_KEYBOARD_SC_KEYPAD_0_AND_INSERT);
   else
-    KP(KEY_LEFT_ARROW);
+    KP(HID_KEYBOARD_SC_LEFT_ARROW);
 };
-void TypeMatrix::dvorakR86(){
-  KR(KEY_KP_0_INSERT);
-  KR(KEY_LEFT_ARROW);
+void Keyboard::dvorakR86(){
+  KR(HID_KEYBOARD_SC_KEYPAD_0_AND_INSERT);
+  KR(HID_KEYBOARD_SC_LEFT_ARROW);
 };
 // Rght/.
-void TypeMatrix::dvorakP87(){
+void Keyboard::dvorakP87(){
   if(fn||keypad)
-    KP(KEY_KP_DOT_DELETE);
+    KP(HID_KEYBOARD_SC_KEYPAD_DOT_AND_DELETE);
   else
-    KP(KEY_RIGHT_ARROW);
+    KP(HID_KEYBOARD_SC_RIGHT_ARROW);
 };
-void TypeMatrix::dvorakR87(){
-  KR(KEY_KP_DOT_DELETE);
-  KR(KEY_RIGHT_ARROW);
+void Keyboard::dvorakR87(){
+  KR(HID_KEYBOARD_SC_KEYPAD_DOT_AND_DELETE);
+  KR(HID_KEYBOARD_SC_RIGHT_ARROW);
 };
 // RAlt/Nx
-void TypeMatrix::dvorakP88(){
-  KP(KEY_RIGHT_ALT);
+void Keyboard::dvorakP88(){
+  KP(HID_KEYBOARD_SC_RIGHT_ALT);
   alt++;
 };
-void TypeMatrix::dvorakR88(){
-  KR(KEY_RIGHT_ALT);
+void Keyboard::dvorakR88(){
+  KR(HID_KEYBOARD_SC_RIGHT_ALT);
   alt--;
 };
 // Dwn/00
-void TypeMatrix::dvorakP89(){
+void Keyboard::dvorakP89(){
   if(fn||keypad)
-    Keyboard.print("00");
+    KP(HID_KEYBOARD_SC_KEYPAD_00);
   else
-    KP(KEY_DOWN_ARROW);
+    KP(HID_KEYBOARD_SC_DOWN_ARROW);
 };
-void TypeMatrix::dvorakR89(){
-  KR(KEY_DOWN_ARROW);
+void Keyboard::dvorakR89(){
+  KR(HID_KEYBOARD_SC_KEYPAD_00);
+  KR(HID_KEYBOARD_SC_DOWN_ARROW);
 };

@@ -1,15 +1,15 @@
-#ifndef TypeMatrix_h
-#define TypeMatrix_h
+#ifndef Keyboard_h
+#define Keyboard_h
 
 #include <inttypes.h>
 #include <stdarg.h>
 
 #define NUM_KEYS 90
 
-class TypeMatrix {
+class Keyboard {
 private:
   // reset MCP
-  inline void MCPreset(uint8_t pin);
+  inline void MCPreset(uint8_t ddr, uint8_t port, uint8_t bit);
   // writes two 8/16bit vales starting at baseReg address
   inline void MCPwrite8(uint8_t i2cAddr, uint8_t baseReg, uint8_t v);
   inline void MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2);
@@ -20,6 +20,9 @@ private:
   // Process key event
   inline void processRawEvent(uint8_t a, uint8_t b, uint8_t state);
   inline void processKeyEvent(uint8_t key, uint8_t state);
+  // key pressses
+  void press(uint8_t key);
+  void release(uint8_t key);
   // States
   uint8_t numLock;
   uint8_t shift;
@@ -30,8 +33,8 @@ private:
   uint8_t dvorakQWERTY;
   uint8_t keyState[NUM_KEYS];
   // Dvorak
-  void (TypeMatrix::*dvorakPressed[NUM_KEYS])();
-  void (TypeMatrix::*dvorakReleased[NUM_KEYS])();
+  void (Keyboard::*dvorakPressed[NUM_KEYS])();
+  void (Keyboard::*dvorakReleased[NUM_KEYS])();
   void dvorakP0(); void dvorakR0();
   void dvorakP1(); void dvorakR1();
   void dvorakP2(); void dvorakR2();
@@ -123,7 +126,7 @@ private:
   void dvorakP88(); void dvorakR88();
   void dvorakP89(); void dvorakR89();
 public:
-  TypeMatrix();
+  Keyboard();
   void scanAll();
 };
 

@@ -1,59 +1,116 @@
-#include "TypeMatrix.h"
+#include "Keyboard.h"
 
-#include <Arduino.h>
-#include <Wire.h>
+#include <LUFA/Drivers/USB/USB.h>
+#include <LUFA/Drivers/Peripheral/TWI.h>
+
+#include <avr/pgmspace.h>
+#include <util/delay.h>
+
 #include "MCP23017_registers.h"
 
-#define MCP23017_PIN0 4
-#define MCP23017_PIN1 5
+#define MCP23017_RESET_DDR_0 DDRD
+#define MCP23017_RESET_PORT_0 PORTD
+#define MCP23017_RESET_BIT_0 4
+#define MCP23017_RESET_DDR_1 DDRC
+#define MCP23017_RESET_PORT_1 PORTC
+#define MCP23017_RESET_BIT_1 6
+
 #define MCP23017_ADDR0 0x20
 #define MCP23017_ADDR1 0x21
 
 #define PRESSED 1
 #define RELEASED 0
 
-void TypeMatrix::MCPreset(uint8_t pin){
-  pinMode(pin, OUTPUT);
-  digitalWrite(pin, LOW);
-  delay(50);
-  digitalWrite(pin, HIGH);
+extern FILE USBSerialStream;
+
+void Keyboard::MCPreset(uint8_t ddr, uint8_t port, uint8_t bit){
+  ddr|=(1<<bit); // output
+  port&=~(1<<bit); // low
+  _delay_ms(50); // sleep
+  port|=(1<<bit); // high
 }
 
-void TypeMatrix::MCPwrite8(uint8_t i2cAddr, uint8_t baseReg, uint8_t v){
-  Wire.beginTransmission(i2cAddr);
-  Wire.write(baseReg);
-  Wire.write(v);
-  Wire.endTransmission();
+void Keyboard::MCPwrite8(uint8_t i2cAddr, uint8_t baseReg, uint8_t v){
+  if(TWI_StartTransmission(i2cAddr|TWI_ADDRESS_WRITE, 10)==TWI_ERROR_NoError){
+    if(!TWI_SendByte(baseReg)){
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPwrite8(%d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v);
+      while(1);
+    }
+    if(!TWI_SendByte(v)){
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPwrite8(%d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v);
+      while(1);
+    }
+    TWI_StopTransmission();
+  }else{
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPwrite8(%d, %d, %d); TWI_StartTransmission();\r\n"), i2cAddr, baseReg, v);
+    while(1);
+  }
 }
 
-void TypeMatrix::MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2){
-  Wire.beginTransmission(i2cAddr);
-  Wire.write(baseReg);
-  Wire.write(v1);
-  Wire.write(v2);
-  Wire.endTransmission();
+void Keyboard::MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2){
+  if(TWI_StartTransmission(i2cAddr|TWI_ADDRESS_WRITE, 10)==TWI_ERROR_NoError){
+    if(!TWI_SendByte(baseReg)){
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPwrite16(%d, %d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v1, v2);
+      while(1);
+    }
+    if(!TWI_SendByte(v1)){
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPwrite16(%d, %d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v1, v2);
+      while(1);
+    }
+    if(!TWI_SendByte(v2)){
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPwrite16(%d, %d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v1, v2);
+      while(1);
+    }
+    TWI_StopTransmission();
+  }else{
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPwrite16(%d, %d, %d, %d); TWI_StartTransmission();\r\n"), i2cAddr, baseReg, v1, v2);
+    while(1);
+  }
 }
 
-uint16_t TypeMatrix::MCPread16(uint8_t i2cAddr, uint8_t baseReg){
-  uint16_t v=0;
-  Wire.beginTransmission(i2cAddr);
-  Wire.write(baseReg);
-  Wire.endTransmission();
-  Wire.requestFrom((uint8_t)i2cAddr, (uint8_t)2);
-  v=Wire.read();
-  v|=((uint32_t)Wire.read()<<8);
-  return v;
+uint16_t Keyboard::MCPread16(uint8_t i2cAddr, uint8_t baseReg){
+  // Write baseReg
+  if(TWI_StartTransmission(i2cAddr|TWI_ADDRESS_WRITE, 10)==TWI_ERROR_NoError){
+    if(!TWI_SendByte(baseReg)){
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPread16(%d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg);
+      while(1);
+    }
+    TWI_StopTransmission();
+    // Read 16 bits
+    if(TWI_StartTransmission(i2cAddr|TWI_ADDRESS_READ, 10)==TWI_ERROR_NoError){
+      uint16_t v=0;
+      uint8_t b1;
+      uint8_t b2;
+      if(!TWI_ReceiveByte(&b1, false)){
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPread16(%d, %d); TWI_ReceiveByte();\r\n"), i2cAddr, baseReg);
+        while(1);
+      }
+      if(!TWI_ReceiveByte(&b2, true)){
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPread16(%d, %d); TWI_ReceiveByte();\r\n"), i2cAddr, baseReg);
+        while(1);
+      }
+      v=b1;
+      v|=((uint16_t)b2)<<8;
+      return v;
+    }else{
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPread16(%d, %d); TWI_StartTransmission();\r\n"), i2cAddr, baseReg);
+      while(1);
+    }
+  }else{
+fprintf_P(&USBSerialStream, PSTR("FAIL MCPwrite16(%d, %d); TWI_StartTransmission();\r\n"), i2cAddr, baseReg);
+    while(1);
+  }
 }
 
-TypeMatrix::TypeMatrix(){
-  // Wire
-  Wire.begin();
+Keyboard::Keyboard(){
+  // TWI
+  TWI_Init(TWI_BIT_PRESCALE_1, TWI_BITLENGTH_FROM_FREQ(1, 100000L));
   // clear states
   for(int i=0;i<NUM_KEYS;i++)
-    keyState[0];
+    keyState[i]=0;
   // reset MCPs
-  MCPreset(MCP23017_PIN0);
-  MCPreset(MCP23017_PIN1);
+  MCPreset(MCP23017_RESET_DDR_0, MCP23017_RESET_PORT_0, MCP23017_RESET_BIT_0);
+  MCPreset(MCP23017_RESET_DDR_1, MCP23017_RESET_PORT_1, MCP23017_RESET_BIT_1);
   // set all pull ups
   MCPwrite16(MCP23017_ADDR0, MCP23017_GPPUA, 0xFF, 0xFF);
   MCPwrite16(MCP23017_ADDR1, MCP23017_GPPUA, 0xFF, 0xFF);
@@ -67,50 +124,48 @@ TypeMatrix::TypeMatrix(){
   dvorakQWERTY=0; // FIXME load from EEPROM
   // Dvorak callbacks (should go to PROGMEM...)
   dvorakPressed={
-    &TypeMatrix::dvorakP0,  &TypeMatrix::dvorakP1,  &TypeMatrix::dvorakP2,  &TypeMatrix::dvorakP3,  &TypeMatrix::dvorakP4,
-    &TypeMatrix::dvorakP5,  &TypeMatrix::dvorakP6,  &TypeMatrix::dvorakP7,  &TypeMatrix::dvorakP8,  &TypeMatrix::dvorakP9,
-    &TypeMatrix::dvorakP10, &TypeMatrix::dvorakP11, &TypeMatrix::dvorakP12, &TypeMatrix::dvorakP13, &TypeMatrix::dvorakP14,
-    &TypeMatrix::dvorakP15, &TypeMatrix::dvorakP16, &TypeMatrix::dvorakP17, &TypeMatrix::dvorakP18, &TypeMatrix::dvorakP19,
-    &TypeMatrix::dvorakP20, &TypeMatrix::dvorakP21, &TypeMatrix::dvorakP22, &TypeMatrix::dvorakP23, &TypeMatrix::dvorakP24,
-    &TypeMatrix::dvorakP25, &TypeMatrix::dvorakP26, &TypeMatrix::dvorakP27, &TypeMatrix::dvorakP28, &TypeMatrix::dvorakP29,
-    &TypeMatrix::dvorakP30, &TypeMatrix::dvorakP31, &TypeMatrix::dvorakP32, &TypeMatrix::dvorakP33, &TypeMatrix::dvorakP34,
-    &TypeMatrix::dvorakP35, &TypeMatrix::dvorakP36, &TypeMatrix::dvorakP37, &TypeMatrix::dvorakP38, &TypeMatrix::dvorakP39,
-    &TypeMatrix::dvorakP40, &TypeMatrix::dvorakP41, &TypeMatrix::dvorakP42, &TypeMatrix::dvorakP43, &TypeMatrix::dvorakP44,
-    &TypeMatrix::dvorakP45, &TypeMatrix::dvorakP46, &TypeMatrix::dvorakP47, &TypeMatrix::dvorakP48, &TypeMatrix::dvorakP49,
-    &TypeMatrix::dvorakP50, &TypeMatrix::dvorakP51, &TypeMatrix::dvorakP52, &TypeMatrix::dvorakP53, &TypeMatrix::dvorakP54,
-    &TypeMatrix::dvorakP55, &TypeMatrix::dvorakP56, &TypeMatrix::dvorakP57, &TypeMatrix::dvorakP58, &TypeMatrix::dvorakP59,
-    &TypeMatrix::dvorakP60, &TypeMatrix::dvorakP61, &TypeMatrix::dvorakP62, &TypeMatrix::dvorakP63, &TypeMatrix::dvorakP64,
-    &TypeMatrix::dvorakP65, &TypeMatrix::dvorakP66, &TypeMatrix::dvorakP67, &TypeMatrix::dvorakP68, &TypeMatrix::dvorakP69,
-    &TypeMatrix::dvorakP70, &TypeMatrix::dvorakP71, &TypeMatrix::dvorakP72, &TypeMatrix::dvorakP73, &TypeMatrix::dvorakP74,
-    &TypeMatrix::dvorakP75, &TypeMatrix::dvorakP76, &TypeMatrix::dvorakP77, &TypeMatrix::dvorakP78, &TypeMatrix::dvorakP79,
-    &TypeMatrix::dvorakP80, &TypeMatrix::dvorakP81, &TypeMatrix::dvorakP82, &TypeMatrix::dvorakP83, &TypeMatrix::dvorakP84,
-    &TypeMatrix::dvorakP85, &TypeMatrix::dvorakP86, &TypeMatrix::dvorakP87, &TypeMatrix::dvorakP88, &TypeMatrix::dvorakP89,
+    &Keyboard::dvorakP0,  &Keyboard::dvorakP1,  &Keyboard::dvorakP2,  &Keyboard::dvorakP3,  &Keyboard::dvorakP4,
+    &Keyboard::dvorakP5,  &Keyboard::dvorakP6,  &Keyboard::dvorakP7,  &Keyboard::dvorakP8,  &Keyboard::dvorakP9,
+    &Keyboard::dvorakP10, &Keyboard::dvorakP11, &Keyboard::dvorakP12, &Keyboard::dvorakP13, &Keyboard::dvorakP14,
+    &Keyboard::dvorakP15, &Keyboard::dvorakP16, &Keyboard::dvorakP17, &Keyboard::dvorakP18, &Keyboard::dvorakP19,
+    &Keyboard::dvorakP20, &Keyboard::dvorakP21, &Keyboard::dvorakP22, &Keyboard::dvorakP23, &Keyboard::dvorakP24,
+    &Keyboard::dvorakP25, &Keyboard::dvorakP26, &Keyboard::dvorakP27, &Keyboard::dvorakP28, &Keyboard::dvorakP29,
+    &Keyboard::dvorakP30, &Keyboard::dvorakP31, &Keyboard::dvorakP32, &Keyboard::dvorakP33, &Keyboard::dvorakP34,
+    &Keyboard::dvorakP35, &Keyboard::dvorakP36, &Keyboard::dvorakP37, &Keyboard::dvorakP38, &Keyboard::dvorakP39,
+    &Keyboard::dvorakP40, &Keyboard::dvorakP41, &Keyboard::dvorakP42, &Keyboard::dvorakP43, &Keyboard::dvorakP44,
+    &Keyboard::dvorakP45, &Keyboard::dvorakP46, &Keyboard::dvorakP47, &Keyboard::dvorakP48, &Keyboard::dvorakP49,
+    &Keyboard::dvorakP50, &Keyboard::dvorakP51, &Keyboard::dvorakP52, &Keyboard::dvorakP53, &Keyboard::dvorakP54,
+    &Keyboard::dvorakP55, &Keyboard::dvorakP56, &Keyboard::dvorakP57, &Keyboard::dvorakP58, &Keyboard::dvorakP59,
+    &Keyboard::dvorakP60, &Keyboard::dvorakP61, &Keyboard::dvorakP62, &Keyboard::dvorakP63, &Keyboard::dvorakP64,
+    &Keyboard::dvorakP65, &Keyboard::dvorakP66, &Keyboard::dvorakP67, &Keyboard::dvorakP68, &Keyboard::dvorakP69,
+    &Keyboard::dvorakP70, &Keyboard::dvorakP71, &Keyboard::dvorakP72, &Keyboard::dvorakP73, &Keyboard::dvorakP74,
+    &Keyboard::dvorakP75, &Keyboard::dvorakP76, &Keyboard::dvorakP77, &Keyboard::dvorakP78, &Keyboard::dvorakP79,
+    &Keyboard::dvorakP80, &Keyboard::dvorakP81, &Keyboard::dvorakP82, &Keyboard::dvorakP83, &Keyboard::dvorakP84,
+    &Keyboard::dvorakP85, &Keyboard::dvorakP86, &Keyboard::dvorakP87, &Keyboard::dvorakP88, &Keyboard::dvorakP89,
     };
   dvorakReleased={
-    &TypeMatrix::dvorakR0,  &TypeMatrix::dvorakR1,  &TypeMatrix::dvorakR2,  &TypeMatrix::dvorakR3,  &TypeMatrix::dvorakR4,
-    &TypeMatrix::dvorakR5,  &TypeMatrix::dvorakR6,  &TypeMatrix::dvorakR7,  &TypeMatrix::dvorakR8,  &TypeMatrix::dvorakR9,
-    &TypeMatrix::dvorakR10, &TypeMatrix::dvorakR11, &TypeMatrix::dvorakR12, &TypeMatrix::dvorakR13, &TypeMatrix::dvorakR14,
-    &TypeMatrix::dvorakR15, &TypeMatrix::dvorakR16, &TypeMatrix::dvorakR17, &TypeMatrix::dvorakR18, &TypeMatrix::dvorakR19,
-    &TypeMatrix::dvorakR20, &TypeMatrix::dvorakR21, &TypeMatrix::dvorakR22, &TypeMatrix::dvorakR23, &TypeMatrix::dvorakR24,
-    &TypeMatrix::dvorakR25, &TypeMatrix::dvorakR26, &TypeMatrix::dvorakR27, &TypeMatrix::dvorakR28, &TypeMatrix::dvorakR29,
-    &TypeMatrix::dvorakR30, &TypeMatrix::dvorakR31, &TypeMatrix::dvorakR32, &TypeMatrix::dvorakR33, &TypeMatrix::dvorakR34,
-    &TypeMatrix::dvorakR35, &TypeMatrix::dvorakR36, &TypeMatrix::dvorakR37, &TypeMatrix::dvorakR38, &TypeMatrix::dvorakR39,
-    &TypeMatrix::dvorakR40, &TypeMatrix::dvorakR41, &TypeMatrix::dvorakR42, &TypeMatrix::dvorakR43, &TypeMatrix::dvorakR44,
-    &TypeMatrix::dvorakR45, &TypeMatrix::dvorakR46, &TypeMatrix::dvorakR47, &TypeMatrix::dvorakR48, &TypeMatrix::dvorakR49,
-    &TypeMatrix::dvorakR50, &TypeMatrix::dvorakR51, &TypeMatrix::dvorakR52, &TypeMatrix::dvorakR53, &TypeMatrix::dvorakR54,
-    &TypeMatrix::dvorakR55, &TypeMatrix::dvorakR56, &TypeMatrix::dvorakR57, &TypeMatrix::dvorakR58, &TypeMatrix::dvorakR59,
-    &TypeMatrix::dvorakR60, &TypeMatrix::dvorakR61, &TypeMatrix::dvorakR62, &TypeMatrix::dvorakR63, &TypeMatrix::dvorakR64,
-    &TypeMatrix::dvorakR65, &TypeMatrix::dvorakR66, &TypeMatrix::dvorakR67, &TypeMatrix::dvorakR68, &TypeMatrix::dvorakR69,
-    &TypeMatrix::dvorakR70, &TypeMatrix::dvorakR71, &TypeMatrix::dvorakR72, &TypeMatrix::dvorakR73, &TypeMatrix::dvorakR74,
-    &TypeMatrix::dvorakR75, &TypeMatrix::dvorakR76, &TypeMatrix::dvorakR77, &TypeMatrix::dvorakR78, &TypeMatrix::dvorakR79,
-    &TypeMatrix::dvorakR80, &TypeMatrix::dvorakR81, &TypeMatrix::dvorakR82, &TypeMatrix::dvorakR83, &TypeMatrix::dvorakR84,
-    &TypeMatrix::dvorakR85, &TypeMatrix::dvorakR86, &TypeMatrix::dvorakR87, &TypeMatrix::dvorakR88, &TypeMatrix::dvorakR89,
+    &Keyboard::dvorakR0,  &Keyboard::dvorakR1,  &Keyboard::dvorakR2,  &Keyboard::dvorakR3,  &Keyboard::dvorakR4,
+    &Keyboard::dvorakR5,  &Keyboard::dvorakR6,  &Keyboard::dvorakR7,  &Keyboard::dvorakR8,  &Keyboard::dvorakR9,
+    &Keyboard::dvorakR10, &Keyboard::dvorakR11, &Keyboard::dvorakR12, &Keyboard::dvorakR13, &Keyboard::dvorakR14,
+    &Keyboard::dvorakR15, &Keyboard::dvorakR16, &Keyboard::dvorakR17, &Keyboard::dvorakR18, &Keyboard::dvorakR19,
+    &Keyboard::dvorakR20, &Keyboard::dvorakR21, &Keyboard::dvorakR22, &Keyboard::dvorakR23, &Keyboard::dvorakR24,
+    &Keyboard::dvorakR25, &Keyboard::dvorakR26, &Keyboard::dvorakR27, &Keyboard::dvorakR28, &Keyboard::dvorakR29,
+    &Keyboard::dvorakR30, &Keyboard::dvorakR31, &Keyboard::dvorakR32, &Keyboard::dvorakR33, &Keyboard::dvorakR34,
+    &Keyboard::dvorakR35, &Keyboard::dvorakR36, &Keyboard::dvorakR37, &Keyboard::dvorakR38, &Keyboard::dvorakR39,
+    &Keyboard::dvorakR40, &Keyboard::dvorakR41, &Keyboard::dvorakR42, &Keyboard::dvorakR43, &Keyboard::dvorakR44,
+    &Keyboard::dvorakR45, &Keyboard::dvorakR46, &Keyboard::dvorakR47, &Keyboard::dvorakR48, &Keyboard::dvorakR49,
+    &Keyboard::dvorakR50, &Keyboard::dvorakR51, &Keyboard::dvorakR52, &Keyboard::dvorakR53, &Keyboard::dvorakR54,
+    &Keyboard::dvorakR55, &Keyboard::dvorakR56, &Keyboard::dvorakR57, &Keyboard::dvorakR58, &Keyboard::dvorakR59,
+    &Keyboard::dvorakR60, &Keyboard::dvorakR61, &Keyboard::dvorakR62, &Keyboard::dvorakR63, &Keyboard::dvorakR64,
+    &Keyboard::dvorakR65, &Keyboard::dvorakR66, &Keyboard::dvorakR67, &Keyboard::dvorakR68, &Keyboard::dvorakR69,
+    &Keyboard::dvorakR70, &Keyboard::dvorakR71, &Keyboard::dvorakR72, &Keyboard::dvorakR73, &Keyboard::dvorakR74,
+    &Keyboard::dvorakR75, &Keyboard::dvorakR76, &Keyboard::dvorakR77, &Keyboard::dvorakR78, &Keyboard::dvorakR79,
+    &Keyboard::dvorakR80, &Keyboard::dvorakR81, &Keyboard::dvorakR82, &Keyboard::dvorakR83, &Keyboard::dvorakR84,
+    &Keyboard::dvorakR85, &Keyboard::dvorakR86, &Keyboard::dvorakR87, &Keyboard::dvorakR88, &Keyboard::dvorakR89,
     };
-  // Keyboard
-  Keyboard.begin();
 }
 
-void TypeMatrix::scanPairs(uint8_t lowPin, ...){
+void Keyboard::scanPairs(uint8_t lowPin, ...){
   // set current pin as output
   if(lowPin<8)
     MCPwrite8(MCP23017_ADDR0, MCP23017_IODIRA, ~(1<<lowPin));
@@ -153,7 +208,7 @@ void TypeMatrix::scanPairs(uint8_t lowPin, ...){
     MCPwrite8(MCP23017_ADDR1, MCP23017_IODIRB, 0xFF);
 }
 
-void TypeMatrix::scanAll(){
+void Keyboard::scanAll(){
   // scan all keys
   scanPairs(0, 3, 8, 9, 10, 11, 12, 13, 14, 16, -1);
   scanPairs(1, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 23, -1);
@@ -166,19 +221,19 @@ void TypeMatrix::scanAll(){
   scanPairs(25, 10, 11, 13, 14, 15, 16, 21, 22, 24, -1);
 }
 
-void TypeMatrix::processKeyEvent(uint8_t key, uint8_t state){
+void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
   if(keyState[key]!=state){
     keyState[key]=state;
-Serial.print(key);
+fprintf(&USBSerialStream, PSTR("%d"), key);
     if(state){
-Serial.println(" Pressed");
+fprintf(&USBSerialStream, PSTR(" Pressed\r\n"));
       if(dvorakQWERTY){
 
       }else{
         (this->*dvorakPressed[key])();
       }
     }else{
-Serial.println(" Released");
+fprintf_P(&USBSerialStream, PSTR(" Released\r\n"));
       if(dvorakQWERTY){
       
       }else{
@@ -188,7 +243,7 @@ Serial.println(" Released");
   }
 }
 
-void TypeMatrix::processRawEvent(uint8_t a, uint8_t b, uint8_t state){
+void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t state){
   switch(a){
     case 0:
       switch(b){

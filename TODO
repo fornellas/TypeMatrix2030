@@ -1,0 +1,20 @@
+OK- Clean up VirtualSerial
+OK- Integrate LUFA Keyboard example
+OK  - Add keyboard
+  - Update dvorak.c / Keyboard.c
+  - Remove shift variable
+- Integrate old code
+  - Convert Wire to LUFA calls
+- Validate each key
+- Validate power consumption (Descriptons.c)
+
+- Save keyboard layout.
+- Non buggy Alt-Tab
+- Support Alt+PrtSc
+- More layouts
+  - US > Dvorak
+  - ABNT2 > Dvorak
+- Actual Ctrl+X/C/V
+- Sepparate Keypad and NumLock indicators.
+- Password protected key presses sequences.
+

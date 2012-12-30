@@ -33,89 +33,42 @@ void Keyboard::MCPreset(volatile uint8_t *ddr, volatile uint8_t *port, uint8_t b
 }
 
 void Keyboard::MCPwrite8(uint8_t i2cAddr, uint8_t baseReg, uint8_t v){
-  if(TWI_StartTransmission(i2cAddr|TWI_ADDRESS_WRITE, 10)==TWI_ERROR_NoError){
-    if(!TWI_SendByte(baseReg)){
-      while(1)
-fprintf_P(Stream, PSTR("FAIL MCPwrite8(%d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v);
-    }
-    if(!TWI_SendByte(v)){
-      while(1)
-fprintf_P(Stream, PSTR("FAIL MCPwrite8(%d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v);
-    }
-    TWI_StopTransmission();
-  }else{
+  if(TWI_WritePacket(i2cAddr, 10, &baseReg, sizeof(baseReg), &v, sizeof(v))!=TWI_ERROR_NoError)
     while(1)
-fprintf_P(Stream, PSTR("FAIL MCPwrite8(%d, %d, %d); TWI_StartTransmission();\r\n"), i2cAddr, baseReg, v);
-  }
+      fprintf_P(Stream, PSTR("FAIL MCPwrite8(%d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v);
 }
 
 void Keyboard::MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2){
-  if(TWI_StartTransmission(i2cAddr|TWI_ADDRESS_WRITE, 10)==TWI_ERROR_NoError){
-    if(!TWI_SendByte(baseReg)){
-      while(1)
-fprintf_P(Stream, PSTR("FAIL MCPwrite16(%d, %d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v1, v2);
-    }
-    if(!TWI_SendByte(v1)){
-      while(1)
-fprintf_P(Stream, PSTR("FAIL MCPwrite16(%d, %d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v1, v2);
-    }
-    if(!TWI_SendByte(v2)){
-      while(1)
-fprintf_P(Stream, PSTR("FAIL MCPwrite16(%d, %d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v1, v2);
-    }
-    TWI_StopTransmission();
-  }else{
+  uint8_t v[2]={v1, v2};
+  if(TWI_WritePacket(i2cAddr, 10, &baseReg, sizeof(baseReg), v, sizeof(v))!=TWI_ERROR_NoError)
     while(1)
-fprintf_P(Stream, PSTR("FAIL MCPwrite16(%d, %d, %d, %d); TWI_StartTransmission();\r\n"), i2cAddr, baseReg, v1, v2);
-  }
+      fprintf_P(Stream, PSTR("FAIL MCPwrite16(%d, %d, %d, %d);\r\n"), i2cAddr, baseReg, v1, v2);
 }
 
 uint16_t Keyboard::MCPread16(uint8_t i2cAddr, uint8_t baseReg){
-  // Write baseReg
-  if(TWI_StartTransmission(i2cAddr|TWI_ADDRESS_WRITE, 10)==TWI_ERROR_NoError){
-    if(!TWI_SendByte(baseReg)){
-      while(1)
-fprintf_P(Stream, PSTR("FAIL MCPread16(%d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg);
-    }
-    TWI_StopTransmission();
-    // Read 16 bits
-    if(TWI_StartTransmission(i2cAddr|TWI_ADDRESS_READ, 10)==TWI_ERROR_NoError){
-      uint16_t v=0;
-      uint8_t b1;
-      uint8_t b2;
-      if(!TWI_ReceiveByte(&b1, false)){
-      while(1)
-fprintf_P(Stream, PSTR("FAIL MCPread16(%d, %d); TWI_ReceiveByte();\r\n"), i2cAddr, baseReg);
-      }
-      if(!TWI_ReceiveByte(&b2, true)){
-      while(1)
-fprintf_P(Stream, PSTR("FAIL MCPread16(%d, %d); TWI_ReceiveByte();\r\n"), i2cAddr, baseReg);
-      }
-      v=b1;
-      v|=((uint16_t)b2)<<8;
-      return v;
-    }else{
-      while(1)
-fprintf_P(Stream, PSTR("FAIL MCPread16(%d, %d); TWI_StartTransmission();\r\n"), i2cAddr, baseReg);
-    }
-  }else{
-      while(1)
-fprintf_P(Stream, PSTR("FAIL MCPwrite16(%d, %d); TWI_StartTransmission();\r\n"), i2cAddr, baseReg);
-  }
+  uint8_t v[2];
+  uint16_t r=0;
+  if(TWI_ReadPacket(i2cAddr, 10, &baseReg, sizeof(baseReg), v, sizeof(v))!=TWI_ERROR_NoError)
+    while(1)
+      fprintf_P(Stream, PSTR("FAIL MCPread16(%d, %d);\r\n"), i2cAddr, baseReg);
+  r=v[0];
+  r|=((uint16_t)v[1])<<8;
+  return r;
 }
 
 Keyboard::Keyboard(FILE *S){
-Stream=S;
-  // TWI
-  PORTD|=(1<<1); // SDA pull up
-  PORTD|=(1<<0); // SCL pull up
-  TWI_Init(TWI_BIT_PRESCALE_1, TWI_BITLENGTH_FROM_FREQ(1, 100000L));
+  // Serial
+  Stream=S;
   // clear states
   for(int i=0;i<NUM_KEYS;i++)
     keyState[i]=0;
   // reset MCPs
   MCPreset(&MCP23017_RESET_DDR_0, &MCP23017_RESET_PORT_0, MCP23017_RESET_BIT_0);
   MCPreset(&MCP23017_RESET_DDR_1, &MCP23017_RESET_PORT_1, MCP23017_RESET_BIT_1);
+  // TWI
+  PORTD|=(1<<1); // SDA pull up
+  PORTD|=(1<<0); // SCL pull up
+  TWI_Init(TWI_BIT_PRESCALE_1, TWI_BITLENGTH_FROM_FREQ(1, 100000L));
   // set all pull ups
   MCPwrite16(MCP23017_ADDR_0, MCP23017_GPPUA, 0xFF, 0xFF);
   MCPwrite16(MCP23017_ADDR_1, MCP23017_GPPUA, 0xFF, 0xFF);
@@ -229,16 +182,16 @@ void Keyboard::scanAll(){
 void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
   if(keyState[key]!=state){
     keyState[key]=state;
-//fprintf_P(Stream, PSTR("%d"), key);
+fprintf_P(Stream, PSTR("%d"), key);
     if(state){
-//fprintf_P(Stream, PSTR(" processKeyEvent() PRESSED\r\n"));
+fprintf_P(Stream, PSTR(" processKeyEvent() ++++\r\n"));
       if(dvorakQWERTY){
 
       }else{
         (this->*dvorakPressed[key])();
       }
     }else{
-//fprintf_P(Stream, PSTR(" processKeyEvent RELEASED\r\n"));
+fprintf_P(Stream, PSTR(" processKeyEvent() ----\r\n"));
       if(dvorakQWERTY){
       
       }else{
@@ -249,10 +202,10 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
 }
 
 void Keyboard::press(uint8_t key){
-fprintf_P(Stream, PSTR("%d +++\r\n"), key);
+fprintf_P(Stream, PSTR("press() %d +++\r\n"), key);
 }
 void Keyboard::release(uint8_t key){
-fprintf_P(Stream, PSTR("%d ---\r\n"), key);
+fprintf_P(Stream, PSTR("release() %d ---\r\n"), key);
 }
 
 void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t state){

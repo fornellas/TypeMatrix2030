@@ -59,9 +59,6 @@ uint16_t Keyboard::MCPread16(uint8_t i2cAddr, uint8_t baseReg){
 Keyboard::Keyboard(FILE *S){
   // Serial
   Stream=S;
-  // clear states
-  for(int i=0;i<NUM_KEYS;i++)
-    keyState[i]=0;
   // reset MCPs
   MCPreset(&MCP23017_RESET_DDR_0, &MCP23017_RESET_PORT_0, MCP23017_RESET_BIT_0);
   MCPreset(&MCP23017_RESET_DDR_1, &MCP23017_RESET_PORT_1, MCP23017_RESET_BIT_1);
@@ -74,52 +71,30 @@ Keyboard::Keyboard(FILE *S){
   MCPwrite16(MCP23017_ADDR_1, MCP23017_GPPUA, 0xFF, 0xFF);
   // States
   numLock=0;
-  shift=0;
   keypad=0;
   capsLock=0;
-  alt=0;
   fn=0;
   dvorakQWERTY=0; // FIXME load from EEPROM
   // Dvorak callbacks (should go to PROGMEM...)
   dvorakPressed={
-    &Keyboard::dvorakP0,  &Keyboard::dvorakP1,  &Keyboard::dvorakP2,  &Keyboard::dvorakP3,  &Keyboard::dvorakP4,
-    &Keyboard::dvorakP5,  &Keyboard::dvorakP6,  &Keyboard::dvorakP7,  &Keyboard::dvorakP8,  &Keyboard::dvorakP9,
-    &Keyboard::dvorakP10, &Keyboard::dvorakP11, &Keyboard::dvorakP12, &Keyboard::dvorakP13, &Keyboard::dvorakP14,
-    &Keyboard::dvorakP15, &Keyboard::dvorakP16, &Keyboard::dvorakP17, &Keyboard::dvorakP18, &Keyboard::dvorakP19,
-    &Keyboard::dvorakP20, &Keyboard::dvorakP21, &Keyboard::dvorakP22, &Keyboard::dvorakP23, &Keyboard::dvorakP24,
-    &Keyboard::dvorakP25, &Keyboard::dvorakP26, &Keyboard::dvorakP27, &Keyboard::dvorakP28, &Keyboard::dvorakP29,
-    &Keyboard::dvorakP30, &Keyboard::dvorakP31, &Keyboard::dvorakP32, &Keyboard::dvorakP33, &Keyboard::dvorakP34,
-    &Keyboard::dvorakP35, &Keyboard::dvorakP36, &Keyboard::dvorakP37, &Keyboard::dvorakP38, &Keyboard::dvorakP39,
-    &Keyboard::dvorakP40, &Keyboard::dvorakP41, &Keyboard::dvorakP42, &Keyboard::dvorakP43, &Keyboard::dvorakP44,
-    &Keyboard::dvorakP45, &Keyboard::dvorakP46, &Keyboard::dvorakP47, &Keyboard::dvorakP48, &Keyboard::dvorakP49,
-    &Keyboard::dvorakP50, &Keyboard::dvorakP51, &Keyboard::dvorakP52, &Keyboard::dvorakP53, &Keyboard::dvorakP54,
-    &Keyboard::dvorakP55, &Keyboard::dvorakP56, &Keyboard::dvorakP57, &Keyboard::dvorakP58, &Keyboard::dvorakP59,
-    &Keyboard::dvorakP60, &Keyboard::dvorakP61, &Keyboard::dvorakP62, &Keyboard::dvorakP63, &Keyboard::dvorakP64,
-    &Keyboard::dvorakP65, &Keyboard::dvorakP66, &Keyboard::dvorakP67, &Keyboard::dvorakP68, &Keyboard::dvorakP69,
-    &Keyboard::dvorakP70, &Keyboard::dvorakP71, &Keyboard::dvorakP72, &Keyboard::dvorakP73, &Keyboard::dvorakP74,
-    &Keyboard::dvorakP75, &Keyboard::dvorakP76, &Keyboard::dvorakP77, &Keyboard::dvorakP78, &Keyboard::dvorakP79,
-    &Keyboard::dvorakP80, &Keyboard::dvorakP81, &Keyboard::dvorakP82, &Keyboard::dvorakP83, &Keyboard::dvorakP84,
-    &Keyboard::dvorakP85, &Keyboard::dvorakP86, &Keyboard::dvorakP87, &Keyboard::dvorakP88, &Keyboard::dvorakP89,
-    };
-  dvorakReleased={
-    &Keyboard::dvorakR0,  &Keyboard::dvorakR1,  &Keyboard::dvorakR2,  &Keyboard::dvorakR3,  &Keyboard::dvorakR4,
-    &Keyboard::dvorakR5,  &Keyboard::dvorakR6,  &Keyboard::dvorakR7,  &Keyboard::dvorakR8,  &Keyboard::dvorakR9,
-    &Keyboard::dvorakR10, &Keyboard::dvorakR11, &Keyboard::dvorakR12, &Keyboard::dvorakR13, &Keyboard::dvorakR14,
-    &Keyboard::dvorakR15, &Keyboard::dvorakR16, &Keyboard::dvorakR17, &Keyboard::dvorakR18, &Keyboard::dvorakR19,
-    &Keyboard::dvorakR20, &Keyboard::dvorakR21, &Keyboard::dvorakR22, &Keyboard::dvorakR23, &Keyboard::dvorakR24,
-    &Keyboard::dvorakR25, &Keyboard::dvorakR26, &Keyboard::dvorakR27, &Keyboard::dvorakR28, &Keyboard::dvorakR29,
-    &Keyboard::dvorakR30, &Keyboard::dvorakR31, &Keyboard::dvorakR32, &Keyboard::dvorakR33, &Keyboard::dvorakR34,
-    &Keyboard::dvorakR35, &Keyboard::dvorakR36, &Keyboard::dvorakR37, &Keyboard::dvorakR38, &Keyboard::dvorakR39,
-    &Keyboard::dvorakR40, &Keyboard::dvorakR41, &Keyboard::dvorakR42, &Keyboard::dvorakR43, &Keyboard::dvorakR44,
-    &Keyboard::dvorakR45, &Keyboard::dvorakR46, &Keyboard::dvorakR47, &Keyboard::dvorakR48, &Keyboard::dvorakR49,
-    &Keyboard::dvorakR50, &Keyboard::dvorakR51, &Keyboard::dvorakR52, &Keyboard::dvorakR53, &Keyboard::dvorakR54,
-    &Keyboard::dvorakR55, &Keyboard::dvorakR56, &Keyboard::dvorakR57, &Keyboard::dvorakR58, &Keyboard::dvorakR59,
-    &Keyboard::dvorakR60, &Keyboard::dvorakR61, &Keyboard::dvorakR62, &Keyboard::dvorakR63, &Keyboard::dvorakR64,
-    &Keyboard::dvorakR65, &Keyboard::dvorakR66, &Keyboard::dvorakR67, &Keyboard::dvorakR68, &Keyboard::dvorakR69,
-    &Keyboard::dvorakR70, &Keyboard::dvorakR71, &Keyboard::dvorakR72, &Keyboard::dvorakR73, &Keyboard::dvorakR74,
-    &Keyboard::dvorakR75, &Keyboard::dvorakR76, &Keyboard::dvorakR77, &Keyboard::dvorakR78, &Keyboard::dvorakR79,
-    &Keyboard::dvorakR80, &Keyboard::dvorakR81, &Keyboard::dvorakR82, &Keyboard::dvorakR83, &Keyboard::dvorakR84,
-    &Keyboard::dvorakR85, &Keyboard::dvorakR86, &Keyboard::dvorakR87, &Keyboard::dvorakR88, &Keyboard::dvorakR89,
+    &Keyboard::dvorak0,  &Keyboard::dvorak1,  &Keyboard::dvorak2,  &Keyboard::dvorak3,  &Keyboard::dvorak4,
+    &Keyboard::dvorak5,  &Keyboard::dvorak6,  &Keyboard::dvorak7,  &Keyboard::dvorak8,  &Keyboard::dvorak9,
+    &Keyboard::dvorak10, &Keyboard::dvorak11, &Keyboard::dvorak12, &Keyboard::dvorak13, &Keyboard::dvorak14,
+    &Keyboard::dvorak15, &Keyboard::dvorak16, &Keyboard::dvorak17, &Keyboard::dvorak18, &Keyboard::dvorak19,
+    &Keyboard::dvorak20, &Keyboard::dvorak21, &Keyboard::dvorak22, &Keyboard::dvorak23, &Keyboard::dvorak24,
+    &Keyboard::dvorak25, &Keyboard::dvorak26, &Keyboard::dvorak27, &Keyboard::dvorak28, &Keyboard::dvorak29,
+    &Keyboard::dvorak30, &Keyboard::dvorak31, &Keyboard::dvorak32, &Keyboard::dvorak33, &Keyboard::dvorak34,
+    &Keyboard::dvorak35, &Keyboard::dvorak36, &Keyboard::dvorak37, &Keyboard::dvorak38, &Keyboard::dvorak39,
+    &Keyboard::dvorak40, &Keyboard::dvorak41, &Keyboard::dvorak42, &Keyboard::dvorak43, &Keyboard::dvorak44,
+    &Keyboard::dvorak45, &Keyboard::dvorak46, &Keyboard::dvorak47, &Keyboard::dvorak48, &Keyboard::dvorak49,
+    &Keyboard::dvorak50, &Keyboard::dvorak51, &Keyboard::dvorak52, &Keyboard::dvorak53, &Keyboard::dvorak54,
+    &Keyboard::dvorak55, &Keyboard::dvorak56, &Keyboard::dvorak57, &Keyboard::dvorak58, &Keyboard::dvorak59,
+    &Keyboard::dvorak60, &Keyboard::dvorak61, &Keyboard::dvorak62, &Keyboard::dvorak63, &Keyboard::dvorak64,
+    &Keyboard::dvorak65, &Keyboard::dvorak66, &Keyboard::dvorak67, &Keyboard::dvorak68, &Keyboard::dvorak69,
+    &Keyboard::dvorak70, &Keyboard::dvorak71, &Keyboard::dvorak72, &Keyboard::dvorak73, &Keyboard::dvorak74,
+    &Keyboard::dvorak75, &Keyboard::dvorak76, &Keyboard::dvorak77, &Keyboard::dvorak78, &Keyboard::dvorak79,
+    &Keyboard::dvorak80, &Keyboard::dvorak81, &Keyboard::dvorak82, &Keyboard::dvorak83, &Keyboard::dvorak84,
+    &Keyboard::dvorak85, &Keyboard::dvorak86, &Keyboard::dvorak87, &Keyboard::dvorak88, &Keyboard::dvorak89,
     };
 }
 
@@ -179,342 +154,379 @@ void Keyboard::scanAll(){
   scanPairs(25, 10, 11, 13, 14, 15, 16, 21, 22, 24, -1);
 }
 
-void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
-  if(keyState[key]!=state){
-    keyState[key]=state;
-fprintf_P(Stream, PSTR("%d"), key);
-    if(state){
-fprintf_P(Stream, PSTR(" processKeyEvent() ++++\r\n"));
-      if(dvorakQWERTY){
+void Keyboard::processKeyEvent(uint8_t key){
+  if(dvorakQWERTY){
 
-      }else{
-        (this->*dvorakPressed[key])();
-      }
-    }else{
-fprintf_P(Stream, PSTR(" processKeyEvent() ----\r\n"));
-      if(dvorakQWERTY){
-      
-      }else{
-        (this->*dvorakReleased[key])();
-      }
-    }
+  }else{
+    (this->*dvorakPressed[key])();
   }
 }
 
+#define SETMOD(key, value) case key: KeyboardReport->Modifier|=value;break;
 void Keyboard::press(uint8_t key){
-fprintf_P(Stream, PSTR("press() %d +++\r\n"), key);
-}
-void Keyboard::release(uint8_t key){
-fprintf_P(Stream, PSTR("release() %d ---\r\n"), key);
+fprintf_P(Stream, PSTR("  press() %d +++\r\n"), key);
+  switch(key){
+    SETMOD(HID_KEYBOARD_SC_LEFT_CONTROL, HID_KEYBOARD_MODIFIER_LEFTCTRL);
+    SETMOD(HID_KEYBOARD_SC_LEFT_SHIFT, HID_KEYBOARD_MODIFIER_LEFTSHIFT);
+    SETMOD(HID_KEYBOARD_SC_LEFT_ALT, HID_KEYBOARD_MODIFIER_LEFTALT);
+    SETMOD(HID_KEYBOARD_SC_LEFT_GUI, HID_KEYBOARD_MODIFIER_LEFTGUI);
+    SETMOD(HID_KEYBOARD_SC_RIGHT_CONTROL, HID_KEYBOARD_MODIFIER_RIGHTCTRL);
+    SETMOD(HID_KEYBOARD_SC_RIGHT_SHIFT, HID_KEYBOARD_MODIFIER_RIGHTSHIFT);
+    SETMOD(HID_KEYBOARD_SC_RIGHT_ALT, HID_KEYBOARD_MODIFIER_RIGHTALT);
+    SETMOD(HID_KEYBOARD_SC_RIGHT_GUI, HID_KEYBOARD_MODIFIER_RIGHTGUI);
+    default:
+      for(uint8_t i=0;i<6;i++){
+        if(KeyboardReport->KeyCode[i]==0){
+          KeyboardReport->KeyCode[i]=key;
+          break;
+        }
+      }
+      break;
+  }
 }
 
-void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t state){
+#define UNSETMOD(key, value) case key: KeyboardReport->Modifier&=~value;break;
+void Keyboard::release(uint8_t key){
+fprintf_P(Stream, PSTR("  release() %d ---\r\n"), key);
+  switch(key){
+    UNSETMOD(HID_KEYBOARD_SC_LEFT_CONTROL, HID_KEYBOARD_MODIFIER_LEFTCTRL);
+    UNSETMOD(HID_KEYBOARD_SC_LEFT_SHIFT, HID_KEYBOARD_MODIFIER_LEFTSHIFT);
+    UNSETMOD(HID_KEYBOARD_SC_LEFT_ALT, HID_KEYBOARD_MODIFIER_LEFTALT);
+    UNSETMOD(HID_KEYBOARD_SC_LEFT_GUI, HID_KEYBOARD_MODIFIER_LEFTGUI);
+    UNSETMOD(HID_KEYBOARD_SC_RIGHT_CONTROL, HID_KEYBOARD_MODIFIER_RIGHTCTRL);
+    UNSETMOD(HID_KEYBOARD_SC_RIGHT_SHIFT, HID_KEYBOARD_MODIFIER_RIGHTSHIFT);
+    UNSETMOD(HID_KEYBOARD_SC_RIGHT_ALT, HID_KEYBOARD_MODIFIER_RIGHTALT);
+    UNSETMOD(HID_KEYBOARD_SC_RIGHT_GUI, HID_KEYBOARD_MODIFIER_RIGHTGUI);
+    default:
+      for(uint8_t i=0;i<6;i++){
+        if(KeyboardReport->KeyCode[i]==key){
+          KeyboardReport->KeyCode[i]=0;
+          break;
+        }
+      }
+      break;
+  }
+}
+
+void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t pressed){
   switch(a){
     case 0:
       switch(b){
         case 3:
-          processKeyEvent(0, state);
+          if(pressed)processKeyEvent(0);
           break;
         case 8:
-          processKeyEvent(1, state);
+          if(pressed)processKeyEvent(1);
           break;
         case 9:
-          processKeyEvent(2, state);
+          if(pressed)processKeyEvent(2);
           break;
         case 10:
-          processKeyEvent(3, state);
+          if(pressed)processKeyEvent(3);
           break;
         case 11:
-          processKeyEvent(4, state);
+          if(pressed)processKeyEvent(4);
           break;
         case 12:
-          processKeyEvent(5, state);
+          if(pressed)processKeyEvent(5);
           break;
         case 13:
-          processKeyEvent(6, state);
+          if(pressed)processKeyEvent(6);
           break;
         case 14:
-          processKeyEvent(7, state);
+          if(pressed)processKeyEvent(7);
           break;
         case 16:
-          processKeyEvent(8, state);
+          if(pressed)processKeyEvent(8);
           break;
       }
       break;
     case 1:
       switch(b){
         case 3:
-          processKeyEvent(9, state);
+          if(pressed)processKeyEvent(9);
           break;
         case 8:
-          processKeyEvent(10, state);
+          if(pressed)processKeyEvent(10);
           break;
         case 9:
-          processKeyEvent(11, state);
+          if(pressed)processKeyEvent(11);
           break;
         case 10:
-          processKeyEvent(12, state);
+          if(pressed)processKeyEvent(12);
           break;
         case 11:
-          processKeyEvent(13, state);
+          if(pressed)processKeyEvent(13);
           break;
         case 12:
-          processKeyEvent(14, state);
+          if(pressed)processKeyEvent(14);
           break;
         case 13:
-          processKeyEvent(15, state);
+          if(pressed)processKeyEvent(15);
           break;
         case 14:
-          processKeyEvent(16, state);
+          if(pressed)processKeyEvent(16);
           break;
         case 15:
-          processKeyEvent(17, state);
+          if(pressed)processKeyEvent(17);
           break;
         case 16:
-          processKeyEvent(18, state);
+          if(pressed)processKeyEvent(18);
           break;
         case 18:
-          processKeyEvent(19, state);
+          if(pressed)processKeyEvent(19);
           break;
         case 20:
-          processKeyEvent(20, state);
+          if(pressed)processKeyEvent(20);
           break;
         case 23:
-          processKeyEvent(21, state);
+          if(pressed)processKeyEvent(21);
           break;
       }
       break;
     case 2:
       switch(b){
         case 3:
-          processKeyEvent(22, state);
+          if(pressed)processKeyEvent(22);
           break;
         case 8:
-          processKeyEvent(23, state);
+          if(pressed)processKeyEvent(23);
           break;
         case 9:
-          processKeyEvent(24, state);
+          if(pressed)processKeyEvent(24);
           break;
         case 10:
-          processKeyEvent(25, state);
+          if(pressed)processKeyEvent(25);
           break;
         case 11:
-          processKeyEvent(26, state);
+          if(pressed)processKeyEvent(26);
           break;
         case 12:
-          processKeyEvent(27, state);
+          if(pressed)processKeyEvent(27);
           break;
         case 13:
-          processKeyEvent(28, state);
+          if(pressed)processKeyEvent(28);
           break;
         case 14:
-          processKeyEvent(29, state);
+          if(pressed)processKeyEvent(29);
           break;
         case 15:
-          processKeyEvent(30, state);
+          if(pressed)processKeyEvent(30);
           break;
         case 16:
-          processKeyEvent(31, state);
+          if(pressed)processKeyEvent(31);
           break;
         case 17:
-          processKeyEvent(32, state);
+          if(pressed)processKeyEvent(32);
           break;
         case 19:
-          processKeyEvent(33, state);
+          if(pressed)processKeyEvent(33);
           break;
         case 20:
-          processKeyEvent(34, state);
+          if(pressed)
+            fn=1;
+          else
+            fn=0;
           break;
       }
       break;
     case 3:
       switch(b){
         case 4:
-          processKeyEvent(35, state);
+          if(pressed)processKeyEvent(35);
           break;
         case 5:
-          processKeyEvent(36, state);
+          if(pressed)processKeyEvent(36);
           break;
         case 6:
-          processKeyEvent(37, state);
+          if(pressed)processKeyEvent(37);
           break;
         case 7:
-          processKeyEvent(38, state);
+          if(pressed)processKeyEvent(38);
           break;
       }
       break;
     case 4:
       switch(b){
         case 8:
-          processKeyEvent(39, state);
+          if(pressed)processKeyEvent(39);
           break;
         case 9:
-          processKeyEvent(40, state);
+          if(pressed)processKeyEvent(40);
           break;
         case 10:
-          processKeyEvent(41, state);
+          if(pressed)processKeyEvent(41);
           break;
         case 11:
-          processKeyEvent(42, state);
+          if(pressed)processKeyEvent(42);
           break;
         case 12:
-          processKeyEvent(43, state);
+          if(pressed)processKeyEvent(43);
           break;
         case 13:
-          processKeyEvent(44, state);
+          if(pressed)processKeyEvent(44);
           break;
         case 14:
-          processKeyEvent(45, state);
+          if(pressed)processKeyEvent(45);
           break;
         case 15:
-          processKeyEvent(46, state);
+          if(pressed)processKeyEvent(46);
           break;
         case 16:
-          processKeyEvent(47, state);
+          if(pressed)processKeyEvent(47);
           break;
         case 18:
-          processKeyEvent(48, state);
+          if(pressed)processKeyEvent(48);
           break;
         case 20:
-          processKeyEvent(49, state);
+          if(pressed)processKeyEvent(49);
           break;
       }
       break;
     case 5:
       switch(b){
         case 8:
-          processKeyEvent(50, state);
+          if(pressed)processKeyEvent(50);
           break;
         case 9:
-          processKeyEvent(51, state);
+          if(pressed)processKeyEvent(51);
           break;
         case 10:
-          processKeyEvent(52, state);
+          if(pressed)processKeyEvent(52);
           break;
         case 11:
-          processKeyEvent(53, state);
+          if(pressed)processKeyEvent(53);
           break;
         case 12:
-          processKeyEvent(54, state);
+          if(pressed)processKeyEvent(54);
           break;
         case 13:
-          processKeyEvent(55, state);
+          if(pressed)processKeyEvent(55);
           break;
         case 14:
-          processKeyEvent(56, state);
+          if(pressed)processKeyEvent(56);
           break;
         case 15:
-          processKeyEvent(57, state);
+          if(pressed)processKeyEvent(57);
           break;
         case 16:
-          processKeyEvent(58, state);
+          if(pressed)processKeyEvent(58);
           break;
         case 17:
-          processKeyEvent(59, state);
+          if(pressed)processKeyEvent(59);
           break;
         case 19:
-          processKeyEvent(60, state);
+          if(pressed)processKeyEvent(60);
           break;
         case 21:
-          processKeyEvent(61, state);
+          if(pressed)processKeyEvent(61);
           break;
         case 24:
-          processKeyEvent(62, state);
+          if(pressed)processKeyEvent(62);
           break;
       }
       break;
     case 6:
       switch(b){
         case 9:
-          processKeyEvent(63, state);
+          if(pressed)processKeyEvent(63);
           break;
         case 10:
-          processKeyEvent(64, state);
+          if(pressed)processKeyEvent(64);
           break;
         case 11:
-          processKeyEvent(65, state);
+          if(pressed)processKeyEvent(65);
           break;
         case 12:
-          processKeyEvent(66, state);
+          if(pressed)processKeyEvent(66);
           break;
         case 14:
-          processKeyEvent(67, state);
+          if(pressed)processKeyEvent(67);
           break;
         case 15:
-          processKeyEvent(68, state);
+          if(pressed)processKeyEvent(68);
           break;
         case 16:
-          processKeyEvent(69, state);
+          if(pressed)processKeyEvent(69);
           break;
         case 22:
-          processKeyEvent(70, state);
+          if(pressed)processKeyEvent(70);
           break;
         case 24:
-          processKeyEvent(71, state);
+          if(pressed)processKeyEvent(71);
           break;
       }
       break;
     case 7:
       switch(b){
         case 8:
-          processKeyEvent(72, state);
+          if(pressed)processKeyEvent(72);
           break;
         case 9:
-          processKeyEvent(73, state);
+          if(pressed)processKeyEvent(73);
           break;
         case 10:
-          processKeyEvent(74, state);
+          if(pressed)processKeyEvent(74);
           break;
         case 11:
-          processKeyEvent(75, state);
+          if(pressed)processKeyEvent(75);
           break;
         case 12:
-          processKeyEvent(76, state);
+          if(pressed)processKeyEvent(76);
           break;
         case 13:
-          processKeyEvent(77, state);
+          if(pressed)processKeyEvent(77);
           break;
         case 15:
-          processKeyEvent(78, state);
+          if(pressed)processKeyEvent(78);
           break;
         case 19:
-          processKeyEvent(79, state);
+          if(pressed)processKeyEvent(79);
           break;
         case 24:
-          processKeyEvent(80, state);
+          if(pressed&&!fn)
+            keypad=!keypad;
+          if(pressed)processKeyEvent(80);
           break;
       }
       break;
     case 25:
       switch(b){
         case 10:
-          processKeyEvent(81, state);
+          if(pressed)processKeyEvent(81);
           break;
         case 11:
-          processKeyEvent(82, state);
+          if(pressed)processKeyEvent(82);
           break;
         case 13:
-          processKeyEvent(83, state);
+          if(pressed)processKeyEvent(83);
           break;
         case 14:
-          processKeyEvent(84, state);
+          if(pressed)processKeyEvent(84);
           break;
         case 15:
-          processKeyEvent(85, state);
+          if(pressed)processKeyEvent(85);
           break;
         case 16:
-          processKeyEvent(86, state);
+          if(pressed)processKeyEvent(86);
           break;
         case 21:
-          processKeyEvent(87, state);
+          if(pressed)processKeyEvent(87);
           break;
         case 22:
-          processKeyEvent(88, state);
+          if(pressed)processKeyEvent(88);
           break;
         case 24:
-          processKeyEvent(89, state);
+          if(pressed)processKeyEvent(89);
           break;
       }
       break;
   }
+}
+
+extern Keyboard *kbd;
+
+void keyboardScanAll(USB_KeyboardReport_Data_t *KR){
+  kbd->KeyboardReport=KR;
+  kbd->scanAll();
 }

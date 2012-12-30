@@ -1,4 +1,5 @@
 #include "LUFA.h"
+#include "Keyboard.h"
 
 extern FILE USBSerialStream;
 
@@ -94,11 +95,9 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
                                          const uint8_t ReportType,
                                          void* ReportData,
                                          uint16_t* const ReportSize){
-//fputs("CreateReport\r\n", &USBSerialStream);
   USB_KeyboardReport_Data_t* KeyboardReport = (USB_KeyboardReport_Data_t*)ReportData;
 
-//KeyboardReport->KeyCode[0] = HID_KEYBOARD_SC_A;
-//KeyboardReport->Modifier = HID_KEYBOARD_MODIFIER_LEFTSHIFT;
+  keyboardScanAll(KeyboardReport);
 
   *ReportSize = sizeof(USB_KeyboardReport_Data_t);
   return false;
@@ -117,7 +116,6 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint8_t ReportType,
                                           const void* ReportData,
                                           const uint16_t ReportSize){
-return;
   uint8_t  LEDMask   = LEDS_NO_LEDS;
   uint8_t* LEDReport = (uint8_t*)ReportData;
   if (*LEDReport & HID_KEYBOARD_LED_NUMLOCK)

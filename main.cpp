@@ -29,14 +29,13 @@ Keyboard *kbd;
 
 int main(void){
   SetupHardware();
-//  LEDs_SetAllLEDs(LEDS_NO_LEDS);
+  LEDs_SetAllLEDs(LEDS_NO_LEDS);
   /* Create a regular character stream for the interface so that it can be used with the stdio.h functions */
   CDC_Device_CreateStream(&VirtualSerial_CDC_Interface, &USBSerialStream);
-  GlobalInterruptEnable();
   kbd=new Keyboard(&USBSerialStream);
+  GlobalInterruptEnable();
   for (;;){
 //fprintf_P(&USBSerialStream, PSTR("main loop\r\n"));
-    kbd->scanAll();
     /* Must throw away unused bytes from the host, or it will lock up while waiting for the device */
     CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
     CDC_Device_USBTask(&VirtualSerial_CDC_Interface);

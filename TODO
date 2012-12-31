@@ -9,6 +9,9 @@ OK- Validate each key
 OK- Implement key sequences
 OK- Non buggy Alt-Tab
 OK- Actual Ctrl+X/C/V
+- Support multiple HID pages
+  - Fix extra shortcuts
+  - Evaluate shortcut changes
 - Password protected key presses sequences.
 - More layouts
   - QWERTY US

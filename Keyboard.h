@@ -11,6 +11,8 @@
 
 #ifdef __cplusplus
 
+extern USB_ClassInfo_HID_Device_t Keyboard_HID_Interface;
+
 class Keyboard {
 private:
   // Serial
@@ -31,6 +33,7 @@ private:
   void press(uint8_t key);
   void release(uint8_t key);
   // States
+  uint8_t lastNumKey;
   uint8_t numLock;
   uint8_t keypad;
   uint8_t fn;

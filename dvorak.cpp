@@ -33,14 +33,14 @@ void Keyboard::dvorak5(){
 };
 // O/Tab
 void Keyboard::dvorak6(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_TAB );
   else
     KP(HID_KEYBOARD_SC_R);
 };
 // P/
 void Keyboard::dvorak7(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_SLASH);
   else
     KP(HID_KEYBOARD_SC_L);
@@ -53,7 +53,7 @@ void Keyboard::dvorak8(){
     KR(HID_KEYBOARD_SC_X);
     KR(HID_KEYBOARD_SC_LEFT_CONTROL);
   }else{
-    KP(HID_KEYBOARD_SC_EXSEL);
+    KP(KEY_PLAY);
   }
 };
 // Tab
@@ -62,7 +62,7 @@ void Keyboard::dvorak9(){
 };
 // CapsLock/Clear
 void Keyboard::dvorak10(){
-  if(fn||keypad){
+  if((fn&&!keypad)||(!fn&&keypad)){
     KP(HID_KEYBOARD_SC_ERROR_ROLLOVER);
   }else{
     KP(HID_KEYBOARD_SC_CAPS_LOCK);
@@ -78,14 +78,14 @@ void Keyboard::dvorak12(){
 };
 // Y
 void Keyboard::dvorak13(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_HOME);
   else
     KP(HID_KEYBOARD_SC_F);
 };
 // ]}-
 void Keyboard::dvorak14(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_MINUS);
   else
     KP(HID_KEYBOARD_SC_EQUAL_AND_PLUS);
@@ -99,7 +99,7 @@ void Keyboard::dvorak15(){
 };
 // [{*
 void Keyboard::dvorak16(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_ASTERISK);
   else
     KP(HID_KEYBOARD_SC_SLASH_AND_QUESTION_MARK);
@@ -107,13 +107,13 @@ void Keyboard::dvorak16(){
 // Bs/V+
 void Keyboard::dvorak17(){
   if(fn)
-    KP(HID_KEYBOARD_SC_F24);
+    KP(HID_KEYBOARD_SC_VOLUME_UP);
   else
     KP(HID_KEYBOARD_SC_BACKSPACE);
 };
 // Calc
 void Keyboard::dvorak18(){
-  KP(HID_KEYBOARD_SC_INTERNATIONAL6);
+  KP(KEY_CALC);
 };
 // LSft
 void Keyboard::dvorak19(){
@@ -177,7 +177,7 @@ void Keyboard::dvorak30(){
 };
 // End/3
 void Keyboard::dvorak31(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_3_AND_PAGE_DOWN);
   else
     KP(HID_KEYBOARD_SC_END);
@@ -185,7 +185,7 @@ void Keyboard::dvorak31(){
 // PDwn/Nx
 void Keyboard::dvorak32(){
   if(fn)
-    KP(HID_KEYBOARD_SC_INTERNATIONAL6);
+    KP(KEY_BROWSER_FORWARD);
   else
     KP(HID_KEYBOARD_SC_PAGE_DOWN);
 };
@@ -227,49 +227,49 @@ void Keyboard::dvorak41(){
 };
 // J/Up
 void Keyboard::dvorak42(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_UP_ARROW);
   else
     KP(HID_KEYBOARD_SC_H);
 };
 // K/End
 void Keyboard::dvorak43(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_END);
   else
     KP(HID_KEYBOARD_SC_T);
 };
 // L/7
 void Keyboard::dvorak44(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_7_AND_HOME);
   else
     KP(HID_KEYBOARD_SC_N);
 };
 // ;:8
 void Keyboard::dvorak45(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_8_AND_UP_ARROW);
   else
     KP(HID_KEYBOARD_SC_S);
 };
 // \|6
 void Keyboard::dvorak46(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_6_AND_RIGHT_ARROW);
   else
     KP(HID_KEYBOARD_SC_NON_US_BACKSLASH_AND_PIPE);
 };
 // www/Bs
 void Keyboard::dvorak47(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_BACKSPACE);
-  else
-    KP(KEY_WWW);
+//  else
+//    KP(KEY_WWW); // FIXME
 };
 // RSft/+
 void Keyboard::dvorak48(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_PLUS);
   else {
     KP(HID_KEYBOARD_SC_RIGHT_SHIFT);
@@ -278,7 +278,7 @@ void Keyboard::dvorak48(){
 // Dsk/Pv
 void Keyboard::dvorak49(){
   if(fn)
-    KP(KEY_MEDIA_PREV);
+    KP(KEY_MEDIA_PREVIOUS);
   else{
     KP(HID_KEYBOARD_SC_LEFT_GUI);
     KP(HID_KEYBOARD_SC_D);
@@ -312,7 +312,7 @@ void Keyboard::dvorak54(){
 // F8/Slp
 void Keyboard::dvorak55(){
   if(fn)
-    KP(HID_KEYBOARD_SC_INTERNATIONAL8);
+    KP(KEY_SLEEP);
   else
     KP(HID_KEYBOARD_SC_F8);
 };
@@ -329,7 +329,7 @@ void Keyboard::dvorak57(){
 };
 // Home/1
 void Keyboard::dvorak58(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_1_AND_END);
   else
     KP(HID_KEYBOARD_SC_HOME);
@@ -337,7 +337,7 @@ void Keyboard::dvorak58(){
 // PUp/Bck
 void Keyboard::dvorak59(){
   if(fn)
-    KP(HID_KEYBOARD_SC_RETURN);
+    KP(KEY_BROWSER_BACK);
   else
     KP(HID_KEYBOARD_SC_PAGE_UP);
 };
@@ -372,7 +372,7 @@ void Keyboard::dvorak64(){
 };
 // D/Home
 void Keyboard::dvorak65(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_HOME);
   else
     KP(HID_KEYBOARD_SC_D);
@@ -380,13 +380,13 @@ void Keyboard::dvorak65(){
 // F6/Ejct
 void Keyboard::dvorak66(){
   if(fn)
-    KP(HID_KEYBOARD_SC_OPER);
+    KP(KEY_EJECT);
   else
     KP(HID_KEYBOARD_SC_F6);
 };
 // '"9
 void Keyboard::dvorak67(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_9_AND_PAGE_UP);
   else
     KP(HID_KEYBOARD_SC_MINUS_AND_UNDERSCORE);
@@ -400,7 +400,7 @@ void Keyboard::dvorak68(){
 };
 // Up/2
 void Keyboard::dvorak69(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_2_AND_DOWN_ARROW);
   else
     KP(HID_KEYBOARD_SC_UP_ARROW);
@@ -412,7 +412,7 @@ void Keyboard::dvorak70(){
 // Spc/Mte
 void Keyboard::dvorak71(){
   if(fn)
-    KP(HID_KEYBOARD_SC_F22);
+    KP(HID_KEYBOARD_SC_MUTE);
   else
     KP(HID_KEYBOARD_SC_SPACE);
 };
@@ -430,21 +430,21 @@ void Keyboard::dvorak74(){
 };
 // M/Dwn
 void Keyboard::dvorak75(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_DOWN_ARROW);
   else
     KP(HID_KEYBOARD_SC_M);
 };
 // ,</Rgt
 void Keyboard::dvorak76(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_RIGHT_ARROW);
   else
     KP(HID_KEYBOARD_SC_W);
 };
 // .>4
 void Keyboard::dvorak77(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_4_AND_LEFT_ARROW);
   else
     KP(HID_KEYBOARD_SC_V);
@@ -452,13 +452,13 @@ void Keyboard::dvorak77(){
 // Ret/V-
 void Keyboard::dvorak78(){
   if(fn)
-    KP(HID_KEYBOARD_SC_F23);
+    KP(HID_KEYBOARD_SC_VOLUME_DOWN);
   else
     KP(HID_KEYBOARD_SC_ENTER);
 };
 // RCtl/Ret
 void Keyboard::dvorak79(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_ENTER);
   else
     KP(HID_KEYBOARD_SC_RIGHT_CONTROL);
@@ -474,7 +474,7 @@ void Keyboard::dvorak81(){
 };
 // N/Left
 void Keyboard::dvorak82(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_LEFT_ARROW);
   else
     KP(HID_KEYBOARD_SC_B);
@@ -487,11 +487,11 @@ void Keyboard::dvorak83(){
     KR(HID_KEYBOARD_SC_C);
     KR(HID_KEYBOARD_SC_LEFT_CONTROL);
   }else
-    KP(HID_KEYBOARD_SC_MUTE);
+    KP(HID_KEYBOARD_SC_APPLICATION);
 };
 // /?5
 void Keyboard::dvorak84(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_5);
   else
     KP(HID_KEYBOARD_SC_Z);
@@ -499,31 +499,34 @@ void Keyboard::dvorak84(){
 // F12/Pse
 void Keyboard::dvorak85(){
   if(fn)
-    KP(HID_KEYBOARD_SC_SELECT);
+    KP(HID_KEYBOARD_SC_PAUSE);
   else
     KP(HID_KEYBOARD_SC_F12);
 };
 // Left/0
 void Keyboard::dvorak86(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_0_AND_INSERT);
   else
     KP(HID_KEYBOARD_SC_LEFT_ARROW);
 };
 // Rght/.
 void Keyboard::dvorak87(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_DOT_AND_DELETE);
   else
     KP(HID_KEYBOARD_SC_RIGHT_ARROW);
 };
 // RAlt/Nx
 void Keyboard::dvorak88(){
-  KP(HID_KEYBOARD_SC_RIGHT_ALT);
+  if(fn)
+    KP(KEY_MEDIA_NEXT);
+  else
+    KP(HID_KEYBOARD_SC_RIGHT_ALT);
 };
 // Dwn/00
 void Keyboard::dvorak89(){
-  if(fn||keypad)
+  if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_00);
   else
     KP(HID_KEYBOARD_SC_DOWN_ARROW);

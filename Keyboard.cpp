@@ -70,6 +70,7 @@ Keyboard::Keyboard(FILE *S){
   MCPwrite16(MCP23017_ADDR_0, MCP23017_GPPUA, 0xFF, 0xFF);
   MCPwrite16(MCP23017_ADDR_1, MCP23017_GPPUA, 0xFF, 0xFF);
   // States
+  lastNumKey=0;
   numLock=0;
   keypad=0;
   capsLock=0;
@@ -152,6 +153,7 @@ void Keyboard::scanAll(){
   scanPairs(6, 9, 10, 11, 12, 14, 15, 16, 22, 24, -1);
   scanPairs(7, 8, 9, 10, 11, 12, 13, 15, 19, 24, -1);
   scanPairs(25, 10, 11, 13, 14, 15, 16, 21, 22, 24, -1);
+//fprintf_P(Stream, PSTR("numLock=%d keypad=%d fn=%d capsLock=%d\r\n"), numLock, keypad, fn, capsLock);
 }
 
 void Keyboard::processKeyEvent(uint8_t key){
@@ -164,7 +166,7 @@ void Keyboard::processKeyEvent(uint8_t key){
 
 #define SETMOD(key, value) case key: KeyboardReport->Modifier|=value;break;
 void Keyboard::press(uint8_t key){
-fprintf_P(Stream, PSTR("  press() %d +++\r\n"), key);
+//fprintf_P(Stream, PSTR("  press() %d +++\r\n"), key);
   switch(key){
     SETMOD(HID_KEYBOARD_SC_LEFT_CONTROL, HID_KEYBOARD_MODIFIER_LEFTCTRL);
     SETMOD(HID_KEYBOARD_SC_LEFT_SHIFT, HID_KEYBOARD_MODIFIER_LEFTSHIFT);
@@ -187,7 +189,7 @@ fprintf_P(Stream, PSTR("  press() %d +++\r\n"), key);
 
 #define UNSETMOD(key, value) case key: KeyboardReport->Modifier&=~value;break;
 void Keyboard::release(uint8_t key){
-fprintf_P(Stream, PSTR("  release() %d ---\r\n"), key);
+//fprintf_P(Stream, PSTR("  release() %d ---\r\n"), key);
   switch(key){
     UNSETMOD(HID_KEYBOARD_SC_LEFT_CONTROL, HID_KEYBOARD_MODIFIER_LEFTCTRL);
     UNSETMOD(HID_KEYBOARD_SC_LEFT_SHIFT, HID_KEYBOARD_MODIFIER_LEFTSHIFT);
@@ -213,312 +215,223 @@ void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t pressed){
     case 0:
       switch(b){
         case 3:
-          if(pressed)processKeyEvent(0);
-          break;
+          if(pressed)processKeyEvent(0);break;
         case 8:
-          if(pressed)processKeyEvent(1);
-          break;
+          if(pressed)processKeyEvent(1);break;
         case 9:
-          if(pressed)processKeyEvent(2);
-          break;
+          if(pressed)processKeyEvent(2);break;
         case 10:
-          if(pressed)processKeyEvent(3);
-          break;
+          if(pressed)processKeyEvent(3);break;
         case 11:
-          if(pressed)processKeyEvent(4);
-          break;
+          if(pressed)processKeyEvent(4);break;
         case 12:
-          if(pressed)processKeyEvent(5);
-          break;
+          if(pressed)processKeyEvent(5);break;
         case 13:
-          if(pressed)processKeyEvent(6);
-          break;
+          if(pressed)processKeyEvent(6);break;
         case 14:
-          if(pressed)processKeyEvent(7);
-          break;
+          if(pressed)processKeyEvent(7);break;
         case 16:
-          if(pressed)processKeyEvent(8);
-          break;
+          if(pressed)processKeyEvent(8);break;
       }
       break;
     case 1:
       switch(b){
         case 3:
-          if(pressed)processKeyEvent(9);
-          break;
+          if(pressed)processKeyEvent(9);break;
         case 8:
-          if(pressed)processKeyEvent(10);
-          break;
+          if(pressed)processKeyEvent(10);break;
         case 9:
-          if(pressed)processKeyEvent(11);
-          break;
+          if(pressed)processKeyEvent(11);break;
         case 10:
-          if(pressed)processKeyEvent(12);
-          break;
+          if(pressed)processKeyEvent(12);break;
         case 11:
-          if(pressed)processKeyEvent(13);
-          break;
+          if(pressed)processKeyEvent(13);break;
         case 12:
-          if(pressed)processKeyEvent(14);
-          break;
+          if(pressed)processKeyEvent(14);break;
         case 13:
-          if(pressed)processKeyEvent(15);
-          break;
+          if(pressed)processKeyEvent(15);break;
         case 14:
-          if(pressed)processKeyEvent(16);
-          break;
+          if(pressed)processKeyEvent(16);break;
         case 15:
-          if(pressed)processKeyEvent(17);
-          break;
+          if(pressed)processKeyEvent(17);break;
         case 16:
-          if(pressed)processKeyEvent(18);
-          break;
+          if(pressed)processKeyEvent(18);break;
         case 18:
-          if(pressed)processKeyEvent(19);
-          break;
+          if(pressed)processKeyEvent(19);break;
         case 20:
-          if(pressed)processKeyEvent(20);
-          break;
+          if(pressed)processKeyEvent(20);break;
         case 23:
-          if(pressed)processKeyEvent(21);
-          break;
+          if(pressed)processKeyEvent(21);break;
       }
       break;
     case 2:
       switch(b){
         case 3:
-          if(pressed)processKeyEvent(22);
-          break;
+          if(pressed)processKeyEvent(22);break;
         case 8:
-          if(pressed)processKeyEvent(23);
-          break;
+          if(pressed)processKeyEvent(23);break;
         case 9:
-          if(pressed)processKeyEvent(24);
-          break;
+          if(pressed)processKeyEvent(24);break;
         case 10:
-          if(pressed)processKeyEvent(25);
-          break;
+          if(pressed)processKeyEvent(25);break;
         case 11:
-          if(pressed)processKeyEvent(26);
-          break;
+          if(pressed)processKeyEvent(26);break;
         case 12:
-          if(pressed)processKeyEvent(27);
-          break;
+          if(pressed)processKeyEvent(27);break;
         case 13:
-          if(pressed)processKeyEvent(28);
-          break;
+          if(pressed)processKeyEvent(28);break;
         case 14:
-          if(pressed)processKeyEvent(29);
-          break;
+          if(pressed)processKeyEvent(29);break;
         case 15:
-          if(pressed)processKeyEvent(30);
-          break;
+          if(pressed)processKeyEvent(30);break;
         case 16:
-          if(pressed)processKeyEvent(31);
-          break;
+          if(pressed)processKeyEvent(31);break;
         case 17:
-          if(pressed)processKeyEvent(32);
-          break;
+          if(pressed)processKeyEvent(32);break;
         case 19:
-          if(pressed)processKeyEvent(33);
-          break;
+          if(pressed)processKeyEvent(33);break;
         case 20:
           if(pressed)
             fn=1;
           else
             fn=0;
-          break;
       }
       break;
     case 3:
       switch(b){
         case 4:
-          if(pressed)processKeyEvent(35);
-          break;
+          if(pressed)processKeyEvent(35);break;
         case 5:
-          if(pressed)processKeyEvent(36);
-          break;
+          if(pressed)processKeyEvent(36);break;
         case 6:
-          if(pressed)processKeyEvent(37);
-          break;
+          if(pressed)processKeyEvent(37);break;
         case 7:
-          if(pressed)processKeyEvent(38);
-          break;
+          if(pressed)processKeyEvent(38);break;
       }
       break;
     case 4:
       switch(b){
         case 8:
-          if(pressed)processKeyEvent(39);
-          break;
+          if(pressed)processKeyEvent(39);break;
         case 9:
-          if(pressed)processKeyEvent(40);
-          break;
+          if(pressed)processKeyEvent(40);break;
         case 10:
-          if(pressed)processKeyEvent(41);
-          break;
+          if(pressed)processKeyEvent(41);break;
         case 11:
-          if(pressed)processKeyEvent(42);
-          break;
+          if(pressed)processKeyEvent(42);break;
         case 12:
-          if(pressed)processKeyEvent(43);
-          break;
+          if(pressed)processKeyEvent(43);break;
         case 13:
-          if(pressed)processKeyEvent(44);
-          break;
+          if(pressed)processKeyEvent(44);break;
         case 14:
-          if(pressed)processKeyEvent(45);
-          break;
+          if(pressed)processKeyEvent(45);break;
         case 15:
-          if(pressed)processKeyEvent(46);
-          break;
+          if(pressed)processKeyEvent(46);break;
         case 16:
-          if(pressed)processKeyEvent(47);
-          break;
+          if(pressed)processKeyEvent(47);break;
         case 18:
-          if(pressed)processKeyEvent(48);
-          break;
+          if(pressed)processKeyEvent(48);break;
         case 20:
-          if(pressed)processKeyEvent(49);
-          break;
+          if(pressed)processKeyEvent(49);break;
       }
       break;
     case 5:
       switch(b){
         case 8:
-          if(pressed)processKeyEvent(50);
-          break;
+          if(pressed)processKeyEvent(50);break;
         case 9:
-          if(pressed)processKeyEvent(51);
-          break;
+          if(pressed)processKeyEvent(51);break;
         case 10:
-          if(pressed)processKeyEvent(52);
-          break;
+          if(pressed)processKeyEvent(52);break;
         case 11:
-          if(pressed)processKeyEvent(53);
-          break;
+          if(pressed)processKeyEvent(53);break;
         case 12:
-          if(pressed)processKeyEvent(54);
-          break;
+          if(pressed)processKeyEvent(54);break;
         case 13:
-          if(pressed)processKeyEvent(55);
-          break;
+          if(pressed)processKeyEvent(55);break;
         case 14:
-          if(pressed)processKeyEvent(56);
-          break;
+          if(pressed)processKeyEvent(56);break;
         case 15:
-          if(pressed)processKeyEvent(57);
-          break;
+          if(pressed)processKeyEvent(57);break;
         case 16:
-          if(pressed)processKeyEvent(58);
-          break;
+          if(pressed)processKeyEvent(58);break;
         case 17:
-          if(pressed)processKeyEvent(59);
-          break;
+          if(pressed)processKeyEvent(59);break;
         case 19:
-          if(pressed)processKeyEvent(60);
-          break;
+          if(pressed)processKeyEvent(60);break;
         case 21:
-          if(pressed)processKeyEvent(61);
-          break;
+          if(pressed)processKeyEvent(61);break;
         case 24:
-          if(pressed)processKeyEvent(62);
-          break;
+          if(pressed)processKeyEvent(62);break;
       }
       break;
     case 6:
       switch(b){
         case 9:
-          if(pressed)processKeyEvent(63);
-          break;
+          if(pressed)processKeyEvent(63);break;
         case 10:
-          if(pressed)processKeyEvent(64);
-          break;
+          if(pressed)processKeyEvent(64);break;
         case 11:
-          if(pressed)processKeyEvent(65);
-          break;
+          if(pressed)processKeyEvent(65);break;
         case 12:
-          if(pressed)processKeyEvent(66);
-          break;
+          if(pressed)processKeyEvent(66);break;
         case 14:
-          if(pressed)processKeyEvent(67);
-          break;
+          if(pressed)processKeyEvent(67);break;
         case 15:
-          if(pressed)processKeyEvent(68);
-          break;
+          if(pressed)processKeyEvent(68);break;
         case 16:
-          if(pressed)processKeyEvent(69);
-          break;
+          if(pressed)processKeyEvent(69);break;
         case 22:
-          if(pressed)processKeyEvent(70);
-          break;
+          if(pressed)processKeyEvent(70);break;
         case 24:
-          if(pressed)processKeyEvent(71);
-          break;
+          if(pressed)processKeyEvent(71);break;
       }
       break;
     case 7:
       switch(b){
         case 8:
-          if(pressed)processKeyEvent(72);
-          break;
+          if(pressed)processKeyEvent(72);break;
         case 9:
-          if(pressed)processKeyEvent(73);
-          break;
+          if(pressed)processKeyEvent(73);break;
         case 10:
-          if(pressed)processKeyEvent(74);
-          break;
+          if(pressed)processKeyEvent(74);break;
         case 11:
-          if(pressed)processKeyEvent(75);
-          break;
+          if(pressed)processKeyEvent(75);break;
         case 12:
-          if(pressed)processKeyEvent(76);
-          break;
+          if(pressed)processKeyEvent(76);break;
         case 13:
-          if(pressed)processKeyEvent(77);
-          break;
+          if(pressed)processKeyEvent(77);break;
         case 15:
-          if(pressed)processKeyEvent(78);
-          break;
+          if(pressed)processKeyEvent(78);break;
         case 19:
-          if(pressed)processKeyEvent(79);
-          break;
-        case 24:
-          if(pressed&&!fn)
+          if(pressed)processKeyEvent(79);break;
+        case 24: // NumLock
+          if(pressed&&!lastNumKey&&!fn)
             keypad=!keypad;
-          if(pressed)processKeyEvent(80);
-          break;
+          lastNumKey=pressed;
+          if(pressed)processKeyEvent(80);break;
       }
       break;
     case 25:
       switch(b){
         case 10:
-          if(pressed)processKeyEvent(81);
-          break;
+          if(pressed)processKeyEvent(81);break;
         case 11:
-          if(pressed)processKeyEvent(82);
-          break;
+          if(pressed)processKeyEvent(82);break;
         case 13:
-          if(pressed)processKeyEvent(83);
-          break;
+          if(pressed)processKeyEvent(83);break;
         case 14:
-          if(pressed)processKeyEvent(84);
-          break;
+          if(pressed)processKeyEvent(84);break;
         case 15:
-          if(pressed)processKeyEvent(85);
-          break;
+          if(pressed)processKeyEvent(85);break;
         case 16:
-          if(pressed)processKeyEvent(86);
-          break;
+          if(pressed)processKeyEvent(86);break;
         case 21:
-          if(pressed)processKeyEvent(87);
-          break;
+          if(pressed)processKeyEvent(87);break;
         case 22:
-          if(pressed)processKeyEvent(88);
-          break;
+          if(pressed)processKeyEvent(88);break;
         case 24:
-          if(pressed)processKeyEvent(89);
-          break;
+          if(pressed)processKeyEvent(89);break;
       }
       break;
   }

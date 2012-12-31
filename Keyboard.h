@@ -13,6 +13,12 @@
 
 #ifdef __cplusplus
 
+#define QWERTY 0
+#define DVORAK 1
+#define LAYOUT_MAX 1
+
+#define EEPROM_LAYOUT 0
+
 extern USB_ClassInfo_HID_Device_t Keyboard_HID_Interface;
 
 class Keyboard {
@@ -37,7 +43,7 @@ private:
   uint8_t keyState[NUM_KEYS];
   uint8_t keypad;
   uint8_t fn;
-  uint8_t dvorakQWERTY;
+  uint8_t layout;
   // aidd a key sequence to be outputted by scanAll()
   // seq will be freed with free() in the end
   // [number of keys] [key1] [key2] ...
@@ -66,7 +72,7 @@ private:
   void common85(); void common86(); void common87();
   void common88(); void common89();
   // Dvorak
-  void (Keyboard::*dvorakPressed[NUM_KEYS])();
+  void (Keyboard::*dvorak[NUM_KEYS])();
   void dvorak0(); void dvorak1(); void dvorak2();
   void dvorak3(); void dvorak4(); void dvorak5();
   void dvorak6(); void dvorak7(); void dvorak12();
@@ -80,6 +86,21 @@ private:
   void dvorak74(); void dvorak75(); void dvorak76();
   void dvorak77(); void dvorak81(); void dvorak82();
   void dvorak84();
+  // QWERTY
+  void (Keyboard::*qwerty[NUM_KEYS])();
+  void qwerty0(); void qwerty1(); void qwerty2();
+  void qwerty3(); void qwerty4(); void qwerty5();
+  void qwerty6(); void qwerty7(); void qwerty12();
+  void qwerty13(); void qwerty14(); void qwerty16();
+  void qwerty35(); void qwerty36(); void qwerty38();
+  void qwerty39(); void qwerty40(); void qwerty41();
+  void qwerty42(); void qwerty43(); void qwerty44();
+  void qwerty45(); void qwerty46(); void qwerty54();
+  void qwerty56(); void qwerty64(); void qwerty65();
+  void qwerty67(); void qwerty72(); void qwerty73();
+  void qwerty74(); void qwerty75(); void qwerty76();
+  void qwerty77(); void qwerty81(); void qwerty82();
+  void qwerty84();
 public:
   Keyboard(FILE *S);
   void scanAll();

@@ -9,6 +9,7 @@ extern "C" {
 
 #include <avr/pgmspace.h>
 #include <stdlib.h>
+#include <avr/eeprom.h>
 
 #include "MCP23017_registers.h"
 
@@ -74,11 +75,18 @@ Keyboard::Keyboard(FILE *S){
     keyState[i]=0;
   keypad=0;
   fn=0;
-  dvorakQWERTY=0; // FIXME load from EEPROM
+  // Load layout
+  eeprom_busy_wait();
+  layout=eeprom_read_byte((const uint8_t *)EEPROM_LAYOUT);
+  if(layout>LAYOUT_MAX){
+    layout=QWERTY;
+    eeprom_busy_wait();
+    eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
+  }
   // Sequences
   sequence=NULL;
   // Dvorak callbacks (should go to PROGMEM...)
-  dvorakPressed={
+  dvorak={
     &Keyboard::dvorak0,  &Keyboard::dvorak1,  &Keyboard::dvorak2,  &Keyboard::dvorak3,  &Keyboard::dvorak4,
     &Keyboard::dvorak5,  &Keyboard::dvorak6,  &Keyboard::dvorak7,  &Keyboard::common8,  &Keyboard::common9,
     &Keyboard::common10, &Keyboard::common11, &Keyboard::dvorak12, &Keyboard::dvorak13, &Keyboard::dvorak14,
@@ -96,6 +104,26 @@ Keyboard::Keyboard(FILE *S){
     &Keyboard::common70, &Keyboard::common71, &Keyboard::dvorak72, &Keyboard::dvorak73, &Keyboard::dvorak74,
     &Keyboard::dvorak75, &Keyboard::dvorak76, &Keyboard::dvorak77, &Keyboard::common78, &Keyboard::common79,
     &Keyboard::common80, &Keyboard::dvorak81, &Keyboard::dvorak82, &Keyboard::common83, &Keyboard::dvorak84,
+    &Keyboard::common85, &Keyboard::common86, &Keyboard::common87, &Keyboard::common88, &Keyboard::common89,
+    };
+  qwerty={
+    &Keyboard::qwerty0,  &Keyboard::qwerty1,  &Keyboard::qwerty2,  &Keyboard::qwerty3,  &Keyboard::qwerty4,
+    &Keyboard::qwerty5,  &Keyboard::qwerty6,  &Keyboard::qwerty7,  &Keyboard::common8,  &Keyboard::common9,
+    &Keyboard::common10, &Keyboard::common11, &Keyboard::qwerty12, &Keyboard::qwerty13, &Keyboard::qwerty14,
+    &Keyboard::common15, &Keyboard::qwerty16, &Keyboard::common17, &Keyboard::common18, &Keyboard::common19,
+    &Keyboard::common20, &Keyboard::common21, &Keyboard::common22, &Keyboard::common23, &Keyboard::common24,
+    &Keyboard::common25, &Keyboard::common26, &Keyboard::common27, &Keyboard::common28, &Keyboard::common29,
+    &Keyboard::common30, &Keyboard::common31, &Keyboard::common32, &Keyboard::common33, &Keyboard::common34,
+    &Keyboard::qwerty35, &Keyboard::qwerty36, &Keyboard::common37, &Keyboard::qwerty38, &Keyboard::qwerty39,
+    &Keyboard::qwerty40, &Keyboard::qwerty41, &Keyboard::qwerty42, &Keyboard::qwerty43, &Keyboard::qwerty44,
+    &Keyboard::qwerty45, &Keyboard::qwerty46, &Keyboard::common47, &Keyboard::common48, &Keyboard::common49,
+    &Keyboard::common50, &Keyboard::common51, &Keyboard::common52, &Keyboard::common53, &Keyboard::qwerty54,
+    &Keyboard::common55, &Keyboard::qwerty56, &Keyboard::common57, &Keyboard::common58, &Keyboard::common59,
+    &Keyboard::common60, &Keyboard::common61, &Keyboard::common62, &Keyboard::common63, &Keyboard::qwerty64,
+    &Keyboard::qwerty65, &Keyboard::common66, &Keyboard::qwerty67, &Keyboard::common68, &Keyboard::common69,
+    &Keyboard::common70, &Keyboard::common71, &Keyboard::qwerty72, &Keyboard::qwerty73, &Keyboard::qwerty74,
+    &Keyboard::qwerty75, &Keyboard::qwerty76, &Keyboard::qwerty77, &Keyboard::common78, &Keyboard::common79,
+    &Keyboard::common80, &Keyboard::qwerty81, &Keyboard::qwerty82, &Keyboard::common83, &Keyboard::qwerty84,
     &Keyboard::common85, &Keyboard::common86, &Keyboard::common87, &Keyboard::common88, &Keyboard::common89,
     };
 }
@@ -160,10 +188,17 @@ void Keyboard::scanAll(){
 
 void Keyboard::processKeyEvent(uint8_t key){
 //fprintf_P(Stream, PSTR("PRESSED %d\r\n"), key);
-  if(dvorakQWERTY){
-
-  }else{
-    (this->*dvorakPressed[key])();
+  switch(layout){
+    case DVORAK:
+      (this->*dvorak[key])();
+      break;
+    case QWERTY:
+      (this->*qwerty[key])();
+      break;
+    default:
+      layout=QWERTY;
+      (this->*qwerty[key])();
+      break;
   }
 }
 
@@ -365,6 +400,14 @@ void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t state){
     case 5:
       switch(b){
         case 8:
+          if((state&&!keyState[50])&&fn){
+            if(layout==QWERTY)
+              layout=DVORAK;
+            else if(layout==DVORAK)
+              layout=QWERTY;
+            eeprom_busy_wait();
+            eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
+          }
           if(state)processKeyEvent(50);keyState[50]=state;break;
         case 9:
           if(state)processKeyEvent(51);keyState[51]=state;break;

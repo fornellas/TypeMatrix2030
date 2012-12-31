@@ -145,9 +145,7 @@ void Keyboard::common49(){
 };
 // F1/Dvk
 void Keyboard::common50(){
-  if(fn)
-    dvorakQWERTY=!dvorakQWERTY;
-  else
+  if(!fn)
     KP(HID_KEYBOARD_SC_F1);
 };
 // F2

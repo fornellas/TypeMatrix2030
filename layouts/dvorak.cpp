@@ -182,7 +182,7 @@ void Keyboard::dvorak64(){
   }else
     KP(HID_KEYBOARD_SC_I);
 };
-// D/Home
+// H/Home
 void Keyboard::dvorak65(){
   if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_HOME);

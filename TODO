@@ -18,6 +18,7 @@ OK- Actual Ctrl+X/C/V
   - QWERTY US > Dvorak
   - ABNT2 > Dvorak
   - Save keyboard layout conf.
+  - Fn+ left hand keys = QWERTY layout for shortcuts.
 - Remove bootloader.
 - Change board (Teensy 2.0++).
 - Sepparate Keypad and NumLock indicators.

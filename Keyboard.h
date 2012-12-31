@@ -9,6 +9,8 @@
 
 #define NUM_KEYS 90
 
+#define KP(key) press(key)
+
 #ifdef __cplusplus
 
 extern USB_ClassInfo_HID_Device_t Keyboard_HID_Interface;
@@ -44,38 +46,40 @@ private:
   void addKeySequence(uint8_t *seq);
   uint8_t *sequence;
   void playKeySequence();
+  // Common keys
+  void common8(); void common9(); void common10();
+  void common11(); void common15(); void common17();
+  void common18(); void common19(); void common20();
+  void common21(); void common22(); void common23();
+  void common24(); void common25(); void common26();
+  void common27(); void common28(); void common29();
+  void common30(); void common31(); void common32();
+  void common33(); void common34(); void common37();
+  void common47(); void common48(); void common49();
+  void common50(); void common51(); void common52();
+  void common53(); void common55(); void common57();
+  void common58(); void common59(); void common60();
+  void common61(); void common62(); void common63();
+  void common66(); void common68(); void common69();
+  void common70(); void common71(); void common78();
+  void common79(); void common80(); void common83();
+  void common85(); void common86(); void common87();
+  void common88(); void common89();
   // Dvorak
   void (Keyboard::*dvorakPressed[NUM_KEYS])();
   void dvorak0(); void dvorak1(); void dvorak2();
   void dvorak3(); void dvorak4(); void dvorak5();
-  void dvorak6(); void dvorak7(); void dvorak8();
-  void dvorak9(); void dvorak10(); void dvorak11();
-  void dvorak12(); void dvorak13(); void dvorak14();
-  void dvorak15(); void dvorak16(); void dvorak17();
-  void dvorak18(); void dvorak19(); void dvorak20();
-  void dvorak21(); void dvorak22(); void dvorak23();
-  void dvorak24(); void dvorak25(); void dvorak26();
-  void dvorak27(); void dvorak28(); void dvorak29();
-  void dvorak30(); void dvorak31(); void dvorak32();
-  void dvorak33(); void dvorak34(); void dvorak35();
-  void dvorak36(); void dvorak37(); void dvorak38();
+  void dvorak6(); void dvorak7(); void dvorak12();
+  void dvorak13(); void dvorak14(); void dvorak16();
+  void dvorak35(); void dvorak36(); void dvorak38();
   void dvorak39(); void dvorak40(); void dvorak41();
   void dvorak42(); void dvorak43(); void dvorak44();
-  void dvorak45(); void dvorak46(); void dvorak47();
-  void dvorak48(); void dvorak49(); void dvorak50();
-  void dvorak51(); void dvorak52(); void dvorak53();
-  void dvorak54(); void dvorak55(); void dvorak56();
-  void dvorak57(); void dvorak58(); void dvorak59();
-  void dvorak60(); void dvorak61(); void dvorak62();
-  void dvorak63(); void dvorak64(); void dvorak65();
-  void dvorak66(); void dvorak67(); void dvorak68();
-  void dvorak69(); void dvorak70(); void dvorak71();
-  void dvorak72(); void dvorak73(); void dvorak74();
-  void dvorak75(); void dvorak76(); void dvorak77();
-  void dvorak78(); void dvorak79(); void dvorak80();
-  void dvorak81(); void dvorak82(); void dvorak83();
-  void dvorak84(); void dvorak85(); void dvorak86();
-  void dvorak87(); void dvorak88(); void dvorak89();
+  void dvorak45(); void dvorak46(); void dvorak54();
+  void dvorak56(); void dvorak64(); void dvorak65();
+  void dvorak67(); void dvorak72(); void dvorak73();
+  void dvorak74(); void dvorak75(); void dvorak76();
+  void dvorak77(); void dvorak81(); void dvorak82();
+  void dvorak84();
 public:
   Keyboard(FILE *S);
   void scanAll();

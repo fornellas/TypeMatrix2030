@@ -27,18 +27,23 @@ private:
   // set lowPin to low and scan other asked pins for low signal. Last arg must be -1.
    void scanPairs(uint8_t lowPin, ...);
   // Process key event
-   void processRawEvent(uint8_t a, uint8_t b, uint8_t pressed);
+   void processRawEvent(uint8_t a, uint8_t b, uint8_t state);
    void processKeyEvent(uint8_t key);
   // key pressses
   void press(uint8_t key);
-  void release(uint8_t key);
   // States
-  uint8_t lastNumKey;
-  uint8_t numLock;
+  uint8_t keyState[NUM_KEYS];
   uint8_t keypad;
   uint8_t fn;
-  uint8_t capsLock;
   uint8_t dvorakQWERTY;
+  // aidd a key sequence to be outputted by scanAll()
+  // seq will be freed with free() in the end
+  // [number of keys] [key1] [key2] ...
+  // [number of keys] [key1] [key2] ...
+  // 0x00
+  void addKeySequence(uint8_t *seq);
+  uint8_t *sequence;
+  void playKeySequence();
   // Dvorak
   void (Keyboard::*dvorakPressed[NUM_KEYS])();
   void dvorak0(); void dvorak1(); void dvorak2();

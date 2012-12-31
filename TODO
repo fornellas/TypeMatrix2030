@@ -6,14 +6,14 @@ OK  - Remove shift variable
 OK- Integrate old code
 OK  - Convert Wire to LUFA calls
 OK- Validate each key
-- Implement key sequences
-- Validate power consumption (Descriptons.c)
-- Save keyboard layout.
-- Non buggy Alt-Tab
+OK- Implement key sequences
+OK- Non buggy Alt-Tab
+OK- Actual Ctrl+X/C/V
 - More layouts
-  - US > Dvorak
+  - QWERTY US
+  - QWERTY US > Dvorak
   - ABNT2 > Dvorak
-- Actual Ctrl+X/C/V
+  - Save keyboard layout conf.
 - Sepparate Keypad and NumLock indicators.
 - Password protected key presses sequences.
-
+- Validate power consumption (Descriptons.c)

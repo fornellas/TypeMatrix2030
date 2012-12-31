@@ -2,10 +2,11 @@
 
 #include <LUFA/Drivers/USB/USB.h>
 
+#include <stdlib.h>
+
 #include "extraKeys.h"
 
 #define KP(key) press(key)
-#define KR(key) release(key)
 
 // Q
 void Keyboard::dvorak0(){
@@ -47,14 +48,8 @@ void Keyboard::dvorak7(){
 };
 // Ply/CX
 void Keyboard::dvorak8(){
-  if(fn){
-    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
-    KP(HID_KEYBOARD_SC_X);
-    KR(HID_KEYBOARD_SC_X);
-    KR(HID_KEYBOARD_SC_LEFT_CONTROL);
-  }else{
+  if(!fn)
     KP(KEY_PLAY);
-  }
 };
 // Tab
 void Keyboard::dvorak9(){
@@ -121,16 +116,8 @@ void Keyboard::dvorak19(){
 };
 // AT/CV
 void Keyboard::dvorak20(){
-  if(fn){
-    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
-    KP(HID_KEYBOARD_SC_V);
-    KR(HID_KEYBOARD_SC_V);
-    KR(HID_KEYBOARD_SC_LEFT_CONTROL);
-  }else{
+  if(!fn)
     KP(HID_KEYBOARD_SC_LEFT_ALT);
-    KP(HID_KEYBOARD_SC_TAB);
-    KR(HID_KEYBOARD_SC_TAB);
-  }
 };
 // Start
 void Keyboard::dvorak21(){
@@ -279,12 +266,6 @@ void Keyboard::dvorak48(){
 void Keyboard::dvorak49(){
   if(fn)
     KP(KEY_MEDIA_PREVIOUS);
-  else{
-    KP(HID_KEYBOARD_SC_LEFT_GUI);
-    KP(HID_KEYBOARD_SC_D);
-    KR(HID_KEYBOARD_SC_D);
-    KR(HID_KEYBOARD_SC_LEFT_GUI);
-  }
 };
 // F1/Dvk
 void Keyboard::dvorak50(){
@@ -345,15 +326,9 @@ void Keyboard::dvorak59(){
 void Keyboard::dvorak60(){
   KP(HID_KEYBOARD_SC_LEFT_CONTROL);
 };
-// Mil/BTb
+// Mail/BackTab
 void Keyboard::dvorak61(){
-  if(fn){
-    KP(HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN);
-    KP(HID_KEYBOARD_SC_L);
-    KR(HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN);
-    KR(HID_KEYBOARD_SC_L);
-  }else
-    KP(HID_KEYBOARD_SC_CANCEL);
+  // FIXME Mail
 };
 // Del/Ins
 void Keyboard::dvorak62(){
@@ -481,12 +456,7 @@ void Keyboard::dvorak82(){
 };
 // Menu/CC
 void Keyboard::dvorak83(){
-  if(fn){
-    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
-    KP(HID_KEYBOARD_SC_C);
-    KR(HID_KEYBOARD_SC_C);
-    KR(HID_KEYBOARD_SC_LEFT_CONTROL);
-  }else
+  if(!fn)
     KP(HID_KEYBOARD_SC_APPLICATION);
 };
 // /?5

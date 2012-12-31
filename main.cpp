@@ -23,8 +23,9 @@ extern USB_ClassInfo_HID_Device_t Keyboard_HID_Interface;
 /** Standard file stream for the CDC interface when set up, so that the virtual CDC COM port can be
  *  used like any regular character stream in the C APIs
  */
-static FILE USBSerialStream;
-
+extern "C"{
+FILE USBSerialStream;
+}
 Keyboard *kbd;
 
 int main(void){

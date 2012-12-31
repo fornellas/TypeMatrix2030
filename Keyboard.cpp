@@ -8,7 +8,7 @@ extern "C" {
 #include <LUFA/Drivers/Peripheral/TWI.h>
 
 #include <avr/pgmspace.h>
-#include <util/delay.h>
+#include <stdlib.h>
 
 #include "MCP23017_registers.h"
 
@@ -70,12 +70,13 @@ Keyboard::Keyboard(FILE *S){
   MCPwrite16(MCP23017_ADDR_0, MCP23017_GPPUA, 0xFF, 0xFF);
   MCPwrite16(MCP23017_ADDR_1, MCP23017_GPPUA, 0xFF, 0xFF);
   // States
-  lastNumKey=0;
-  numLock=0;
+  for(int i=0;i<NUM_KEYS;i++)
+    keyState[i]=0;
   keypad=0;
-  capsLock=0;
   fn=0;
   dvorakQWERTY=0; // FIXME load from EEPROM
+  // Sequences
+  sequence=NULL;
   // Dvorak callbacks (should go to PROGMEM...)
   dvorakPressed={
     &Keyboard::dvorak0,  &Keyboard::dvorak1,  &Keyboard::dvorak2,  &Keyboard::dvorak3,  &Keyboard::dvorak4,
@@ -153,7 +154,8 @@ void Keyboard::scanAll(){
   scanPairs(6, 9, 10, 11, 12, 14, 15, 16, 22, 24, -1);
   scanPairs(7, 8, 9, 10, 11, 12, 13, 15, 19, 24, -1);
   scanPairs(25, 10, 11, 13, 14, 15, 16, 21, 22, 24, -1);
-//fprintf_P(Stream, PSTR("numLock=%d keypad=%d fn=%d capsLock=%d\r\n"), numLock, keypad, fn, capsLock);
+  // Playback key sequences
+  playKeySequence();
 }
 
 void Keyboard::processKeyEvent(uint8_t key){
@@ -166,7 +168,7 @@ void Keyboard::processKeyEvent(uint8_t key){
 
 #define SETMOD(key, value) case key: KeyboardReport->Modifier|=value;break;
 void Keyboard::press(uint8_t key){
-//fprintf_P(Stream, PSTR("  press() %d +++\r\n"), key);
+//fprintf_P(Stream, PSTR("      press() %d +++\r\n"), key);
   switch(key){
     SETMOD(HID_KEYBOARD_SC_LEFT_CONTROL, HID_KEYBOARD_MODIFIER_LEFTCTRL);
     SETMOD(HID_KEYBOARD_SC_LEFT_SHIFT, HID_KEYBOARD_MODIFIER_LEFTSHIFT);
@@ -177,6 +179,9 @@ void Keyboard::press(uint8_t key){
     SETMOD(HID_KEYBOARD_SC_RIGHT_ALT, HID_KEYBOARD_MODIFIER_RIGHTALT);
     SETMOD(HID_KEYBOARD_SC_RIGHT_GUI, HID_KEYBOARD_MODIFIER_RIGHTGUI);
     default:
+      for(uint8_t i=0;i<6;i++)
+        if(KeyboardReport->KeyCode[i]==key)
+          break;
       for(uint8_t i=0;i<6;i++){
         if(KeyboardReport->KeyCode[i]==0){
           KeyboardReport->KeyCode[i]=key;
@@ -187,111 +192,122 @@ void Keyboard::press(uint8_t key){
   }
 }
 
-#define UNSETMOD(key, value) case key: KeyboardReport->Modifier&=~value;break;
-void Keyboard::release(uint8_t key){
-//fprintf_P(Stream, PSTR("  release() %d ---\r\n"), key);
-  switch(key){
-    UNSETMOD(HID_KEYBOARD_SC_LEFT_CONTROL, HID_KEYBOARD_MODIFIER_LEFTCTRL);
-    UNSETMOD(HID_KEYBOARD_SC_LEFT_SHIFT, HID_KEYBOARD_MODIFIER_LEFTSHIFT);
-    UNSETMOD(HID_KEYBOARD_SC_LEFT_ALT, HID_KEYBOARD_MODIFIER_LEFTALT);
-    UNSETMOD(HID_KEYBOARD_SC_LEFT_GUI, HID_KEYBOARD_MODIFIER_LEFTGUI);
-    UNSETMOD(HID_KEYBOARD_SC_RIGHT_CONTROL, HID_KEYBOARD_MODIFIER_RIGHTCTRL);
-    UNSETMOD(HID_KEYBOARD_SC_RIGHT_SHIFT, HID_KEYBOARD_MODIFIER_RIGHTSHIFT);
-    UNSETMOD(HID_KEYBOARD_SC_RIGHT_ALT, HID_KEYBOARD_MODIFIER_RIGHTALT);
-    UNSETMOD(HID_KEYBOARD_SC_RIGHT_GUI, HID_KEYBOARD_MODIFIER_RIGHTGUI);
-    default:
-      for(uint8_t i=0;i<6;i++){
-        if(KeyboardReport->KeyCode[i]==key){
-          KeyboardReport->KeyCode[i]=0;
-          break;
-        }
-      }
-      break;
-  }
-}
-
-void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t pressed){
+void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t state){
+  uint8_t *seq;
   switch(a){
     case 0:
       switch(b){
         case 3:
-          if(pressed)processKeyEvent(0);break;
+          if(state)processKeyEvent(0);keyState[0]=state;break;
         case 8:
-          if(pressed)processKeyEvent(1);break;
+          if(state)processKeyEvent(1);keyState[1]=state;break;
         case 9:
-          if(pressed)processKeyEvent(2);break;
+          if(state)processKeyEvent(2);keyState[2]=state;break;
         case 10:
-          if(pressed)processKeyEvent(3);break;
+          if(state)processKeyEvent(3);keyState[3]=state;break;
         case 11:
-          if(pressed)processKeyEvent(4);break;
+          if(state)processKeyEvent(4);keyState[4]=state;break;
         case 12:
-          if(pressed)processKeyEvent(5);break;
+          if(state)processKeyEvent(5);keyState[5]=state;break;
         case 13:
-          if(pressed)processKeyEvent(6);break;
+          if(state)processKeyEvent(6);keyState[6]=state;break;
         case 14:
-          if(pressed)processKeyEvent(7);break;
-        case 16:
-          if(pressed)processKeyEvent(8);break;
+          if(state)processKeyEvent(7);keyState[7]=state;break;
+        case 16: // Play / Ctrl+X
+          if((state&&!keyState[8])&&fn)
+            if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
+              seq[0]=1;
+              seq[1]=HID_KEYBOARD_SC_LEFT_CONTROL;
+              seq[2]=2;
+              seq[3]=HID_KEYBOARD_SC_LEFT_CONTROL;
+              seq[4]=HID_KEYBOARD_SC_X;
+              seq[5]=0x00;
+              addKeySequence(seq);
+            }
+          if(state)processKeyEvent(8);keyState[8]=state;break;
       }
       break;
     case 1:
       switch(b){
         case 3:
-          if(pressed)processKeyEvent(9);break;
+          if(state)processKeyEvent(9);keyState[9]=state;break;
         case 8:
-          if(pressed)processKeyEvent(10);break;
+          if(state)processKeyEvent(10);keyState[10]=state;break;
         case 9:
-          if(pressed)processKeyEvent(11);break;
+          if(state)processKeyEvent(11);keyState[11]=state;break;
         case 10:
-          if(pressed)processKeyEvent(12);break;
+          if(state)processKeyEvent(12);keyState[12]=state;break;
         case 11:
-          if(pressed)processKeyEvent(13);break;
+          if(state)processKeyEvent(13);keyState[13]=state;break;
         case 12:
-          if(pressed)processKeyEvent(14);break;
+          if(state)processKeyEvent(14);keyState[14]=state;break;
         case 13:
-          if(pressed)processKeyEvent(15);break;
+          if(state)processKeyEvent(15);keyState[15]=state;break;
         case 14:
-          if(pressed)processKeyEvent(16);break;
+          if(state)processKeyEvent(16);keyState[16]=state;break;
         case 15:
-          if(pressed)processKeyEvent(17);break;
+          if(state)processKeyEvent(17);keyState[17]=state;break;
         case 16:
-          if(pressed)processKeyEvent(18);break;
+          if(state)processKeyEvent(18);keyState[18]=state;break;
         case 18:
-          if(pressed)processKeyEvent(19);break;
-        case 20:
-          if(pressed)processKeyEvent(20);break;
+          if(state)processKeyEvent(19);keyState[19]=state;break;
+        case 20: // Shuffle / Ctrl+V
+          if(state&&!keyState[20]){
+            if(fn){
+              if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
+                seq[0]=1;
+                seq[1]=HID_KEYBOARD_SC_LEFT_CONTROL;
+                seq[2]=2;
+                seq[3]=HID_KEYBOARD_SC_LEFT_CONTROL;
+                seq[4]=HID_KEYBOARD_SC_V;
+                seq[5]=0x00;
+                addKeySequence(seq);
+              }
+            }else{
+              if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
+                seq[0]=1;
+                seq[1]=HID_KEYBOARD_SC_LEFT_ALT;
+                seq[2]=2;
+                seq[3]=HID_KEYBOARD_SC_LEFT_ALT;
+                seq[4]=HID_KEYBOARD_SC_TAB;
+                seq[5]=0x00;
+                addKeySequence(seq);
+              }
+            }
+          }
+          if(state)processKeyEvent(20);keyState[20]=state;break;
         case 23:
-          if(pressed)processKeyEvent(21);break;
+          if(state)processKeyEvent(21);keyState[21]=state;break;
       }
       break;
     case 2:
       switch(b){
         case 3:
-          if(pressed)processKeyEvent(22);break;
+          if(state)processKeyEvent(22);keyState[22]=state;break;
         case 8:
-          if(pressed)processKeyEvent(23);break;
+          if(state)processKeyEvent(23);keyState[23]=state;break;
         case 9:
-          if(pressed)processKeyEvent(24);break;
+          if(state)processKeyEvent(24);keyState[24]=state;break;
         case 10:
-          if(pressed)processKeyEvent(25);break;
+          if(state)processKeyEvent(25);keyState[25]=state;break;
         case 11:
-          if(pressed)processKeyEvent(26);break;
+          if(state)processKeyEvent(26);keyState[26]=state;break;
         case 12:
-          if(pressed)processKeyEvent(27);break;
+          if(state)processKeyEvent(27);keyState[27]=state;break;
         case 13:
-          if(pressed)processKeyEvent(28);break;
+          if(state)processKeyEvent(28);keyState[28]=state;break;
         case 14:
-          if(pressed)processKeyEvent(29);break;
+          if(state)processKeyEvent(29);keyState[29]=state;break;
         case 15:
-          if(pressed)processKeyEvent(30);break;
+          if(state)processKeyEvent(30);keyState[30]=state;break;
         case 16:
-          if(pressed)processKeyEvent(31);break;
+          if(state)processKeyEvent(31);keyState[31]=state;break;
         case 17:
-          if(pressed)processKeyEvent(32);break;
+          if(state)processKeyEvent(32);keyState[32]=state;break;
         case 19:
-          if(pressed)processKeyEvent(33);break;
+          if(state)processKeyEvent(33);keyState[33]=state;break;
         case 20:
-          if(pressed)
+          if(state)
             fn=1;
           else
             fn=0;
@@ -300,138 +316,167 @@ void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t pressed){
     case 3:
       switch(b){
         case 4:
-          if(pressed)processKeyEvent(35);break;
+          if(state)processKeyEvent(35);keyState[35]=state;break;
         case 5:
-          if(pressed)processKeyEvent(36);break;
+          if(state)processKeyEvent(36);keyState[36]=state;break;
         case 6:
-          if(pressed)processKeyEvent(37);break;
+          if(state)processKeyEvent(37);keyState[37]=state;break;
         case 7:
-          if(pressed)processKeyEvent(38);break;
+          if(state)processKeyEvent(38);keyState[38]=state;break;
       }
       break;
     case 4:
       switch(b){
         case 8:
-          if(pressed)processKeyEvent(39);break;
+          if(state)processKeyEvent(39);keyState[39]=state;break;
         case 9:
-          if(pressed)processKeyEvent(40);break;
+          if(state)processKeyEvent(40);keyState[40]=state;break;
         case 10:
-          if(pressed)processKeyEvent(41);break;
+          if(state)processKeyEvent(41);keyState[41]=state;break;
         case 11:
-          if(pressed)processKeyEvent(42);break;
+          if(state)processKeyEvent(42);keyState[42]=state;break;
         case 12:
-          if(pressed)processKeyEvent(43);break;
+          if(state)processKeyEvent(43);keyState[43]=state;break;
         case 13:
-          if(pressed)processKeyEvent(44);break;
+          if(state)processKeyEvent(44);keyState[44]=state;break;
         case 14:
-          if(pressed)processKeyEvent(45);break;
+          if(state)processKeyEvent(45);keyState[45]=state;break;
         case 15:
-          if(pressed)processKeyEvent(46);break;
+          if(state)processKeyEvent(46);keyState[46]=state;break;
         case 16:
-          if(pressed)processKeyEvent(47);break;
+          if(state)processKeyEvent(47);keyState[47]=state;break;
         case 18:
-          if(pressed)processKeyEvent(48);break;
+          if(state)processKeyEvent(48);keyState[48]=state;break;
         case 20:
-          if(pressed)processKeyEvent(49);break;
+          if((state&&!keyState[49])&&!fn)
+            if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
+              seq[0]=1;
+              seq[1]=HID_KEYBOARD_SC_LEFT_GUI;
+              seq[2]=2;
+              seq[3]=HID_KEYBOARD_SC_LEFT_GUI;
+              seq[4]=HID_KEYBOARD_SC_D;
+              seq[5]=0x00;
+              addKeySequence(seq);
+            }
+          if(state)processKeyEvent(49);keyState[49]=state;break;
       }
       break;
     case 5:
       switch(b){
         case 8:
-          if(pressed)processKeyEvent(50);break;
+          if(state)processKeyEvent(50);keyState[50]=state;break;
         case 9:
-          if(pressed)processKeyEvent(51);break;
+          if(state)processKeyEvent(51);keyState[51]=state;break;
         case 10:
-          if(pressed)processKeyEvent(52);break;
+          if(state)processKeyEvent(52);keyState[52]=state;break;
         case 11:
-          if(pressed)processKeyEvent(53);break;
+          if(state)processKeyEvent(53);keyState[53]=state;break;
         case 12:
-          if(pressed)processKeyEvent(54);break;
+          if(state)processKeyEvent(54);keyState[54]=state;break;
         case 13:
-          if(pressed)processKeyEvent(55);break;
+          if(state)processKeyEvent(55);keyState[55]=state;break;
         case 14:
-          if(pressed)processKeyEvent(56);break;
+          if(state)processKeyEvent(56);keyState[56]=state;break;
         case 15:
-          if(pressed)processKeyEvent(57);break;
+          if(state)processKeyEvent(57);keyState[57]=state;break;
         case 16:
-          if(pressed)processKeyEvent(58);break;
+          if(state)processKeyEvent(58);keyState[58]=state;break;
         case 17:
-          if(pressed)processKeyEvent(59);break;
+          if(state)processKeyEvent(59);keyState[59]=state;break;
         case 19:
-          if(pressed)processKeyEvent(60);break;
+          if(state)processKeyEvent(60);keyState[60]=state;break;
         case 21:
-          if(pressed)processKeyEvent(61);break;
+          if((state&&!keyState[61])&&!fn)
+            if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
+              seq[0]=1;
+              seq[1]=HID_KEYBOARD_SC_LEFT_SHIFT;
+              seq[2]=2;
+              seq[3]=HID_KEYBOARD_SC_LEFT_SHIFT;
+              seq[4]=HID_KEYBOARD_SC_TAB;
+              seq[5]=0x00;
+              addKeySequence(seq);
+            }
+          if(state)processKeyEvent(61);keyState[61]=state;break;
         case 24:
-          if(pressed)processKeyEvent(62);break;
+          if(state)processKeyEvent(62);keyState[62]=state;break;
       }
       break;
     case 6:
       switch(b){
         case 9:
-          if(pressed)processKeyEvent(63);break;
+          if(state)processKeyEvent(63);keyState[63]=state;break;
         case 10:
-          if(pressed)processKeyEvent(64);break;
+          if(state)processKeyEvent(64);keyState[64]=state;break;
         case 11:
-          if(pressed)processKeyEvent(65);break;
+          if(state)processKeyEvent(65);keyState[65]=state;break;
         case 12:
-          if(pressed)processKeyEvent(66);break;
+          if(state)processKeyEvent(66);keyState[66]=state;break;
         case 14:
-          if(pressed)processKeyEvent(67);break;
+          if(state)processKeyEvent(67);keyState[67]=state;break;
         case 15:
-          if(pressed)processKeyEvent(68);break;
+          if(state)processKeyEvent(68);keyState[68]=state;break;
         case 16:
-          if(pressed)processKeyEvent(69);break;
+          if(state)processKeyEvent(69);keyState[69]=state;break;
         case 22:
-          if(pressed)processKeyEvent(70);break;
+          if(state)processKeyEvent(70);keyState[70]=state;break;
         case 24:
-          if(pressed)processKeyEvent(71);break;
+          if(state)processKeyEvent(71);keyState[71]=state;break;
       }
       break;
     case 7:
       switch(b){
         case 8:
-          if(pressed)processKeyEvent(72);break;
+          if(state)processKeyEvent(72);keyState[72]=state;break;
         case 9:
-          if(pressed)processKeyEvent(73);break;
+          if(state)processKeyEvent(73);keyState[73]=state;break;
         case 10:
-          if(pressed)processKeyEvent(74);break;
+          if(state)processKeyEvent(74);keyState[74]=state;break;
         case 11:
-          if(pressed)processKeyEvent(75);break;
+          if(state)processKeyEvent(75);keyState[75]=state;break;
         case 12:
-          if(pressed)processKeyEvent(76);break;
+          if(state)processKeyEvent(76);keyState[76]=state;break;
         case 13:
-          if(pressed)processKeyEvent(77);break;
+          if(state)processKeyEvent(77);keyState[77]=state;break;
         case 15:
-          if(pressed)processKeyEvent(78);break;
+          if(state)processKeyEvent(78);keyState[78]=state;break;
         case 19:
-          if(pressed)processKeyEvent(79);break;
-        case 24: // NumLock
-          if(pressed&&!lastNumKey&&!fn)
+          if(state)processKeyEvent(79);keyState[79]=state;break;
+        case 24: // Keypad
+          if(state&&!keyState[80]&&!fn)
             keypad=!keypad;
-          lastNumKey=pressed;
-          if(pressed)processKeyEvent(80);break;
+          if(state)processKeyEvent(80);keyState[80]=state;break;
       }
       break;
     case 25:
       switch(b){
         case 10:
-          if(pressed)processKeyEvent(81);break;
+          if(state)processKeyEvent(81);keyState[81]=state;break;
         case 11:
-          if(pressed)processKeyEvent(82);break;
-        case 13:
-          if(pressed)processKeyEvent(83);break;
+          if(state)processKeyEvent(82);keyState[82]=state;break;
+        case 13: // App Menu / Ctrl+C
+          if((state&&!keyState[83])&&fn)
+            if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
+              seq[0]=1;
+              seq[1]=HID_KEYBOARD_SC_LEFT_CONTROL;
+              seq[2]=2;
+              seq[3]=HID_KEYBOARD_SC_LEFT_CONTROL;
+              seq[4]=HID_KEYBOARD_SC_C;
+              seq[5]=0x00;
+              addKeySequence(seq);
+            } 
+          if(state)processKeyEvent(83);keyState[83]=state;break;
         case 14:
-          if(pressed)processKeyEvent(84);break;
+          if(state)processKeyEvent(84);keyState[84]=state;break;
         case 15:
-          if(pressed)processKeyEvent(85);break;
+          if(state)processKeyEvent(85);keyState[85]=state;break;
         case 16:
-          if(pressed)processKeyEvent(86);break;
+          if(state)processKeyEvent(86);keyState[86]=state;break;
         case 21:
-          if(pressed)processKeyEvent(87);break;
+          if(state)processKeyEvent(87);keyState[87]=state;break;
         case 22:
-          if(pressed)processKeyEvent(88);break;
+          if(state)processKeyEvent(88);keyState[88]=state;break;
         case 24:
-          if(pressed)processKeyEvent(89);break;
+          if(state)processKeyEvent(89);keyState[89]=state;break;
       }
       break;
   }
@@ -442,4 +487,36 @@ extern Keyboard *kbd;
 void keyboardScanAll(USB_KeyboardReport_Data_t *KR){
   kbd->KeyboardReport=KR;
   kbd->scanAll();
+}
+
+void Keyboard::addKeySequence(uint8_t *seq){
+  if(NULL==sequence)
+    sequence=seq;
+}
+
+void Keyboard::playKeySequence(){
+  if(NULL==sequence)
+    return;
+//fprintf_P(Stream, PSTR("Playing sequence.\r\n"));
+  // skip
+  uint8_t p=0;
+  while(sequence[p]==0x00)
+    p++;
+  // process round
+//fprintf_P(Stream, PSTR("  Start of round p=%d\r\n"), p);
+  for(uint8_t k=p+1;k<p+sequence[p]+1;k++){
+//fprintf_P(Stream, PSTR("    p=%d k=%d\r\n"), p, k);
+    press(sequence[k]);
+    sequence[k]=0x00;
+  }
+  // last round
+  if(!sequence[p+sequence[p]+1]){
+//fprintf_P(Stream, PSTR("End of sequence.\r\n"));
+    free(sequence);
+    sequence=NULL;
+  // more rounds
+  }else{
+    sequence[p]=0x00;
+//fprintf_P(Stream, PSTR("  One more round, p=%d\r\n"), p);
+  }
 }

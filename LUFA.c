@@ -98,7 +98,24 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
   USB_KeyboardReport_Data_t* KeyboardReport = (USB_KeyboardReport_Data_t*)ReportData;
 
   keyboardScanAll(KeyboardReport);
-
+/*
+if(KeyboardReport->KeyCode[0]||
+KeyboardReport->KeyCode[1]||
+KeyboardReport->KeyCode[2]||
+KeyboardReport->KeyCode[3]||
+KeyboardReport->KeyCode[4]||
+KeyboardReport->KeyCode[5]||
+KeyboardReport->Modifier)
+fprintf_P(&USBSerialStream, PSTR("%d / %d %d %d %d %d %d\r\n"),
+KeyboardReport->Modifier,
+(uint8_t)KeyboardReport->KeyCode[0],
+(uint8_t)KeyboardReport->KeyCode[1],
+(uint8_t)KeyboardReport->KeyCode[2],
+(uint8_t)KeyboardReport->KeyCode[3],
+(uint8_t)KeyboardReport->KeyCode[4],
+(uint8_t)KeyboardReport->KeyCode[5]
+);
+*/
   *ReportSize = sizeof(USB_KeyboardReport_Data_t);
   return false;
 }
@@ -118,6 +135,7 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint16_t ReportSize){
   uint8_t  LEDMask   = LEDS_NO_LEDS;
   uint8_t* LEDReport = (uint8_t*)ReportData;
+//fprintf_P(&USBSerialStream, PSTR("LEDS=%d\r\n"), *LEDReport);
   if (*LEDReport & HID_KEYBOARD_LED_NUMLOCK)
     LEDMask |= LEDS_LED1;
 

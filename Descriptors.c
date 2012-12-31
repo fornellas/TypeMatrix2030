@@ -149,7 +149,7 @@ const USB_Descriptor_String_t PROGMEM LanguageString = {
  *  Descriptor.
  */
 const USB_Descriptor_String_t PROGMEM ManufacturerString = {
-  .Header                 = {.Size = USB_STRING_LEN(11), .Type = DTYPE_String},
+  .Header                 = {.Size = USB_STRING_LEN(20), .Type = DTYPE_String},
   .UnicodeString          = L"TypeMatrix (Hacked!)"
 };
 
@@ -158,7 +158,7 @@ const USB_Descriptor_String_t PROGMEM ManufacturerString = {
  *  Descriptor.
  */
 const USB_Descriptor_String_t PROGMEM ProductString = {
-  .Header                 = {.Size = USB_STRING_LEN(13), .Type = DTYPE_String},
+  .Header                 = {.Size = USB_STRING_LEN(27), .Type = DTYPE_String},
   .UnicodeString          = L"2030 USB Keyboard (Hacked!)"
 };
 

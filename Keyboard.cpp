@@ -159,6 +159,7 @@ void Keyboard::scanAll(){
 }
 
 void Keyboard::processKeyEvent(uint8_t key){
+//fprintf_P(Stream, PSTR("PRESSED %d\r\n"), key);
   if(dvorakQWERTY){
 
   }else{

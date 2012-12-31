@@ -245,7 +245,7 @@ void Keyboard::dvorak46(){
   if((fn&&!keypad)||(!fn&&keypad))
     KP(HID_KEYBOARD_SC_KEYPAD_6_AND_RIGHT_ARROW);
   else
-    KP(HID_KEYBOARD_SC_NON_US_BACKSLASH_AND_PIPE);
+    KP(HID_KEYBOARD_SC_BACKSLASH_AND_PIPE);
 };
 // www/Bs
 void Keyboard::dvorak47(){

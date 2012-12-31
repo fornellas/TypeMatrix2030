@@ -9,11 +9,17 @@ OK- Validate each key
 OK- Implement key sequences
 OK- Non buggy Alt-Tab
 OK- Actual Ctrl+X/C/V
+- Password protected key presses sequences.
 - More layouts
   - QWERTY US
   - QWERTY US > Dvorak
   - ABNT2 > Dvorak
   - Save keyboard layout conf.
+- Remove bootloader.
+- Change board (Teensy 2.0++).
 - Sepparate Keypad and NumLock indicators.
-- Password protected key presses sequences.
+- OLED Screen.
+- Bluetooth.
+  - Battery charger.
+  - Auto Bluetooth off / changing with cable.
 - Validate power consumption (Descriptons.c)

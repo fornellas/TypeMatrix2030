@@ -8,19 +8,35 @@
 
 // Q
 void Keyboard::dvorak0(){
-  KP(HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE);
+  if(fn){
+    KP(HID_KEYBOARD_SC_Q);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE);
 };
 // W
 void Keyboard::dvorak1(){
-  KP(HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN);
+  if(fn){
+    KP(HID_KEYBOARD_SC_W);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN);
 };
 // E
 void Keyboard::dvorak2(){
-  KP(HID_KEYBOARD_SC_DOT_AND_GREATER_THAN_SIGN);
+  if(fn){
+    KP(HID_KEYBOARD_SC_E);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_DOT_AND_GREATER_THAN_SIGN);
 };
 // R
 void Keyboard::dvorak3(){
-  KP(HID_KEYBOARD_SC_P);
+  if(fn){
+    KP(HID_KEYBOARD_SC_R);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_P);
 };
 // U
 void Keyboard::dvorak4(){
@@ -44,9 +60,13 @@ void Keyboard::dvorak7(){
   else
     KP(HID_KEYBOARD_SC_L);
 };
-// G
+// T
 void Keyboard::dvorak12(){
-  KP(HID_KEYBOARD_SC_Y);
+  if(fn){
+    KP(HID_KEYBOARD_SC_T);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_Y);
 };
 // Y
 void Keyboard::dvorak13(){
@@ -71,6 +91,8 @@ void Keyboard::dvorak16(){
 };
 // A
 void Keyboard::dvorak35(){
+  if(fn)
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
   KP(HID_KEYBOARD_SC_A);
 };
 // `~
@@ -79,19 +101,35 @@ void Keyboard::dvorak36(){
 };
 // Z
 void Keyboard::dvorak38(){
-  KP(HID_KEYBOARD_SC_SEMICOLON_AND_COLON);
+  if(fn){
+    KP(HID_KEYBOARD_SC_Z);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_SEMICOLON_AND_COLON);
 };
 // S
 void Keyboard::dvorak39(){
-  KP(HID_KEYBOARD_SC_O);
+  if(fn){
+    KP(HID_KEYBOARD_SC_S);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_O);
 };
 // D
 void Keyboard::dvorak40(){
-  KP(HID_KEYBOARD_SC_E);
+  if(fn){
+    KP(HID_KEYBOARD_SC_D);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_E);
 };
 // F
 void Keyboard::dvorak41(){
-  KP(HID_KEYBOARD_SC_U);
+  if(fn){
+    KP(HID_KEYBOARD_SC_F);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_U);
 };
 // J/Up
 void Keyboard::dvorak42(){
@@ -138,7 +176,11 @@ void Keyboard::dvorak56(){
 };
 // G
 void Keyboard::dvorak64(){
-  KP(HID_KEYBOARD_SC_I);
+  if(fn){
+    KP(HID_KEYBOARD_SC_G);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_I);
 };
 // D/Home
 void Keyboard::dvorak65(){
@@ -156,15 +198,27 @@ void Keyboard::dvorak67(){
 };
 // X
 void Keyboard::dvorak72(){
-  KP(HID_KEYBOARD_SC_Q);
+  if(fn){
+    KP(HID_KEYBOARD_SC_X);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_Q);
 };
 // C
 void Keyboard::dvorak73(){
-  KP(HID_KEYBOARD_SC_J);
+  if(fn){
+    KP(HID_KEYBOARD_SC_C);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_J);
 };
 // V
 void Keyboard::dvorak74(){
-  KP(HID_KEYBOARD_SC_K);
+  if(fn){
+    KP(HID_KEYBOARD_SC_V);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_K);
 };
 // M/Dwn
 void Keyboard::dvorak75(){
@@ -189,7 +243,11 @@ void Keyboard::dvorak77(){
 };
 // B
 void Keyboard::dvorak81(){
-  KP(HID_KEYBOARD_SC_X);
+  if(fn){
+    KP(HID_KEYBOARD_SC_B);
+    KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+  }else
+    KP(HID_KEYBOARD_SC_X);
 };
 // N/Left
 void Keyboard::dvorak82(){

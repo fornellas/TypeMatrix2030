@@ -1,5 +1,5 @@
 #include "LUFA.h"
-#include "Keyboard.h"
+#include "../Keyboard/Keyboard.h"
 
 extern FILE USBSerialStream;
 

@@ -35,7 +35,11 @@ AVRDUDE_PORT=/dev/serial/by-id/usb-Arduino_LLC_Arduino_Leonardo-if00
 #TARGET=
 #ARCH=
 #MCU=
-SRC=$(wildcard *.c) $(wildcard *.cpp) $(wildcard layouts/*.cpp) $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS) $(LUFA_SRC_TWI)
+SRC=\
+  $(wildcard *.cpp) \
+  $(wildcard LUFA/*.c) \
+  $(wildcard Keyboard/*.cpp) $(wildcard Keyboard/layouts/*.cpp) \
+  $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS) $(LUFA_SRC_TWI)
 F_USB=$(F_CPU)
 #LUFA_PATH=
 # Optional
@@ -49,7 +53,7 @@ F_CPU=16000000
 #C_FLAGS=
 #CPP_FLAGS=
 #ASM_FLAGS=
-CC_FLAGS=-DUSE_LUFA_CONFIG_HEADER
+CC_FLAGS=-DUSE_LUFA_CONFIG_HEADER -ILUFA/
 LD_FLAGS=
 #LINKER_RELAXATIONS=
 OBJDIR=build

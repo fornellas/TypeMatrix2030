@@ -1,4 +1,4 @@
-#include "Keyboard.h"
+#include "../Keyboard.h"
 
 #include <LUFA/Drivers/USB/USB.h>
 

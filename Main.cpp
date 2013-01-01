@@ -1,7 +1,7 @@
 extern "C" {
-#include "LUFA.h"
+#include "LUFA/LUFA.h"
 }
-#include "Keyboard.h"
+#include "Keyboard/Keyboard.h"
 
 #include <stdlib.h>
 

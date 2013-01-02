@@ -6,6 +6,7 @@ MCU=atmega32u4
 TARGET=target
 LUFA_PATH=$(HOME)/src/lufa/LUFA
 ARCH=AVR8
+U8G_PATH=$(HOME)/src/u8glib/src
 
 ##
 ## AVRDUDE
@@ -39,6 +40,7 @@ SRC=\
   $(wildcard *.cpp) \
   $(wildcard LUFA/*.c) \
   $(wildcard Keyboard/*.cpp) $(wildcard Keyboard/layouts/*.cpp) \
+  $(wildcard $(U8G_PATH)/*.c) \
   $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS) $(LUFA_SRC_TWI)
 F_USB=$(F_CPU)
 #LUFA_PATH=
@@ -53,7 +55,7 @@ F_CPU=16000000
 #C_FLAGS=
 #CPP_FLAGS=
 #ASM_FLAGS=
-CC_FLAGS=-DUSE_LUFA_CONFIG_HEADER -ILUFA/
+CC_FLAGS=-DUSE_LUFA_CONFIG_HEADER -ILUFA/ -I$(U8G_PATH)/
 LD_FLAGS=
 #LINKER_RELAXATIONS=
 OBJDIR=build
@@ -63,7 +65,7 @@ OBJDIR=build
 ## Custom
 ##
 
-MONITOR_PORT=/dev/serial/by-id/usb-TypeMatrix_2030_USB_Keyb_840323030343514161C1-if00
+MONITOR_PORT=/dev/serial/by-id/usb-TypeMatrix__Hacked___2030_USB_Keyboard__Hacked___840323030343514161C1-if00
 
 all:
 

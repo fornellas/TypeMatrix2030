@@ -7,6 +7,8 @@
 
 #include <LUFA/Drivers/USB/USB.h>
 
+#include <u8g.h>
+
 #define NUM_KEYS 90
 
 #define KP(key) press(key)
@@ -132,6 +134,13 @@ private:
   void qwerty74(); void qwerty75(); void qwerty76();
   void qwerty77(); void qwerty81(); void qwerty82();
   void qwerty84();
+
+  //
+  // Display
+  //
+
+  u8g_t u8g;
+  void initDisplay();
 public:
   // Facilities
   USB_KeyboardReport_Data_t *KeyboardReport;

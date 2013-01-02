@@ -10,7 +10,6 @@
 
 #include "Descriptors.h"
 
-#include <LUFA/Drivers/Board/LEDs.h>
 #include <LUFA/Drivers/USB/USB.h>
 
 void SetupHardware(void);

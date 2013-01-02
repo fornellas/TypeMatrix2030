@@ -26,6 +26,12 @@ extern "C" {
 #define PRESSED 1
 #define RELEASED 0
 
+#define U8G_SCK PN(3,7)		// PD7 / 6
+#define U8G_MOSI PN(4,6)	// PE6 / 7
+#define U8G_CS PN(5,5)		// PF5 / 20/A2
+#define U8G_A0 PN(3,6)		// PD6 / 12
+#define U8G_RESET PN(2,7)	// PC7 / 13
+
 //
 // I/O Expander
 //
@@ -503,20 +509,50 @@ void Keyboard::playKeySequence(){
 // Display
 //
 
-void Keyboard::updateDisplay(){
+void Keyboard::initDisplay(){
+  u8g_InitSPI(&u8g, &u8g_dev_st7565_lm6059_sw_spi, U8G_SCK, U8G_MOSI, U8G_CS, U8G_A0, U8G_RESET);
+  u8g_SetRot180(&u8g);
+  u8g_SetFont(&u8g, u8g_font_6x10);
+  u8g_FirstPage(&u8g);
+  do{
+    u8g_DrawStrP(&u8g, 0, 15, U8G_PSTR("Booting..."));
+  }while(u8g_NextPage(&u8g));
+}
 
+void Keyboard::updateDisplay(){
+  u8g_FirstPage(&u8g);
+  do{
+    if (LEDReport & HID_KEYBOARD_LED_NUMLOCK){
+      u8g_DrawStrP(&u8g, 0, 8, U8G_PSTR("NumLck"));
+    }else{
+      
+    }
+    if (LEDReport & HID_KEYBOARD_LED_CAPSLOCK){
+      u8g_DrawStrP(&u8g, 48, 8, U8G_PSTR("CpsLck"));
+    }else{
+
+    }
+    if (LEDReport & HID_KEYBOARD_LED_SCROLLLOCK){
+      u8g_DrawStrP(&u8g, 92, 8, U8G_PSTR("ScrLck"));
+    }else{
+
+    }
+  }while(u8g_NextPage(&u8g));
 }
 
 void Keyboard::clearDisplay(){
-
+  u8g_FirstPage(&u8g);
+  do{
+  }while(u8g_NextPage(&u8g));
 }
 
 void Keyboard::setLEDs(uint8_t report){
-
+  LEDReport=report;
+  updateDisplay();
 }
 
 //
-// Contructor
+// Constructor
 //
 
 Keyboard::Keyboard(FILE *S){
@@ -548,6 +584,8 @@ Keyboard::Keyboard(FILE *S){
   }
   // Sequences
   sequence=NULL;
+  // Display
+  initDisplay();
   // Dvorak callbacks (should go to PROGMEM...)
   dvorak={
     &Keyboard::dvorak0,  &Keyboard::dvorak1,  &Keyboard::dvorak2,  &Keyboard::dvorak3,  &Keyboard::dvorak4,
@@ -603,13 +641,13 @@ void keyboardScanAll(USB_KeyboardReport_Data_t *KR){
 }
 
 void keyboardUpdateDisplay(){
-
+  kbd->updateDisplay();
 }
 
 void keyboardClearDisplay(){
-
+  kbd->clearDisplay();
 }
 
 void keyboardSetLEDs(uint8_t report){
-
+  kbd->setLEDs(report);
 }

@@ -57,8 +57,6 @@ void SetupHardware(void){
   /* Disable clock division */
   clock_prescale_set(clock_div_1);
 
-  /* Hardware Initialization */
-  LEDs_Init();
   USB_Init();
 }
 
@@ -133,19 +131,8 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint8_t ReportType,
                                           const void* ReportData,
                                           const uint16_t ReportSize){
-  uint8_t  LEDMask   = LEDS_NO_LEDS;
   uint8_t* LEDReport = (uint8_t*)ReportData;
 //fprintf_P(&USBSerialStream, PSTR("LEDS=%d\r\n"), *LEDReport);
-  if (*LEDReport & HID_KEYBOARD_LED_NUMLOCK)
-    LEDMask |= LEDS_LED1;
-
-  if (*LEDReport & HID_KEYBOARD_LED_CAPSLOCK)
-    LEDMask |= LEDS_LED3;
-
-  if (*LEDReport & HID_KEYBOARD_LED_SCROLLLOCK)
-    LEDMask |= LEDS_LED4;
-
-  LEDs_SetAllLEDs(LEDMask);
   keyboardSetLEDs(*LEDReport);
 }
 

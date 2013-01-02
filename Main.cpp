@@ -13,7 +13,6 @@ void operator delete(void * ptr){
   free(ptr); 
 } 
 
-#include <LUFA/Drivers/Board/LEDs.h>
 #include <LUFA/Drivers/USB/USB.h>
 #include <LUFA/Drivers/Peripheral/TWI.h>
 
@@ -30,11 +29,13 @@ Keyboard *kbd;
 
 int main(void){
   SetupHardware();
-  LEDs_SetAllLEDs(LEDS_NO_LEDS);
   /* Create a regular character stream for the interface so that it can be used with the stdio.h functions */
   CDC_Device_CreateStream(&VirtualSerial_CDC_Interface, &USBSerialStream);
+
   kbd=new Keyboard(&USBSerialStream);
+
   GlobalInterruptEnable();
+
   for (;;){
 //fprintf_P(&USBSerialStream, PSTR("main loop\r\n"));
     /* Must throw away unused bytes from the host, or it will lock up while waiting for the device */

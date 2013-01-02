@@ -146,4 +146,25 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
     LEDMask |= LEDS_LED4;
 
   LEDs_SetAllLEDs(LEDMask);
+  keyboardSetLEDs(*LEDReport);
+}
+
+/* Event for USB device disconnection. This event fires when the AVR in device mode and the device is disconnected from a host, measured by a falling level on the AVR's VBUS pin. */
+void EVENT_USB_Device_Disconnect(void){
+  keyboardClearDisplay();
+}
+
+/* Event for USB interface reset. This event fires when the USB interface is in device mode, and a the USB host requests that the device reset its interface. This event fires after the control endpoint has been automatically configured by the library. */
+void EVENT_USB_Device_Reset(void){
+  keyboardClearDisplay();
+}
+
+/* Event for USB suspend. This event fires when a the USB host suspends the device by halting its transmission of Start Of Frame pulses to the device. This is generally hooked in order to move the device over to a low power state until the host wakes up the device. If the USB interface is enumerated with the USB_OPT_AUTO_PLL option set, the library will automatically suspend the USB PLL before the event is fired to save power. */
+void EVENT_USB_Device_Suspend(void){
+  keyboardClearDisplay();
+}
+
+/* Event for USB wake up. This event fires when a the USB interface is suspended while in device mode, and the host wakes up the device by supplying Start Of Frame pulses. This is generally hooked to pull the user application out of a lowe power state and back into normal operating mode. If the USB interface is enumerated with the USB_OPT_AUTO_PLL option set, the library will automatically restart the USB PLL before the event is fired. */
+void EVENT_USB_Device_WakeUp(void){
+  keyboardUpdateDisplay();
 }

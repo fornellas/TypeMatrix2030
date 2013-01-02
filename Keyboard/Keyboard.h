@@ -23,27 +23,53 @@ extern USB_ClassInfo_HID_Device_t Keyboard_HID_Interface;
 
 class Keyboard {
 private:
+  //
+  // Facilities
+  //
+
   // Serial
   FILE *Stream;
+
+  //
+  // I/O expander
+  //
+
   // reset MCP
-   void MCPreset(volatile uint8_t *ddr, volatile uint8_t *port, uint8_t bit);
+  void MCPreset(volatile uint8_t *ddr, volatile uint8_t *port, uint8_t bit);
   // writes two 8/16bit vales starting at baseReg address
-   void MCPwrite8(uint8_t i2cAddr, uint8_t baseReg, uint8_t v);
-   void MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2);
+  void MCPwrite8(uint8_t i2cAddr, uint8_t baseReg, uint8_t v);
+  void MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2);
   // reads 16bit values starting at baseReg
-   uint16_t MCPread16(uint8_t i2cAddr, uint8_t baseReg);
-  // set lowPin to low and scan other asked pins for low signal. Last arg must be -1.
-   void scanPairs(uint8_t lowPin, ...);
-  // Process key event
-   void processRawEvent(uint8_t a, uint8_t b, uint8_t state);
-   void processKeyEvent(uint8_t key);
-  // key pressses
+  uint16_t MCPread16(uint8_t i2cAddr, uint8_t baseReg);
+
+  //
+  // Key scannig
+  //
+
+  // Send key press to USB driver
   void press(uint8_t key);
+  // Send addressed key event do layout callback method
+  void processKeyEvent(uint8_t key);
+  // process keys with raw FFC addressing
+  void processRawEvent(uint8_t a, uint8_t b, uint8_t state);
+  // set lowPin to low and scan other asked pins for low signal. Last arg must be -1.
+  void scanPairs(uint8_t lowPin, ...);
+
+
+  //
   // States
+  //
+
   uint8_t keyState[NUM_KEYS];
   uint8_t keypad;
   uint8_t fn;
   uint8_t layout;
+  uint8_t LEDReport;
+
+  //
+  // Key sequencing
+  //
+
   // aidd a key sequence to be outputted by scanAll()
   // seq will be freed with free() in the end
   // [number of keys] [key1] [key2] ...
@@ -52,6 +78,11 @@ private:
   void addKeySequence(uint8_t *seq);
   uint8_t *sequence;
   void playKeySequence();
+
+  //
+  // Keyboard layouts
+  //
+
   // Common keys
   void common8(); void common9(); void common10();
   void common11(); void common15(); void common17();
@@ -102,9 +133,16 @@ private:
   void qwerty77(); void qwerty81(); void qwerty82();
   void qwerty84();
 public:
-  Keyboard(FILE *S);
-  void scanAll();
+  // Facilities
   USB_KeyboardReport_Data_t *KeyboardReport;
+  // Key scanning
+  void scanAll();
+  // Display
+  void updateDisplay();
+  void clearDisplay();
+  void setLEDs(uint8_t report);
+  // Constructor
+  Keyboard(FILE *S);
 };
 
 #endif
@@ -114,6 +152,9 @@ extern "C" {
 #endif
 
 void keyboardScanAll(USB_KeyboardReport_Data_t *KR);
+void keyboardUpdateDisplay();
+void keyboardClearDisplay();
+void keyboardSetLEDs(uint8_t report);
 
 #ifdef __cplusplus
 }

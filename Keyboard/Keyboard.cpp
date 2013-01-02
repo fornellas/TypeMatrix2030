@@ -284,12 +284,13 @@ void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t state){
       break;
     case 5:
       switch(b){
-        case 8:
+        case 8: // F1 / key layout
           if((state&&!keyState[50])&&fn){
             if(layout==QWERTY)
               layout=DVORAK;
             else if(layout==DVORAK)
               layout=QWERTY;
+            updateDisplay();
             eeprom_busy_wait();
             eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
           }
@@ -371,8 +372,10 @@ void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t state){
         case 19:
           if(state)processKeyEvent(79);keyState[79]=state;break;
         case 24: // Keypad
-          if(state&&!keyState[80]&&!fn)
+          if(state&&!keyState[80]&&!fn){
             keypad=!keypad;
+            updateDisplay();
+          }
           if(state)processKeyEvent(80);keyState[80]=state;break;
       }
       break;
@@ -522,20 +525,62 @@ void Keyboard::initDisplay(){
 void Keyboard::updateDisplay(){
   u8g_FirstPage(&u8g);
   do{
+    // Keyboard LEDs
     if (LEDReport & HID_KEYBOARD_LED_NUMLOCK){
-      u8g_DrawStrP(&u8g, 0, 8, U8G_PSTR("NumLck"));
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawBox(&u8g, 0, 0, 37, 11);
+      u8g_SetColorIndex(&u8g, 0);
+      u8g_DrawStrP(&u8g, 1, 8, U8G_PSTR("NumLck"));
     }else{
-      
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawStrP(&u8g, 1, 8, U8G_PSTR("NumLck"));
     }
     if (LEDReport & HID_KEYBOARD_LED_CAPSLOCK){
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawBox(&u8g, 47, 0, 37, 11);
+      u8g_SetColorIndex(&u8g, 0);
       u8g_DrawStrP(&u8g, 48, 8, U8G_PSTR("CpsLck"));
     }else{
-
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawStrP(&u8g, 48, 8, U8G_PSTR("CpsLck"));
     }
     if (LEDReport & HID_KEYBOARD_LED_SCROLLLOCK){
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawBox(&u8g, 91, 0, 37, 11);
+      u8g_SetColorIndex(&u8g, 0);
       u8g_DrawStrP(&u8g, 92, 8, U8G_PSTR("ScrLck"));
     }else{
-
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawStrP(&u8g, 92, 8, U8G_PSTR("ScrLck"));
+    }
+    // Keypad
+    if (keypad){
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawBox(&u8g, 0, 12, 37, 11);
+      u8g_SetColorIndex(&u8g, 0);
+      u8g_DrawStrP(&u8g, 1, 20, U8G_PSTR("Keypad"));
+    }else{
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawStrP(&u8g, 1, 20, U8G_PSTR("Keypad"));
+    }
+    // Layout
+    if(layout==QWERTY){
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawBox(&u8g, 47, 12, 37, 11);
+      u8g_SetColorIndex(&u8g, 0);
+      u8g_DrawStrP(&u8g, 48, 20, U8G_PSTR("QWERTY"));
+    }else{
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawStrP(&u8g, 48, 20, U8G_PSTR("QWERTY"));
+    }
+    if(layout==DVORAK){
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawBox(&u8g, 91, 12, 37, 11);
+      u8g_SetColorIndex(&u8g, 0);
+      u8g_DrawStrP(&u8g, 92, 20, U8G_PSTR("Dvorak"));
+    }else{
+      u8g_SetColorIndex(&u8g, 1);
+      u8g_DrawStrP(&u8g, 92, 20, U8G_PSTR("Dvorak"));
     }
   }while(u8g_NextPage(&u8g));
 }

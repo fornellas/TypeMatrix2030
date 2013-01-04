@@ -43,16 +43,48 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
   .Config = {
     .Header                 = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
     .TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
+#ifdef CDC
     .TotalInterfaces        = 3,
+#else
+    .TotalInterfaces        = 1,
+#endif
     .ConfigurationNumber    = 1,
     .ConfigurationStrIndex  = NO_DESCRIPTOR,
     .ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_REMOTEWAKEUP),
     .MaxPowerConsumption    = USB_CONFIG_POWER_MA(100)
     },
+  // Keyboard
+  .HID_Interface = {
+    .Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
+    .InterfaceNumber        = 0,
+    .AlternateSetting       = 0x00,
+    .TotalEndpoints         = 1,
+    .Class                  = HID_CSCP_HIDClass,
+    .SubClass               = HID_CSCP_BootSubclass,
+    .Protocol               = HID_CSCP_KeyboardBootProtocol,
+    .InterfaceStrIndex      = NO_DESCRIPTOR
+    },
+  .HID_KeyboardHID = {
+    .Header                 = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
+    .HIDSpec                = VERSION_BCD(01.11),
+    .CountryCode            = 0x00,
+    .TotalReportDescriptors = 1,
+    .HIDReportType          = HID_DTYPE_Report,
+    .HIDReportLength        = sizeof(KeyboardReport)
+    },
+  .HID_ReportINEndpoint = {
+    .Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
+    .EndpointAddress        = KEYBOARD_EPADDR,
+    .Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
+    .EndpointSize           = KEYBOARD_EPSIZE,
+    .PollingIntervalMS      = 0x05
+    },
+
+#ifdef CDC
   // CDC
   .CDC_CCI_Interface = {
     .Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
-    .InterfaceNumber        = 0,
+    .InterfaceNumber        = 1,
     .AlternateSetting       = 0,
     .TotalEndpoints         = 1,
     .Class                  = CDC_CSCP_CDCClass,
@@ -85,7 +117,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
     },
   .CDC_DCI_Interface = {
     .Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
-    .InterfaceNumber        = 1,
+    .InterfaceNumber        = 2,
     .AlternateSetting       = 0,
     .TotalEndpoints         = 2,
     .Class                  = CDC_CSCP_CDCDataClass,
@@ -107,32 +139,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
     .EndpointSize           = CDC_TXRX_EPSIZE,
     .PollingIntervalMS      = 0x05
     },
-  // Keyboard
-  .HID_Interface = {
-    .Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
-    .InterfaceNumber        = 2,
-    .AlternateSetting       = 0x00,
-    .TotalEndpoints         = 1,
-    .Class                  = HID_CSCP_HIDClass,
-    .SubClass               = HID_CSCP_BootSubclass,
-    .Protocol               = HID_CSCP_KeyboardBootProtocol,
-    .InterfaceStrIndex      = NO_DESCRIPTOR
-    },
-  .HID_KeyboardHID = {
-    .Header                 = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
-    .HIDSpec                = VERSION_BCD(01.11),
-    .CountryCode            = 0x00,
-    .TotalReportDescriptors = 1,
-    .HIDReportType          = HID_DTYPE_Report,
-    .HIDReportLength        = sizeof(KeyboardReport)
-    },
-  .HID_ReportINEndpoint = {
-    .Header                 = {.Size = sizeof(USB_Descriptor_Endpoint_t), .Type = DTYPE_Endpoint},
-    .EndpointAddress        = KEYBOARD_EPADDR,
-    .Attributes             = (EP_TYPE_INTERRUPT | ENDPOINT_ATTR_NO_SYNC | ENDPOINT_USAGE_DATA),
-    .EndpointSize           = KEYBOARD_EPSIZE,
-    .PollingIntervalMS      = 0x05
-    },
+#endif
 };
 
 /** Language descriptor structure. This descriptor, located in FLASH memory, is returned when the host requests

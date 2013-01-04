@@ -29,8 +29,10 @@ private:
   // Facilities
   //
 
+#ifdef CDC
   // Serial
   FILE *Stream;
+#endif
 
   //
   // I/O expander
@@ -151,7 +153,11 @@ public:
   void clearDisplay();
   void setLEDs(uint8_t report);
   // Constructor
+#ifdef CDC
   Keyboard(FILE *S);
+#else
+  Keyboard();
+#endif
 };
 
 #endif

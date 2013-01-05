@@ -1,10 +1,7 @@
 #include "LUFA.h"
 #include "../Keyboard/Keyboard.h"
-#include <u8g.h>
 
-#ifdef CDC
 extern FILE USBSerialStream;
-#endif
 
 /** Buffer to hold the previously generated Keyboard HID report, for comparison purposes inside the HID class driver. */
 static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
@@ -15,7 +12,7 @@ static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
  */
 USB_ClassInfo_HID_Device_t Keyboard_HID_Interface = {
   .Config = {
-    .InterfaceNumber              = 0,
+    .InterfaceNumber              = 2,
     .ReportINEndpoint             = {
       .Address              = KEYBOARD_EPADDR,
       .Size                 = KEYBOARD_EPSIZE,
@@ -26,7 +23,6 @@ USB_ClassInfo_HID_Device_t Keyboard_HID_Interface = {
     },
   };
 
-#ifdef CDC
 /** LUFA CDC Class driver interface configuration and state information. This structure is
  *  passed to all CDC Class driver functions, so that multiple instances of the same class
  *  within a device can be differentiated from one another.
@@ -51,7 +47,6 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface = {
          },
      },
   };
-#endif
 
 /** Configures the board hardware and chip peripherals for the demo's functionality. */
 void SetupHardware(void){
@@ -67,18 +62,14 @@ void SetupHardware(void){
 
 /** Event handler for the library USB Configuration Changed event. */
 void EVENT_USB_Device_ConfigurationChanged(void){
-#ifdef CDC
   CDC_Device_ConfigureEndpoints(&VirtualSerial_CDC_Interface);
-#endif
   HID_Device_ConfigureEndpoints(&Keyboard_HID_Interface);
   USB_Device_EnableSOFEvents();
 }
 
 /** Event handler for the library USB Control Request reception event. */
 void EVENT_USB_Device_ControlRequest(void){
-#ifdef CDC
   CDC_Device_ProcessControlRequest(&VirtualSerial_CDC_Interface);
-#endif
   HID_Device_ProcessControlRequest(&Keyboard_HID_Interface);
 }
 
@@ -140,9 +131,6 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const uint8_t ReportType,
                                           const void* ReportData,
                                           const uint16_t ReportSize){
-  
-  if(HID_REPORT_ITEM_Out!=ReportType||USB_DeviceState!=DEVICE_STATE_Configured)
-    return;
   uint8_t* LEDReport = (uint8_t*)ReportData;
 //fprintf_P(&USBSerialStream, PSTR("LEDS=%d\r\n"), *LEDReport);
   keyboardSetLEDs(*LEDReport);
@@ -150,20 +138,20 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
 
 /* Event for USB device disconnection. This event fires when the AVR in device mode and the device is disconnected from a host, measured by a falling level on the AVR's VBUS pin. */
 void EVENT_USB_Device_Disconnect(void){
-  keyboardClearDisplay(U8G_PSTR("Disconnect"));
+  keyboardClearDisplay();
 }
 
 /* Event for USB interface reset. This event fires when the USB interface is in device mode, and a the USB host requests that the device reset its interface. This event fires after the control endpoint has been automatically configured by the library. */
 void EVENT_USB_Device_Reset(void){
-  keyboardClearDisplay(U8G_PSTR("Reset"));
+  keyboardClearDisplay();
 }
 
 /* Event for USB suspend. This event fires when a the USB host suspends the device by halting its transmission of Start Of Frame pulses to the device. This is generally hooked in order to move the device over to a low power state until the host wakes up the device. If the USB interface is enumerated with the USB_OPT_AUTO_PLL option set, the library will automatically suspend the USB PLL before the event is fired to save power. */
 void EVENT_USB_Device_Suspend(void){
-  keyboardClearDisplay(U8G_PSTR("Suspend"));
+  keyboardClearDisplay();
 }
 
 /* Event for USB wake up. This event fires when a the USB interface is suspended while in device mode, and the host wakes up the device by supplying Start Of Frame pulses. This is generally hooked to pull the user application out of a lowe power state and back into normal operating mode. If the USB interface is enumerated with the USB_OPT_AUTO_PLL option set, the library will automatically restart the USB PLL before the event is fired. */
 void EVENT_USB_Device_WakeUp(void){
-  keyboardUpdateDisplay(U8G_PSTR("WakeUp"));
+  keyboardUpdateDisplay();
 }

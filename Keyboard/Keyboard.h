@@ -29,10 +29,8 @@ private:
   // Facilities
   //
 
-#ifdef CDC
   // Serial
   FILE *Stream;
-#endif
 
   //
   // I/O expander
@@ -150,14 +148,10 @@ public:
   void scanAll();
   // Display
   void updateDisplay();
-  void clearDisplay(const u8g_pgm_uint8_t *s);
+  void clearDisplay();
   void setLEDs(uint8_t report);
   // Constructor
-#ifdef CDC
   Keyboard(FILE *S);
-#else
-  Keyboard();
-#endif
 };
 
 #endif
@@ -168,7 +162,7 @@ extern "C" {
 
 void keyboardScanAll(USB_KeyboardReport_Data_t *KR);
 void keyboardUpdateDisplay();
-void keyboardClearDisplay(const u8g_pgm_uint8_t *s);
+void keyboardClearDisplay();
 void keyboardSetLEDs(uint8_t report);
 
 #ifdef __cplusplus

@@ -9,7 +9,6 @@ OK- Validate each key
 OK- Implement key sequences
 OK- Non buggy Alt-Tab
 OK- Actual Ctrl+X/C/V
-- Fix display blinking during attachment (review USB events, fire display update at first call of scanAll() )
 - Password protected key presses sequences.
 - More layouts
 OK  - QWERTY US
@@ -24,9 +23,9 @@ OK  - Fn+ left hand keys => Ctrl+QWERTY layout for shortcuts.
 - Remove bootloader / decrease serial timeout.
 - Change board (Teensy 2.0++).
 - Better indicators
-OK  - Num / Caps / Scroll Lock
-OK  - Keypad
-OK  - QWERTY / DVORAK / DVORAK(ABNT2)
+  - Num / Caps / Scroll Lock
+  - Keypad
+  - QWERTY / DVORAK / DVORAK(ABNT2)
   - Key recording / lock status.
 - OLED Screen.
 - Bluetooth.

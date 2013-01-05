@@ -46,22 +46,14 @@ void Keyboard::MCPreset(volatile uint8_t *ddr, volatile uint8_t *port, uint8_t b
 void Keyboard::MCPwrite8(uint8_t i2cAddr, uint8_t baseReg, uint8_t v){
   if(TWI_WritePacket(i2cAddr, 10, &baseReg, sizeof(baseReg), &v, sizeof(v))!=TWI_ERROR_NoError)
     while(1)
-#ifdef CDC
       fprintf_P(Stream, PSTR("FAIL MCPwrite8(%d, %d, %d); TWI_SendByte();\r\n"), i2cAddr, baseReg, v);
-#else
-      ;
-#endif
 }
 
 void Keyboard::MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2){
   uint8_t v[2]={v1, v2};
   if(TWI_WritePacket(i2cAddr, 10, &baseReg, sizeof(baseReg), v, sizeof(v))!=TWI_ERROR_NoError)
     while(1)
-#ifdef CDC
       fprintf_P(Stream, PSTR("FAIL MCPwrite16(%d, %d, %d, %d);\r\n"), i2cAddr, baseReg, v1, v2);
-#else
-      ;
-#endif
 }
 
 uint16_t Keyboard::MCPread16(uint8_t i2cAddr, uint8_t baseReg){
@@ -69,11 +61,7 @@ uint16_t Keyboard::MCPread16(uint8_t i2cAddr, uint8_t baseReg){
   uint16_t r=0;
   if(TWI_ReadPacket(i2cAddr, 10, &baseReg, sizeof(baseReg), v, sizeof(v))!=TWI_ERROR_NoError)
     while(1)
-#ifdef CDC
       fprintf_P(Stream, PSTR("FAIL MCPread16(%d, %d);\r\n"), i2cAddr, baseReg);
-#else
-      ;
-#endif
   r=v[0];
   r|=((uint16_t)v[1])<<8;
   return r;
@@ -528,7 +516,10 @@ void Keyboard::initDisplay(){
   u8g_InitSPI(&u8g, &u8g_dev_st7565_lm6059_sw_spi, U8G_SCK, U8G_MOSI, U8G_CS, U8G_A0, U8G_RESET);
   u8g_SetRot180(&u8g);
   u8g_SetFont(&u8g, u8g_font_6x10);
-  clearDisplay(U8G_PSTR("Boot"));
+  u8g_FirstPage(&u8g);
+  do{
+    u8g_DrawStrP(&u8g, 0, 15, U8G_PSTR("Booting..."));
+  }while(u8g_NextPage(&u8g));
 }
 
 void Keyboard::updateDisplay(){
@@ -594,11 +585,9 @@ void Keyboard::updateDisplay(){
   }while(u8g_NextPage(&u8g));
 }
 
-void Keyboard::clearDisplay(const u8g_pgm_uint8_t *s){
+void Keyboard::clearDisplay(){
   u8g_FirstPage(&u8g);
   do{
-    u8g_SetColorIndex(&u8g, 1);
-    u8g_DrawStrP(&u8g, 0, 20, s);
   }while(u8g_NextPage(&u8g));
 }
 
@@ -611,15 +600,9 @@ void Keyboard::setLEDs(uint8_t report){
 // Constructor
 //
 
-#ifdef CDC
 Keyboard::Keyboard(FILE *S){
-#else
-Keyboard::Keyboard(){
-#endif
-#ifdef CDC
   // Serial
   Stream=S;
-#endif
   // reset MCPs
   MCPreset(&MCP23017_RESET_DDR_0, &MCP23017_RESET_PORT_0, MCP23017_RESET_BIT_0);
   MCPreset(&MCP23017_RESET_DDR_1, &MCP23017_RESET_PORT_1, MCP23017_RESET_BIT_1);
@@ -706,8 +689,8 @@ void keyboardUpdateDisplay(){
   kbd->updateDisplay();
 }
 
-void keyboardClearDisplay(const u8g_pgm_uint8_t *s){
-  kbd->clearDisplay(s);
+void keyboardClearDisplay(){
+  kbd->clearDisplay();
 }
 
 void keyboardSetLEDs(uint8_t report){

@@ -169,9 +169,10 @@ void Keyboard::common55(){
 };
 // F9/Wke
 void Keyboard::common57(){
-  if(fn)
-    KP(HID_KEYBOARD_SC_INTERNATIONAL9);
-  else
+  if(fn){
+    if(USB_Device_RemoteWakeupEnabled)
+      USB_Device_SendRemoteWakeup();
+  }else
     KP(HID_KEYBOARD_SC_F9);
 };
 // Home/1

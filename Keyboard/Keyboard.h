@@ -150,7 +150,7 @@ public:
   void scanAll();
   // Display
   void updateDisplay();
-  void clearDisplay();
+  void clearDisplay(const u8g_pgm_uint8_t *s);
   void setLEDs(uint8_t report);
   // Constructor
 #ifdef CDC
@@ -168,7 +168,7 @@ extern "C" {
 
 void keyboardScanAll(USB_KeyboardReport_Data_t *KR);
 void keyboardUpdateDisplay();
-void keyboardClearDisplay();
+void keyboardClearDisplay(const u8g_pgm_uint8_t *s);
 void keyboardSetLEDs(uint8_t report);
 
 #ifdef __cplusplus

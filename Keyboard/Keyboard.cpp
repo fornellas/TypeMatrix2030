@@ -528,10 +528,7 @@ void Keyboard::initDisplay(){
   u8g_InitSPI(&u8g, &u8g_dev_st7565_lm6059_sw_spi, U8G_SCK, U8G_MOSI, U8G_CS, U8G_A0, U8G_RESET);
   u8g_SetRot180(&u8g);
   u8g_SetFont(&u8g, u8g_font_6x10);
-  u8g_FirstPage(&u8g);
-  do{
-    u8g_DrawStrP(&u8g, 0, 15, U8G_PSTR("Booting..."));
-  }while(u8g_NextPage(&u8g));
+  clearDisplay(U8G_PSTR("Boot"));
 }
 
 void Keyboard::updateDisplay(){
@@ -597,9 +594,11 @@ void Keyboard::updateDisplay(){
   }while(u8g_NextPage(&u8g));
 }
 
-void Keyboard::clearDisplay(){
+void Keyboard::clearDisplay(const u8g_pgm_uint8_t *s){
   u8g_FirstPage(&u8g);
   do{
+    u8g_SetColorIndex(&u8g, 1);
+    u8g_DrawStrP(&u8g, 0, 20, s);
   }while(u8g_NextPage(&u8g));
 }
 
@@ -707,8 +706,8 @@ void keyboardUpdateDisplay(){
   kbd->updateDisplay();
 }
 
-void keyboardClearDisplay(){
-  kbd->clearDisplay();
+void keyboardClearDisplay(const u8g_pgm_uint8_t *s){
+  kbd->clearDisplay(s);
 }
 
 void keyboardSetLEDs(uint8_t report){

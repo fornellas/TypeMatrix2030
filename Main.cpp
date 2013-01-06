@@ -42,6 +42,9 @@ int main(void){
     CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
     // Keyboard
     kbd->displayUpdate(false);
+    if(DEVICE_STATE_Suspended==USB_DeviceState)
+      if(USB_Device_RemoteWakeupEnabled)
+        kbd->scanAll();
     HID_Device_USBTask(&Keyboard_HID_Interface);
 
     USB_USBTask();

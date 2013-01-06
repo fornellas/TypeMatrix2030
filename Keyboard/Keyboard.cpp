@@ -106,6 +106,14 @@ void Keyboard::press(uint8_t key){
 
 void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
   uint8_t *seq=NULL;
+  // wake up if suspended
+  if(DEVICE_STATE_Suspended==USB_DeviceState){
+    if(USB_Device_RemoteWakeupEnabled)
+      if(state)
+        USB_Device_SendRemoteWakeup();
+    goto end;
+  }
+  // Non suspended
   switch(key){
     case 8: // Play / Ctrl+X
       if((state&&!keyState[key])&&fn){
@@ -209,12 +217,6 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
         displayUpdate(true);
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
-        goto end;
-      }
-      break;
-    case 57: // F9/Wake
-      if(fn&&USB_Device_RemoteWakeupEnabled){
-        USB_Device_SendRemoteWakeup();
         goto end;
       }
       break;

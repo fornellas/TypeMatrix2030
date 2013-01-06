@@ -79,7 +79,8 @@ uint16_t Keyboard::MCPread16(uint8_t i2cAddr, uint8_t baseReg){
 
 #define SETMOD(key, value) case key: KeyboardReport->Modifier|=value;break;
 void Keyboard::press(uint8_t key){
-//fprintf_P(Stream, PSTR("      press() %d +++\r\n"), key);
+  if(key==NO_KEY)
+    return;
   switch(key){
     SETMOD(HID_KEYBOARD_SC_LEFT_CONTROL, HID_KEYBOARD_MODIFIER_LEFTCTRL);
     SETMOD(HID_KEYBOARD_SC_LEFT_SHIFT, HID_KEYBOARD_MODIFIER_LEFTSHIFT);
@@ -104,7 +105,6 @@ void Keyboard::press(uint8_t key){
 }
 
 void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
-  uint8_t k=NO_KEY;
   uint8_t *seq=NULL;
   switch(key){
     case 8: // Play / Ctrl+X
@@ -247,44 +247,67 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
         goto end;
       }
       break;
+    // CTRL+key for left hand letters and Dvorak
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 12:
+    case 35:
+    case 39:
+    case 40:
+    case 41:
+    case 64:
+    case 38:
+    case 72:
+    case 73:
+    case 74:
+    case 81:
+      if(fn&&state)
+        switch(layout){
+          case US_DVORAK:
+          case ABNT2_DVORAK:
+            KP(HID_KEYBOARD_SC_LEFT_CONTROL);
+            KP(pgm_read_byte_near(us_us+key));
+            goto end;
+        }
+      break;
   }
   if(state){
     switch(layout){
       case US_US:
         if(fn&&!keypad)
-          k=pgm_read_byte_near(us_us_fn+key);
+          KP(pgm_read_byte_near(us_us_fn+key));
         else if(!fn&&keypad)
-          k=pgm_read_byte_near(us_us_keypad+key);
+          KP(pgm_read_byte_near(us_us_keypad+key));
         else
-          k=pgm_read_byte_near(us_us+key);
+          KP(pgm_read_byte_near(us_us+key));
         break;
       case US_DVORAK:
         if(fn&&!keypad)
-          k=pgm_read_byte_near(us_dvorak_fn+key);
+          KP(pgm_read_byte_near(us_dvorak_fn+key));
         else if(!fn&&keypad)
-          k=pgm_read_byte_near(us_dvorak_keypad+key);
+          KP(pgm_read_byte_near(us_dvorak_keypad+key));
         else
-          k=pgm_read_byte_near(us_dvorak+key);
+          KP(pgm_read_byte_near(us_dvorak+key));
         break;
       case ABNT2_US:
         if(fn&&!keypad)
-          k=pgm_read_byte_near(abnt2_us_fn+key);
+          KP(pgm_read_byte_near(abnt2_us_fn+key));
         else if(!fn&&keypad)
-          k=pgm_read_byte_near(abnt2_us_keypad+key);
+          KP(pgm_read_byte_near(abnt2_us_keypad+key));
         else
-          k=pgm_read_byte_near(abnt2_us+key);
+          KP(pgm_read_byte_near(abnt2_us+key));
         break;
       case ABNT2_DVORAK:
         if(fn&&!keypad)
-          k=pgm_read_byte_near(abnt2_dvorak_fn+key);
+          KP(pgm_read_byte_near(abnt2_dvorak_fn+key));
         else if(!fn&&keypad)
-          k=pgm_read_byte_near(abnt2_dvorak_keypad+key);
+          KP(pgm_read_byte_near(abnt2_dvorak_keypad+key));
         else
-          k=pgm_read_byte_near(abnt2_dvorak+key);
+          KP(pgm_read_byte_near(abnt2_dvorak+key));
         break;
     }
-    if(NO_KEY!=k)
-      KP(k);
   }
   end:
   keyState[key]=state;

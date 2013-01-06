@@ -41,7 +41,7 @@ int main(void){
     CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
     CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
     // Keyboard
-    kbd->clearDisplay();
+    kbd->displayUpdate(false);
     HID_Device_USBTask(&Keyboard_HID_Interface);
 
     USB_USBTask();

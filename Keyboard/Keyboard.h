@@ -17,6 +17,8 @@
 #ifdef __cplusplus
 
 #define NO_KEY		0
+#define NO_LED_REPORT	0xFF
+#define NO_USB_DEVICE_STATE	0xFF
 
 #define US_US 		0
 #define US_DVORAK 	1
@@ -92,18 +94,18 @@ private:
   //
 
   u8g_t u8g;
-  void initDisplay();
-  void drawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x);
+  void displayInit();
+  void displayDrawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x);
+  void displayDrawLEDs();
+  void displayDrawLayoutStates();
 public:
   // Facilities
   USB_KeyboardReport_Data_t *KeyboardReport;
   // Key scanning
   void scanAll();
   // Display
-  void updateDisplay();
-  void clearDisplay();
+  void displayUpdate(uint8_t force);
   void setLEDs(uint8_t report);
-  void drawLayoutStates();
   // Constructor
   Keyboard(FILE *S);
 };
@@ -115,7 +117,6 @@ extern "C" {
 #endif
 
 void keyboardScanAll(USB_KeyboardReport_Data_t *KR);
-void keyboardUpdateDisplay();
 void keyboardSetLEDs(uint8_t report);
 
 #ifdef __cplusplus

@@ -184,7 +184,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
             layout=ABNT2_US;
             break;
         }
-        updateDisplay();
+        displayUpdate(true);
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
         goto end;
@@ -206,7 +206,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
             layout=US_DVORAK;
             break;
         }
-        updateDisplay();
+        displayUpdate(true);
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
         goto end;
@@ -235,7 +235,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
     case 80: // Keypad
       if(state&&!keyState[key]&&!fn){
         keypad=!keypad;
-        updateDisplay();
+        displayUpdate(true);
         goto end;
       }
       break;
@@ -638,13 +638,13 @@ void Keyboard::playKeySequence(){
 // Display
 //
 
-void Keyboard::initDisplay(){
+void Keyboard::displayInit(){
   u8g_InitSPI(&u8g, &u8g_dev_st7565_lm6059_sw_spi, U8G_SCK, U8G_MOSI, U8G_CS, U8G_A0, U8G_RESET);
   u8g_SetRot180(&u8g);
   u8g_SetFont(&u8g, u8g_font_6x10);
 }
 
-void Keyboard::drawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x){
+void Keyboard::displayDrawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x){
   if(on){
     u8g_SetColorIndex(&u8g, 1);
     u8g_DrawBox(&u8g, x, 0, 13, 16);
@@ -657,9 +657,10 @@ void Keyboard::drawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x){
   }
 }
 
-void Keyboard::clearDisplay(){
-  // Clear display if not configured
-  if(USB_DeviceState!=last_USB_DeviceState){
+void Keyboard::displayUpdate(uint8_t force){
+  if(USB_DeviceState!=last_USB_DeviceState||force){
+    if(USB_DeviceState!=DEVICE_STATE_Configured)
+      LEDReport=NO_LED_REPORT;
     u8g_FirstPage(&u8g);
     do{
       switch(USB_DeviceState){
@@ -676,7 +677,9 @@ void Keyboard::clearDisplay(){
           u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Addressed"));
           break;
         case DEVICE_STATE_Configured:
-          drawLayoutStates();
+          if(LEDReport!=NO_LED_REPORT)
+            displayDrawLEDs();
+          displayDrawLayoutStates();
           break;
         case DEVICE_STATE_Suspended:
           u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Suspended"));
@@ -687,64 +690,58 @@ void Keyboard::clearDisplay(){
   }
 }
 
-void Keyboard::updateDisplay(){
-  // State indicators
-  u8g_FirstPage(&u8g);
-  do{
-    // Keyboard LEDs
-    if(LEDReport & HID_KEYBOARD_LED_NUMLOCK)
-      drawIndicator(U8G_PSTR("1"), 1, 0);
-    else
-      drawIndicator(U8G_PSTR("1"), 0, 0);
-    if(LEDReport & HID_KEYBOARD_LED_CAPSLOCK)
-      drawIndicator(U8G_PSTR("A"), 1, 14);
-    else
-      drawIndicator(U8G_PSTR("A"), 0, 14);
-    if(LEDReport & HID_KEYBOARD_LED_SCROLLLOCK)
-      drawIndicator(U8G_PSTR("S"), 1, 28);
-    else
-      drawIndicator(U8G_PSTR("S"), 0, 28);
-    // layout
-    drawLayoutStates();
-  }while(u8g_NextPage(&u8g));
+void Keyboard::displayDrawLEDs(){
+  // Keyboard LEDs
+  if(LEDReport & HID_KEYBOARD_LED_NUMLOCK)
+    displayDrawIndicator(U8G_PSTR("1"), 1, 0);
+  else
+    displayDrawIndicator(U8G_PSTR("1"), 0, 0);
+  if(LEDReport & HID_KEYBOARD_LED_CAPSLOCK)
+    displayDrawIndicator(U8G_PSTR("A"), 1, 14);
+  else
+    displayDrawIndicator(U8G_PSTR("A"), 0, 14);
+  if(LEDReport & HID_KEYBOARD_LED_SCROLLLOCK)
+    displayDrawIndicator(U8G_PSTR("S"), 1, 28);
+  else
+    displayDrawIndicator(U8G_PSTR("S"), 0, 28);
 }
 
 void Keyboard::setLEDs(uint8_t report){
   LEDReport=report;
-  updateDisplay();
+  displayUpdate(true);
 }
 
-void Keyboard::drawLayoutStates(){
+void Keyboard::displayDrawLayoutStates(){
   // Keypad
   if(keypad)
-    drawIndicator(U8G_PSTR("K"), 1, 48);
+    displayDrawIndicator(U8G_PSTR("K"), 1, 48);
   else
-    drawIndicator(U8G_PSTR("K"), 0, 48);
+    displayDrawIndicator(U8G_PSTR("K"), 0, 48);
   // Layout
   switch(layout){
     case US_US:
-      drawIndicator(U8G_PSTR("U"), 1, 68);
-      drawIndicator(U8G_PSTR("D"), 0, 82);
-      drawIndicator(U8G_PSTR("U"), 1, 101);
-      drawIndicator(U8G_PSTR("2"), 0, 115);
+      displayDrawIndicator(U8G_PSTR("U"), 1, 68);
+      displayDrawIndicator(U8G_PSTR("D"), 0, 82);
+      displayDrawIndicator(U8G_PSTR("U"), 1, 101);
+      displayDrawIndicator(U8G_PSTR("2"), 0, 115);
       break;
     case US_DVORAK:
-      drawIndicator(U8G_PSTR("U"), 0, 68);
-      drawIndicator(U8G_PSTR("D"), 1, 82);
-      drawIndicator(U8G_PSTR("U"), 1, 101);
-      drawIndicator(U8G_PSTR("2"), 0, 115);
+      displayDrawIndicator(U8G_PSTR("U"), 0, 68);
+      displayDrawIndicator(U8G_PSTR("D"), 1, 82);
+      displayDrawIndicator(U8G_PSTR("U"), 1, 101);
+      displayDrawIndicator(U8G_PSTR("2"), 0, 115);
       break;
     case ABNT2_US:
-      drawIndicator(U8G_PSTR("U"), 1, 68);
-      drawIndicator(U8G_PSTR("D"), 0, 82);
-      drawIndicator(U8G_PSTR("U"), 0, 101);
-      drawIndicator(U8G_PSTR("2"), 1, 115);
+      displayDrawIndicator(U8G_PSTR("U"), 1, 68);
+      displayDrawIndicator(U8G_PSTR("D"), 0, 82);
+      displayDrawIndicator(U8G_PSTR("U"), 0, 101);
+      displayDrawIndicator(U8G_PSTR("2"), 1, 115);
       break;
     case ABNT2_DVORAK:
-      drawIndicator(U8G_PSTR("U"), 0, 68);
-      drawIndicator(U8G_PSTR("D"), 1, 82);
-      drawIndicator(U8G_PSTR("U"), 0, 101);
-      drawIndicator(U8G_PSTR("2"), 1, 115);
+      displayDrawIndicator(U8G_PSTR("U"), 0, 68);
+      displayDrawIndicator(U8G_PSTR("D"), 1, 82);
+      displayDrawIndicator(U8G_PSTR("U"), 0, 101);
+      displayDrawIndicator(U8G_PSTR("2"), 1, 115);
       break;
   }
 }
@@ -771,8 +768,8 @@ Keyboard::Keyboard(FILE *S){
     keyState[i]=0;
   keypad=0;
   fn=0;
-  LEDReport=0;
-  last_USB_DeviceState=0xFF;
+  LEDReport=NO_LED_REPORT;
+  last_USB_DeviceState=NO_USB_DEVICE_STATE;
   // Load layout
   eeprom_busy_wait();
   layout=eeprom_read_byte((const uint8_t *)EEPROM_LAYOUT);
@@ -784,7 +781,7 @@ Keyboard::Keyboard(FILE *S){
   // Sequences
   sequence=NULL;
   // Display
-  initDisplay();
+  displayInit();
 }
 
 //
@@ -796,10 +793,6 @@ extern Keyboard *kbd;
 void keyboardScanAll(USB_KeyboardReport_Data_t *KR){
   kbd->KeyboardReport=KR;
   kbd->scanAll();
-}
-
-void keyboardUpdateDisplay(){
-  kbd->updateDisplay();
 }
 
 void keyboardSetLEDs(uint8_t report){

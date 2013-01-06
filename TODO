@@ -10,10 +10,10 @@ OK- Implement key sequences
 OK- Non buggy Alt-Tab
 OK- Actual Ctrl+X/C/V
 - Password protected key presses sequences.
-- More layouts
+OK- More layouts
 OK  - QWERTY US
 OK  - QWERTY US > Dvorak
-  - ABNT2 > Dvorak
+OK  - ABNT2 > Dvorak
 OK  - Save keyboard layout conf.
 OK  - Fn+ left hand keys => Ctrl+QWERTY layout for shortcuts.
 - Support multiple HID pages
@@ -23,9 +23,9 @@ OK  - Fn+ left hand keys => Ctrl+QWERTY layout for shortcuts.
 - Remove bootloader / decrease serial timeout.
 - Change board (Teensy 2.0++).
 - Better indicators
-  - Num / Caps / Scroll Lock
-  - Keypad
-  - QWERTY / DVORAK / DVORAK(ABNT2)
+OK  - Num / Caps / Scroll Lock
+OK  - Keypad
+OK  - QWERTY / DVORAK / DVORAK(ABNT2)
   - Key recording / lock status.
 - OLED Screen.
 - Bluetooth.

@@ -96,24 +96,6 @@ bool CALLBACK_HID_Device_CreateHIDReport(USB_ClassInfo_HID_Device_t* const HIDIn
   USB_KeyboardReport_Data_t* KeyboardReport = (USB_KeyboardReport_Data_t*)ReportData;
 
   keyboardScanAll(KeyboardReport);
-/*
-if(KeyboardReport->KeyCode[0]||
-KeyboardReport->KeyCode[1]||
-KeyboardReport->KeyCode[2]||
-KeyboardReport->KeyCode[3]||
-KeyboardReport->KeyCode[4]||
-KeyboardReport->KeyCode[5]||
-KeyboardReport->Modifier)
-fprintf_P(&USBSerialStream, PSTR("%d / %d %d %d %d %d %d\r\n"),
-KeyboardReport->Modifier,
-(uint8_t)KeyboardReport->KeyCode[0],
-(uint8_t)KeyboardReport->KeyCode[1],
-(uint8_t)KeyboardReport->KeyCode[2],
-(uint8_t)KeyboardReport->KeyCode[3],
-(uint8_t)KeyboardReport->KeyCode[4],
-(uint8_t)KeyboardReport->KeyCode[5]
-);
-*/
   *ReportSize = sizeof(USB_KeyboardReport_Data_t);
   return false;
 }
@@ -132,26 +114,5 @@ void CALLBACK_HID_Device_ProcessHIDReport(USB_ClassInfo_HID_Device_t* const HIDI
                                           const void* ReportData,
                                           const uint16_t ReportSize){
   uint8_t* LEDReport = (uint8_t*)ReportData;
-//fprintf_P(&USBSerialStream, PSTR("LEDS=%d\r\n"), *LEDReport);
   keyboardSetLEDs(*LEDReport);
-}
-
-/* Event for USB device disconnection. This event fires when the AVR in device mode and the device is disconnected from a host, measured by a falling level on the AVR's VBUS pin. */
-void EVENT_USB_Device_Disconnect(void){
-  keyboardClearDisplay();
-}
-
-/* Event for USB interface reset. This event fires when the USB interface is in device mode, and a the USB host requests that the device reset its interface. This event fires after the control endpoint has been automatically configured by the library. */
-void EVENT_USB_Device_Reset(void){
-  keyboardClearDisplay();
-}
-
-/* Event for USB suspend. This event fires when a the USB host suspends the device by halting its transmission of Start Of Frame pulses to the device. This is generally hooked in order to move the device over to a low power state until the host wakes up the device. If the USB interface is enumerated with the USB_OPT_AUTO_PLL option set, the library will automatically suspend the USB PLL before the event is fired to save power. */
-void EVENT_USB_Device_Suspend(void){
-  keyboardClearDisplay();
-}
-
-/* Event for USB wake up. This event fires when a the USB interface is suspended while in device mode, and the host wakes up the device by supplying Start Of Frame pulses. This is generally hooked to pull the user application out of a lowe power state and back into normal operating mode. If the USB interface is enumerated with the USB_OPT_AUTO_PLL option set, the library will automatically restart the USB PLL before the event is fired. */
-void EVENT_USB_Device_WakeUp(void){
-  keyboardUpdateDisplay();
 }

@@ -26,7 +26,7 @@ const USB_Descriptor_Device_t PROGMEM DeviceDescriptor = {
   .Protocol               = USB_CSCP_NoDeviceProtocol,
   .Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
   .VendorID               = 0x03EB, // Atmel
-  .ProductID              = 0x204D, // Combined Keyboard and Mouse Demo Application
+  .ProductID              = 0x2042, // Keyboard Demo Application
   .ReleaseNumber          = VERSION_BCD(00.01),
   .ManufacturerStrIndex   = 0x01,
   .ProductStrIndex        = 0x02,
@@ -46,7 +46,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
     .TotalInterfaces        = 3,
     .ConfigurationNumber    = 1,
     .ConfigurationStrIndex  = NO_DESCRIPTOR,
-    .ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_SELFPOWERED),
+    .ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_REMOTEWAKEUP),
     .MaxPowerConsumption    = USB_CONFIG_POWER_MA(100)
     },
   // CDC

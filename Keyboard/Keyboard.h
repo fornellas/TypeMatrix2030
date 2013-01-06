@@ -72,6 +72,7 @@ private:
   uint8_t fn;
   uint8_t layout;
   uint8_t LEDReport;
+  uint8_t USBConfigured;
 
   //
   // Key sequencing
@@ -114,7 +115,6 @@ extern "C" {
 
 void keyboardScanAll(USB_KeyboardReport_Data_t *KR);
 void keyboardUpdateDisplay();
-void keyboardClearDisplay();
 void keyboardSetLEDs(uint8_t report);
 
 #ifdef __cplusplus

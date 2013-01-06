@@ -37,11 +37,11 @@ int main(void){
   GlobalInterruptEnable();
 
   for (;;){
-//fprintf_P(&USBSerialStream, PSTR("main loop\r\n"));
     /* Must throw away unused bytes from the host, or it will lock up while waiting for the device */
     CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
     CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
     // Keyboard
+    kbd->clearDisplay();
     HID_Device_USBTask(&Keyboard_HID_Interface);
 
     USB_USBTask();

@@ -212,6 +212,12 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
         goto end;
       }
       break;
+    case 57: // F9/Wake
+      if(fn&&USB_Device_RemoteWakeupEnabled){
+        USB_Device_SendRemoteWakeup();
+        goto end;
+      }
+      break;
     case 61: // BTab
       if((state&&!keyState[key])&&((!fn&&keypad)||(fn&&!keypad))){
         if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
@@ -314,7 +320,6 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
 }
 
 void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t state){
-  uint8_t *seq;
   switch(a){
     case 0:
       switch(b){
@@ -637,10 +642,6 @@ void Keyboard::initDisplay(){
   u8g_InitSPI(&u8g, &u8g_dev_st7565_lm6059_sw_spi, U8G_SCK, U8G_MOSI, U8G_CS, U8G_A0, U8G_RESET);
   u8g_SetRot180(&u8g);
   u8g_SetFont(&u8g, u8g_font_6x10);
-  u8g_FirstPage(&u8g);
-  do{
-    u8g_DrawStrP(&u8g, 0, 15, U8G_PSTR("Booting..."));
-  }while(u8g_NextPage(&u8g));
 }
 
 void Keyboard::drawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x){
@@ -656,8 +657,21 @@ void Keyboard::drawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x){
   }
 }
 
+void Keyboard::clearDisplay(){
+  // Clear display if not configured
+  if(USBConfigured&&(USB_DeviceState!=DEVICE_STATE_Configured)){
+    u8g_FirstPage(&u8g);
+    do{
+    }while(u8g_NextPage(&u8g));
+  }
+  if(USB_DeviceState==DEVICE_STATE_Configured)
+    USBConfigured=1;
+  else
+    USBConfigured=0;
+}
 
 void Keyboard::updateDisplay(){
+  // State indicators
   u8g_FirstPage(&u8g);
   do{
     // Keyboard LEDs
@@ -708,12 +722,6 @@ void Keyboard::updateDisplay(){
   }while(u8g_NextPage(&u8g));
 }
 
-void Keyboard::clearDisplay(){
-  u8g_FirstPage(&u8g);
-  do{
-  }while(u8g_NextPage(&u8g));
-}
-
 void Keyboard::setLEDs(uint8_t report){
   LEDReport=report;
   updateDisplay();
@@ -742,6 +750,7 @@ Keyboard::Keyboard(FILE *S){
   keypad=0;
   fn=0;
   LEDReport=0;
+  USBConfigured=0;
   // Load layout
   eeprom_busy_wait();
   layout=eeprom_read_byte((const uint8_t *)EEPROM_LAYOUT);
@@ -769,10 +778,6 @@ void keyboardScanAll(USB_KeyboardReport_Data_t *KR){
 
 void keyboardUpdateDisplay(){
   kbd->updateDisplay();
-}
-
-void keyboardClearDisplay(){
-  kbd->clearDisplay();
 }
 
 void keyboardSetLEDs(uint8_t report){

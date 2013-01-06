@@ -72,7 +72,7 @@ private:
   uint8_t fn;
   uint8_t layout;
   uint8_t LEDReport;
-  uint8_t USBConfigured;
+  uint8_t last_USB_DeviceState;
 
   //
   // Key sequencing
@@ -103,6 +103,7 @@ public:
   void updateDisplay();
   void clearDisplay();
   void setLEDs(uint8_t report);
+  void drawLayoutStates();
   // Constructor
   Keyboard(FILE *S);
 };

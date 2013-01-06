@@ -659,15 +659,32 @@ void Keyboard::drawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x){
 
 void Keyboard::clearDisplay(){
   // Clear display if not configured
-  if(USBConfigured&&(USB_DeviceState!=DEVICE_STATE_Configured)){
+  if(USB_DeviceState!=last_USB_DeviceState){
     u8g_FirstPage(&u8g);
     do{
+      switch(USB_DeviceState){
+        case DEVICE_STATE_Unattached:
+          u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Unattached"));
+          break;
+        case DEVICE_STATE_Powered:
+          u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Powered"));
+          break;
+        case DEVICE_STATE_Default:
+          u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Default"));
+          break;
+        case DEVICE_STATE_Addressed:
+          u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Addressed"));
+          break;
+        case DEVICE_STATE_Configured:
+          drawLayoutStates();
+          break;
+        case DEVICE_STATE_Suspended:
+          u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Suspended"));
+          break;
+      }
     }while(u8g_NextPage(&u8g));
+    last_USB_DeviceState=USB_DeviceState;
   }
-  if(USB_DeviceState==DEVICE_STATE_Configured)
-    USBConfigured=1;
-  else
-    USBConfigured=0;
 }
 
 void Keyboard::updateDisplay(){
@@ -687,44 +704,49 @@ void Keyboard::updateDisplay(){
       drawIndicator(U8G_PSTR("S"), 1, 28);
     else
       drawIndicator(U8G_PSTR("S"), 0, 28);
-    // Keypad
-    if(keypad)
-      drawIndicator(U8G_PSTR("K"), 1, 48);
-    else
-      drawIndicator(U8G_PSTR("K"), 0, 48);
-    // Layout
-    switch(layout){
-      case US_US:
-        drawIndicator(U8G_PSTR("U"), 1, 68);
-        drawIndicator(U8G_PSTR("D"), 0, 82);
-        drawIndicator(U8G_PSTR("U"), 1, 101);
-        drawIndicator(U8G_PSTR("2"), 0, 115);
-        break;
-      case US_DVORAK:
-        drawIndicator(U8G_PSTR("U"), 0, 68);
-        drawIndicator(U8G_PSTR("D"), 1, 82);
-        drawIndicator(U8G_PSTR("U"), 1, 101);
-        drawIndicator(U8G_PSTR("2"), 0, 115);
-        break;
-      case ABNT2_US:
-        drawIndicator(U8G_PSTR("U"), 1, 68);
-        drawIndicator(U8G_PSTR("D"), 0, 82);
-        drawIndicator(U8G_PSTR("U"), 0, 101);
-        drawIndicator(U8G_PSTR("2"), 1, 115);
-        break;
-      case ABNT2_DVORAK:
-        drawIndicator(U8G_PSTR("U"), 0, 68);
-        drawIndicator(U8G_PSTR("D"), 1, 82);
-        drawIndicator(U8G_PSTR("U"), 0, 101);
-        drawIndicator(U8G_PSTR("2"), 1, 115);
-        break;
-    }
+    // layout
+    drawLayoutStates();
   }while(u8g_NextPage(&u8g));
 }
 
 void Keyboard::setLEDs(uint8_t report){
   LEDReport=report;
   updateDisplay();
+}
+
+void Keyboard::drawLayoutStates(){
+  // Keypad
+  if(keypad)
+    drawIndicator(U8G_PSTR("K"), 1, 48);
+  else
+    drawIndicator(U8G_PSTR("K"), 0, 48);
+  // Layout
+  switch(layout){
+    case US_US:
+      drawIndicator(U8G_PSTR("U"), 1, 68);
+      drawIndicator(U8G_PSTR("D"), 0, 82);
+      drawIndicator(U8G_PSTR("U"), 1, 101);
+      drawIndicator(U8G_PSTR("2"), 0, 115);
+      break;
+    case US_DVORAK:
+      drawIndicator(U8G_PSTR("U"), 0, 68);
+      drawIndicator(U8G_PSTR("D"), 1, 82);
+      drawIndicator(U8G_PSTR("U"), 1, 101);
+      drawIndicator(U8G_PSTR("2"), 0, 115);
+      break;
+    case ABNT2_US:
+      drawIndicator(U8G_PSTR("U"), 1, 68);
+      drawIndicator(U8G_PSTR("D"), 0, 82);
+      drawIndicator(U8G_PSTR("U"), 0, 101);
+      drawIndicator(U8G_PSTR("2"), 1, 115);
+      break;
+    case ABNT2_DVORAK:
+      drawIndicator(U8G_PSTR("U"), 0, 68);
+      drawIndicator(U8G_PSTR("D"), 1, 82);
+      drawIndicator(U8G_PSTR("U"), 0, 101);
+      drawIndicator(U8G_PSTR("2"), 1, 115);
+      break;
+  }
 }
 
 //
@@ -750,7 +772,7 @@ Keyboard::Keyboard(FILE *S){
   keypad=0;
   fn=0;
   LEDReport=0;
-  USBConfigured=0;
+  last_USB_DeviceState=0xFF;
   // Load layout
   eeprom_busy_wait();
   layout=eeprom_read_byte((const uint8_t *)EEPROM_LAYOUT);

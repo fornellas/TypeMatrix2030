@@ -192,7 +192,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
             layout=ABNT2_US;
             break;
         }
-        displayUpdate(true);
+        displayForceUpdate=true;
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
         goto end;
@@ -214,7 +214,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
             layout=US_DVORAK;
             break;
         }
-        displayUpdate(true);
+        displayForceUpdate=true;
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
         goto end;
@@ -237,7 +237,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
     case 80: // Keypad
       if(state&&!keyState[key]&&!fn){
         keypad=!keypad;
-        displayUpdate(true);
+        displayForceUpdate=true;
         goto end;
       }
       break;
@@ -659,24 +659,32 @@ void Keyboard::displayDrawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x)
   }
 }
 
-void Keyboard::displayUpdate(uint8_t force){
-  if(USB_DeviceState!=last_USB_DeviceState||force){
+void Keyboard::displayDrawStrCenter(u8g_pgm_uint8_t *str, uint8_t y){
+  uint8_t x;
+  x=u8g_GetWidth(&u8g)/2-u8g_GetStrWidthP(&u8g, str)/2;
+  u8g_DrawStrP(&u8g, x, y, str);
+}
+
+void Keyboard::displayUpdate(){
+  if(USB_DeviceState!=last_USB_DeviceState||displayForceUpdate){
+    if(displayForceUpdate)
+      displayForceUpdate=false;
     if(USB_DeviceState!=DEVICE_STATE_Configured)
       LEDReport=NO_LED_REPORT;
     u8g_FirstPage(&u8g);
     do{
       switch(USB_DeviceState){
         case DEVICE_STATE_Unattached:
-          u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Unattached"));
+          displayDrawStrCenter(U8G_PSTR("Unattached"), 11);
           break;
         case DEVICE_STATE_Powered:
-          u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Powered"));
+          displayDrawStrCenter(U8G_PSTR("Powered"), 11);
           break;
         case DEVICE_STATE_Default:
-          u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Default"));
+          displayDrawStrCenter(U8G_PSTR("Default"), 11);
           break;
         case DEVICE_STATE_Addressed:
-          u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Addressed"));
+          displayDrawStrCenter(U8G_PSTR("Addressed"), 11);
           break;
         case DEVICE_STATE_Configured:
           if(LEDReport!=NO_LED_REPORT)
@@ -684,7 +692,10 @@ void Keyboard::displayUpdate(uint8_t force){
           displayDrawLayoutStates();
           break;
         case DEVICE_STATE_Suspended:
-          u8g_DrawStrP(&u8g, 0, 11, U8G_PSTR("Suspended"));
+          displayDrawStrCenter(U8G_PSTR("Suspended"), 11);
+          if(USB_Device_RemoteWakeupEnabled)
+            displayDrawStrCenter(U8G_PSTR("Press any key"), 32);
+            displayDrawStrCenter(U8G_PSTR("to wake up"), 32+11);
           break;
       }
     }while(u8g_NextPage(&u8g));
@@ -710,7 +721,7 @@ void Keyboard::displayDrawLEDs(){
 
 void Keyboard::setLEDs(uint8_t report){
   LEDReport=report;
-  displayUpdate(true);
+  displayForceUpdate=true;
 }
 
 void Keyboard::displayDrawLayoutStates(){
@@ -784,6 +795,7 @@ Keyboard::Keyboard(FILE *S){
   sequence=NULL;
   // Display
   displayInit();
+  displayForceUpdate=0;
 }
 
 //

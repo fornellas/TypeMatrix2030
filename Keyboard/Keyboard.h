@@ -95,16 +95,18 @@ private:
 
   u8g_t u8g;
   void displayInit();
+  uint8_t displayForceUpdate;
   void displayDrawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x);
   void displayDrawLEDs();
   void displayDrawLayoutStates();
+  void displayDrawStrCenter(u8g_pgm_uint8_t *str, uint8_t y);
 public:
   // Facilities
   USB_KeyboardReport_Data_t *KeyboardReport;
   // Key scanning
   void scanAll();
   // Display
-  void displayUpdate(uint8_t force);
+  void displayUpdate();
   void setLEDs(uint8_t report);
   // Constructor
   Keyboard(FILE *S);

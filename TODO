@@ -16,10 +16,11 @@ OK  - QWERTY US > Dvorak
 OK  - ABNT2 > Dvorak
 OK  - Save keyboard layout conf.
 OK  - Fn+ left hand keys => Ctrl+QWERTY layout for shortcuts.
+- Slow display update: loosing key presses during update (~300ms).
 - Support multiple HID pages
   - Fix extra shortcuts
   - Evaluate shortcut changes
-- Wake up Host.
+OK- Wake up Host.
 - Remove bootloader / decrease serial timeout.
 - Change board (Teensy 2.0++).
 - Better indicators

@@ -40,11 +40,11 @@ int main(void){
     /* Must throw away unused bytes from the host, or it will lock up while waiting for the device */
     CDC_Device_ReceiveByte(&VirtualSerial_CDC_Interface);
     CDC_Device_USBTask(&VirtualSerial_CDC_Interface);
+
     // Keyboard
-    kbd->displayUpdate();
-    if(DEVICE_STATE_Suspended==USB_DeviceState)
-      if(USB_Device_RemoteWakeupEnabled)
-        kbd->scanAll();
+    kbd->loopTask();
+
+    // USB HID
     HID_Device_USBTask(&Keyboard_HID_Interface);
 
     USB_USBTask();

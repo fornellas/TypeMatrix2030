@@ -75,6 +75,8 @@ private:
   uint8_t layout;
   uint8_t LEDReport;
   uint8_t last_USB_DeviceState;
+  uint8_t last_USB_Device_RemoteWakeupEnabled;
+  uint8_t showRemoteWakeUpMessage;
 
   //
   // Key sequencing
@@ -108,6 +110,8 @@ public:
   // Display
   void displayUpdate();
   void setLEDs(uint8_t report);
+  // Main loop
+  void loopTask();
   // Constructor
   Keyboard(FILE *S);
 };

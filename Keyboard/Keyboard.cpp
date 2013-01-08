@@ -690,9 +690,10 @@ void Keyboard::displayUpdate(){
         break;
       case DEVICE_STATE_Suspended:
         displayDrawStrCenter(U8G_PSTR("Suspended"), 11);
-        if(last_USB_Device_RemoteWakeupEnabled)
+        if(showRemoteWakeUpMessage){
           displayDrawStrCenter(U8G_PSTR("Press any key"), 32);
           displayDrawStrCenter(U8G_PSTR("to wake up"), 32+11);
+        }
         break;
     }
   }while(u8g_NextPage(&u8g));
@@ -807,7 +808,7 @@ Keyboard::Keyboard(FILE *S){
   LEDReport=NO_LED_REPORT;
   last_USB_DeviceState=NO_USB_DEVICE_STATE;
   last_USB_Device_RemoteWakeupEnabled=USB_Device_RemoteWakeupEnabled;
-  showRemoteWakeUpMessage=0;
+  showRemoteWakeUpMessage=false;
   KeyboardReport=NULL;
   // Load layout
   eeprom_busy_wait();

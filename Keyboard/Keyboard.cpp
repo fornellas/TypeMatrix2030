@@ -612,28 +612,22 @@ void Keyboard::addKeySequence(uint8_t *seq){
 void Keyboard::playKeySequence(){
   if(NULL==sequence)
     return;
-//fprintf_P(Stream, PSTR("Playing sequence.\r\n"));
   // skip
   uint8_t p=0;
   while(sequence[p]==0x00)
     p++;
   // process round
-//fprintf_P(Stream, PSTR("  Start of round p=%d\r\n"), p);
   for(uint8_t k=p+1;k<p+sequence[p]+1;k++){
-//fprintf_P(Stream, PSTR("    p=%d k=%d\r\n"), p, k);
     press(sequence[k]);
     sequence[k]=0x00;
   }
   // last round
   if(!sequence[p+sequence[p]+1]){
-//fprintf_P(Stream, PSTR("End of sequence.\r\n"));
     free(sequence);
     sequence=NULL;
   // more rounds
-  }else{
+  }else
     sequence[p]=0x00;
-//fprintf_P(Stream, PSTR("  One more round, p=%d\r\n"), p);
-  }
 }
 
 //
@@ -690,7 +684,7 @@ void Keyboard::displayUpdate(){
         break;
       case DEVICE_STATE_Suspended:
         displayDrawStrCenter(U8G_PSTR("Suspended"), 11);
-        if(showRemoteWakeUpMessage){
+        if(last_USB_Device_RemoteWakeupEnabled){
           displayDrawStrCenter(U8G_PSTR("Press any key"), 32);
           displayDrawStrCenter(U8G_PSTR("to wake up"), 32+11);
         }
@@ -761,23 +755,26 @@ void Keyboard::displayDrawLayoutStates(){
 //
 
 void Keyboard::loopTask(){
-  // Set up states
-  if(DEVICE_STATE_Configured!=DEVICE_STATE_Configured)
+  // states
+  if(DEVICE_STATE_Configured!=USB_DeviceState){
     KeyboardReport=NULL;
-  if(USB_DeviceState!=DEVICE_STATE_Configured)
     LEDReport=NO_LED_REPORT;
+  }
 
-  // Display
-  if(USB_DeviceState!=last_USB_DeviceState||displayForceUpdate)
-    displayUpdate();
-  if(last_USB_Device_RemoteWakeupEnabled!=USB_Device_RemoteWakeupEnabled){
+  // display
+  if(USB_DeviceState!=last_USB_DeviceState){
+    last_USB_DeviceState=USB_DeviceState;
+    displayForceUpdate=true;
+  }
+  if(USB_DeviceState==DEVICE_STATE_Suspended){
+    if(USB_Device_RemoteWakeupEnabled!=last_USB_Device_RemoteWakeupEnabled)
+      displayForceUpdate=true;
     last_USB_Device_RemoteWakeupEnabled=USB_Device_RemoteWakeupEnabled;
-    showRemoteWakeUpMessage=true;
+  }
+  if(displayForceUpdate)
     displayUpdate();
-  }else
-    showRemoteWakeUpMessage=false;
 
-  // Scan keys for wake up
+  // scan keys during suspend
   if(DEVICE_STATE_Suspended==USB_DeviceState)
     if(USB_Device_RemoteWakeupEnabled)
       scanAll();
@@ -808,7 +805,6 @@ Keyboard::Keyboard(FILE *S){
   LEDReport=NO_LED_REPORT;
   last_USB_DeviceState=NO_USB_DEVICE_STATE;
   last_USB_Device_RemoteWakeupEnabled=USB_Device_RemoteWakeupEnabled;
-  showRemoteWakeUpMessage=false;
   KeyboardReport=NULL;
   // Load layout
   eeprom_busy_wait();

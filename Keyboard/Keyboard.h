@@ -73,10 +73,9 @@ private:
   uint8_t keypad;
   uint8_t fn;
   uint8_t layout;
-  uint8_t LEDReport;
+  volatile uint8_t LEDReport;
   uint8_t last_USB_DeviceState;
   uint8_t last_USB_Device_RemoteWakeupEnabled;
-  uint8_t showRemoteWakeUpMessage;
 
   //
   // Key sequencing
@@ -104,7 +103,7 @@ private:
   void displayDrawStrCenter(u8g_pgm_uint8_t *str, uint8_t y);
 public:
   // Facilities
-  USB_KeyboardReport_Data_t *KeyboardReport;
+  volatile USB_KeyboardReport_Data_t *KeyboardReport;
   // Key scanning
   void scanAll();
   // Display

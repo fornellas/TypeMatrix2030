@@ -167,7 +167,7 @@ uint16_t PROGMEM us_us[NUM_KEYS]={
   // 79 RCtl/Ret
   HID_KEYBOARD_SC_RIGHT_CONTROL,
   // 80 NLock
-  NO_KEY,
+  HID_KEYBOARD_SC_NUM_LOCK,
   // 81 B
   HID_KEYBOARD_SC_B,
   // 82 N/Left
@@ -533,7 +533,7 @@ uint16_t PROGMEM us_us_keypad[NUM_KEYS]={
   // 79 RCtl/Ret
   HID_KEYBOARD_SC_KEYPAD_ENTER,
   // 80 NLock
-  NO_KEY,
+  HID_KEYBOARD_SC_NUM_LOCK,
   // 81 B
   HID_KEYBOARD_SC_B,
   // 82 N/Left

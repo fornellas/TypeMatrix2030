@@ -28,6 +28,23 @@
 
 #define EEPROM_LAYOUT 0
 
+//
+// Macros
+//
+
+#define MACRO_STATE_NONE 0
+#define MACRO_STATE_INIT 1
+// Recording
+#define MACRO_STATE_REC_INIT 2
+#define MACRO_STATE_REC_LOCK 3
+#define MACRO_STATE_REC_TYPE 4
+// Delete
+#define MACRO_STATE_DEL 5
+// Unlock
+#define MACRO_STATE_UNLOCK 6
+#define MACRO_STATE_CLEAR 7
+#define MACRO_STATE_PASSWD 8
+
 extern USB_ClassInfo_HID_Device_t Keyboard_HID_Interface;
 
 class Keyboard {
@@ -56,11 +73,16 @@ private:
   //
 
   // Send key press to USB driver
-  void press(uint8_t key);
-  // Send addressed key event do layout callback method
-  void processKeyEvent(uint8_t key, uint8_t state);
+  void press(const uint8_t key);
+  // Module specic key processing
+  bool processSuspendKeys(const bool state);
+  bool processMacroKeys(const uint8_t key, const bool state);
+  bool processCommonKeys(const uint8_t key, const bool state);
+  bool processDvorakQwertyKeys(const uint8_t key, const bool state);
+  // Generic key processor (calls above methods)
+  void processKeyEvent(const uint8_t key, const bool state);
   // process keys with raw FFC addressing
-  void processRawEvent(uint8_t a, uint8_t b, uint8_t state);
+  void processRawEvent(uint8_t a, uint8_t b, const bool state);
   // set lowPin to low and scan other asked pins for low signal. Last arg must be -1.
   void scanPairs(uint8_t lowPin, ...);
 
@@ -76,6 +98,15 @@ private:
   volatile uint8_t LEDReport;
   uint8_t last_USB_DeviceState;
   uint8_t last_USB_Device_RemoteWakeupEnabled;
+
+  //
+  // Macros
+  //
+
+  uint8_t macroState;
+  bool macroLocked;
+  void playMacro(uint8_t key);
+  void changeMacroMode(uint8_t mode);
 
   //
   // Key sequencing

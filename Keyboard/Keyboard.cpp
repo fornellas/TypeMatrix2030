@@ -78,7 +78,7 @@ uint16_t Keyboard::MCPread16(uint8_t i2cAddr, uint8_t baseReg){
 //
 
 #define SETMOD(key, value) case key: KeyboardReport->Modifier|=value;break;
-void Keyboard::press(uint8_t key){
+void Keyboard::press(const uint8_t key){
   if(key==NO_KEY)
     return;
   switch(key){
@@ -104,16 +104,83 @@ void Keyboard::press(uint8_t key){
   }
 }
 
-void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
-  uint8_t *seq=NULL;
+bool Keyboard::processSuspendKeys(const bool state){
   // wake up if suspended
   if(DEVICE_STATE_Suspended==USB_DeviceState){
     if(USB_Device_RemoteWakeupEnabled)
       if(state)
         USB_Device_SendRemoteWakeup();
-    goto end;
+    return true;
+  }else
+    return false;
+}
+
+bool Keyboard::processMacroKeys(const uint8_t key, const bool state){
+  if(DEVICE_STATE_Configured!=USB_DeviceState){
+    changeMacroMode(MACRO_STATE_NONE);
+    return true;
   }
-  // Non suspended
+  if(macroState!=MACRO_STATE_NONE&&key==37&&state){ // exit macro mode with Esc
+    changeMacroMode(MACRO_STATE_NONE);
+    return true;
+  }
+  switch(macroState){
+    case MACRO_STATE_NONE:
+      if(key==70&&state&&fn) // Fn+LAlt
+        changeMacroMode(MACRO_STATE_INIT);
+      else
+        return false;
+      break;
+    case MACRO_STATE_INIT:
+      if(!fn||!keyState[70]) // Fn+LAlt not pressed
+        changeMacroMode(MACRO_STATE_NONE);
+      else
+        switch(key){
+          case 71: // Space (Record Macro)
+            if(state&&!keyState[71])
+              changeMacroMode(MACRO_STATE_REC_INIT);
+            break;
+          case 62: // Del (Delete Macro)
+            if(state&&!keyState[62])
+              changeMacroMode(MACRO_STATE_DEL);
+            break;
+          case 78: // Enter (Unlock Macros)
+            if(state&&!keyState[78])
+              changeMacroMode(MACRO_STATE_UNLOCK);
+            break;
+          case 17: // Backspace (Lock Macros)
+            if(state&&!keyState[17])
+              macroLocked=true;
+            break;
+          // 0-9 (Play Macros)
+/*          case 0:
+          case 22:
+          case 23:
+          case 24:
+          case 25:
+          case 52:
+          case 53:
+          case 26:
+          case 27:*/
+          case 28:
+            if(state&&!keyState[28])
+              playMacro(key);
+            break;
+        }
+      break;
+    case MACRO_STATE_REC_INIT:
+      break;
+    case MACRO_STATE_DEL:
+      break;
+    case MACRO_STATE_UNLOCK:
+      break;
+  }
+  return true;
+}
+
+
+bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
+  uint8_t *seq=NULL;
   switch(key){
     case 8: // Play / Ctrl+X
       if((state&&!keyState[key])&&fn){
@@ -126,7 +193,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
           seq[5]=0x00;
           addKeySequence(seq);
         }
-        goto end;
+        return true;
       }
       break;
     case 20: // Shuffle / Ctrl+V
@@ -153,7 +220,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
             break;
           }
         }
-        goto end;
+        return true;
       }
       break;
     case 34: // Fn
@@ -161,7 +228,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
         fn=1;
       else
         fn=0;
-      goto end;
+      return true;
     case 49: // Desktop
       if((state&&!keyState[key])&&!fn){
         if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
@@ -173,7 +240,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
           seq[5]=0x00;
           addKeySequence(seq);
         }
-        goto end;
+        return true;
       }
       break;
     case 50: // F1 / Keyboard layout
@@ -195,7 +262,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
         displayForceUpdate=true;
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
-        goto end;
+        return true;
       }
       break;
     case 51: // F2 / Host layout
@@ -217,7 +284,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
         displayForceUpdate=true;
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
-        goto end;
+        return true;
       }
       break;
     case 61: // BTab
@@ -231,14 +298,14 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
           seq[5]=0x00;
           addKeySequence(seq);
         }
-        goto end;
+        return true;
       }
       break;
     case 80: // Keypad
       if(state&&!keyState[key]&&!fn){
         keypad=!keypad;
         displayForceUpdate=true;
-        goto end;
+        return true;
       }
       break;
     case 83: // App Menu / Ctrl+C
@@ -252,9 +319,15 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
           seq[5]=0x00;
           addKeySequence(seq);
         }
-        goto end;
+        return true;
       }
       break;
+  }
+  return false;
+}
+
+bool Keyboard::processDvorakQwertyKeys(const uint8_t key, const bool state){
+  switch(key){
     // CTRL+key for left hand letters and Dvorak
     case 0:
     case 1:
@@ -277,10 +350,25 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
           case ABNT2_DVORAK:
             KP(HID_KEYBOARD_SC_LEFT_CONTROL);
             KP(pgm_read_byte_near(us_us+key));
-            goto end;
+            return true;
         }
       break;
   }
+  return false;
+}
+
+
+void Keyboard::processKeyEvent(const uint8_t key, const bool state){
+  // special keys
+  if(processSuspendKeys(state))
+    goto end;
+  if(processMacroKeys(key, state))
+    goto end;
+  if(processCommonKeys(key, state))
+    goto end;
+  if(processDvorakQwertyKeys(key, state))
+    goto end;
+  // all other keys
   if(state){
     switch(layout){
       case US_US:
@@ -321,7 +409,7 @@ void Keyboard::processKeyEvent(uint8_t key, uint8_t state){
   keyState[key]=state;
 }
 
-void Keyboard::processRawEvent(uint8_t a, uint8_t b, uint8_t state){
+void Keyboard::processRawEvent(uint8_t a, uint8_t b, const bool state){
   switch(a){
     case 0:
       switch(b){
@@ -601,6 +689,20 @@ void Keyboard::scanAll(){
 }
 
 //
+// Macros
+//
+
+void Keyboard::playMacro(uint8_t key){
+  
+}
+
+void Keyboard::changeMacroMode(uint8_t mode){
+  macroState=mode;
+  displayForceUpdate=true;
+}
+
+
+//
 // Key sequencing
 //
 
@@ -660,6 +762,7 @@ void Keyboard::displayDrawStrCenter(u8g_pgm_uint8_t *str, uint8_t y){
 }
 
 void Keyboard::displayUpdate(){
+int c;
   displayForceUpdate=false;
   u8g_FirstPage(&u8g);
   do{
@@ -677,10 +780,29 @@ void Keyboard::displayUpdate(){
         displayDrawStrCenter(U8G_PSTR("Addressed"), 11);
         break;
       case DEVICE_STATE_Configured:
+        // LEDs / layout
         if(LEDReport!=NO_LED_REPORT)
           displayDrawLEDs();
         if(NULL!=KeyboardReport)
           displayDrawLayoutStates();
+        // Macros
+        switch(macroState){
+          case MACRO_STATE_INIT:
+            displayDrawStrCenter(U8G_PSTR("Macro"), 38);
+            break;
+          case MACRO_STATE_REC_INIT:
+            displayDrawStrCenter(U8G_PSTR("<Record macro>"), 32);
+            displayDrawStrCenter(U8G_PSTR("Macro number?"), 32+11);
+            break;
+          case MACRO_STATE_DEL:
+            displayDrawStrCenter(U8G_PSTR("<Delete macro>"), 32);
+            displayDrawStrCenter(U8G_PSTR("Macro number?"), 32+11);
+            break;
+          case MACRO_STATE_UNLOCK:
+            displayDrawStrCenter(U8G_PSTR("<Unlock macros>"), 32);
+            displayDrawStrCenter(U8G_PSTR("Type password:"), 32+11);
+            break;
+        }
         break;
       case DEVICE_STATE_Suspended:
         displayDrawStrCenter(U8G_PSTR("Suspended"), 11);
@@ -806,6 +928,8 @@ Keyboard::Keyboard(FILE *S){
   last_USB_DeviceState=NO_USB_DEVICE_STATE;
   last_USB_Device_RemoteWakeupEnabled=USB_Device_RemoteWakeupEnabled;
   KeyboardReport=NULL;
+  macroState=MACRO_STATE_NONE;
+  macroLocked=true;
   // Load layout
   eeprom_busy_wait();
   layout=eeprom_read_byte((const uint8_t *)EEPROM_LAYOUT);

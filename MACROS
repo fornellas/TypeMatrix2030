@@ -1,0 +1,23 @@
+Fn+Alt		MACRO_STATE_NONE	Help message
+		
+
+Fn+Alt+Spc	MACRO_STATE_REC_INIT	Record Macro / Enter macro number
+		MACRO_STATE_REC_LOCK	Locked(Enter) / Unlocked(Backspace)
+		MACRO_STATE_REC_TYPE	Type Macro
+
+Fn+Alt+[0-9]	MACRO_STATE_INIT	Play Macro
+
+Fn+Alt+Del	Delete macros
+		Enter macro number
+		Enter
+
+Fn+Alt+Enter	Unlock Macros
+		<Password><Enter> > unlock
+		Bs
+			Clear password and locked macros?
+			Enter
+			New password
+			Enter			
+
+Fn+Alt+Bspc	Lock Macros	
+		

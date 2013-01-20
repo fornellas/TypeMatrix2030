@@ -10,6 +10,8 @@ OK- Implement key sequences
 OK- Non buggy Alt-Tab
 OK- Actual Ctrl+X/C/V
 - Password protected key presses sequences.
+  - Auto lock after inactivity.
+- Key press counter
 OK- More layouts
 OK  - QWERTY US
 OK  - QWERTY US > Dvorak

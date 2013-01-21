@@ -126,13 +126,13 @@ bool Keyboard::processMacroKeys(const uint8_t key, const bool state){
   }
   switch(macroState){
     case MACRO_STATE_NONE:
-      if(key==70&&state&&fn) // Fn+LAlt
+      if(key==70&&state&&keyState[34]) // Fn+LAlt
         changeMacroMode(MACRO_STATE_INIT);
       else
         return false;
       break;
     case MACRO_STATE_INIT:
-      if(!fn||!keyState[70]) // Fn+LAlt not pressed
+      if(!keyState[34]||!keyState[70]) // Fn+LAlt not pressed
         changeMacroMode(MACRO_STATE_NONE);
       else
         switch(key){
@@ -259,7 +259,7 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
             layout=ABNT2_US;
             break;
         }
-        displayForceUpdate=true;
+        displayForceUpdate();
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
         return true;
@@ -281,7 +281,7 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
             layout=US_DVORAK;
             break;
         }
-        displayForceUpdate=true;
+        displayForceUpdate();
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
         return true;
@@ -304,7 +304,7 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
     case 80: // Keypad
       if(state&&!keyState[key]&&!fn){
         keypad=!keypad;
-        displayForceUpdate=true;
+        displayForceUpdate();
         return true;
       }
       break;
@@ -698,7 +698,7 @@ void Keyboard::playMacro(uint8_t key){
 
 void Keyboard::changeMacroMode(uint8_t mode){
   macroState=mode;
-  displayForceUpdate=true;
+  displayForceUpdate();
 }
 
 
@@ -761,59 +761,91 @@ void Keyboard::displayDrawStrCenter(u8g_pgm_uint8_t *str, uint8_t y){
   u8g_DrawStrP(&u8g, x, y, str);
 }
 
+void Keyboard::displayForceUpdate(){
+  if(displayDoUpdate)
+    displayUpdateAgain=true;
+  else{
+    displayDoUpdate=true;
+    displayUpdateAgain=false;
+  }
+}
+
 void Keyboard::displayUpdate(){
-int c;
-  displayForceUpdate=false;
-  u8g_FirstPage(&u8g);
-  do{
-    switch(USB_DeviceState){
-      case DEVICE_STATE_Unattached:
-        displayDrawStrCenter(U8G_PSTR("Unattached"), 11);
-        break;
-      case DEVICE_STATE_Powered:
-        displayDrawStrCenter(U8G_PSTR("Powered"), 11);
-        break;
-      case DEVICE_STATE_Default:
-        displayDrawStrCenter(U8G_PSTR("Default"), 11);
-        break;
-      case DEVICE_STATE_Addressed:
-        displayDrawStrCenter(U8G_PSTR("Addressed"), 11);
-        break;
-      case DEVICE_STATE_Configured:
-        // LEDs / layout
-        if(LEDReport!=NO_LED_REPORT)
-          displayDrawLEDs();
-        if(NULL!=KeyboardReport)
-          displayDrawLayoutStates();
-        // Macros
-        switch(macroState){
-          case MACRO_STATE_INIT:
-            displayDrawStrCenter(U8G_PSTR("Macro"), 38);
-            break;
-          case MACRO_STATE_REC_INIT:
-            displayDrawStrCenter(U8G_PSTR("<Record macro>"), 32);
-            displayDrawStrCenter(U8G_PSTR("Macro number?"), 32+11);
-            break;
-          case MACRO_STATE_DEL:
-            displayDrawStrCenter(U8G_PSTR("<Delete macro>"), 32);
-            displayDrawStrCenter(U8G_PSTR("Macro number?"), 32+11);
-            break;
-          case MACRO_STATE_UNLOCK:
-            displayDrawStrCenter(U8G_PSTR("<Unlock macros>"), 32);
-            displayDrawStrCenter(U8G_PSTR("Type password:"), 32+11);
-            break;
-        }
-        break;
-      case DEVICE_STATE_Suspended:
-        displayDrawStrCenter(U8G_PSTR("Suspended"), 11);
-        if(last_USB_Device_RemoteWakeupEnabled){
-          displayDrawStrCenter(U8G_PSTR("Press any key"), 32);
-          displayDrawStrCenter(U8G_PSTR("to wake up"), 32+11);
-        }
-        break;
+  /* Causes screen corruption
+  // break current loop if new update asked
+  if(displayUpdateAgain){
+    displayUpdateAgain=false;
+    displayFirstLoopRun=true;
+  } */
+  // first iteration, save vars for processing
+  if(displayFirstLoopRun){
+    u8g_FirstPage(&u8g);
+    displayFirstLoopRun=false;
+    display_var_USB_DeviceState=USB_DeviceState;
+    display_var_LEDReport=LEDReport;
+    display_var_KeyboardReport=KeyboardReport;
+    display_var_macroState=macroState;
+    display_var_USB_Device_RemoteWakeupEnabled=USB_Device_RemoteWakeupEnabled;
+  }
+  // draw display
+  switch(display_var_USB_DeviceState){
+    case DEVICE_STATE_Unattached:
+      displayDrawStrCenter(U8G_PSTR("Unattached"), 11);
+      break;
+    case DEVICE_STATE_Powered:
+      displayDrawStrCenter(U8G_PSTR("Powered"), 11);
+      break;
+    case DEVICE_STATE_Default:
+      displayDrawStrCenter(U8G_PSTR("Default"), 11);
+      break;
+    case DEVICE_STATE_Addressed:
+      displayDrawStrCenter(U8G_PSTR("Addressed"), 11);
+      break;
+    case DEVICE_STATE_Configured:
+      // LEDs / layout
+      if(display_var_LEDReport!=NO_LED_REPORT)
+        displayDrawLEDs();
+      if(NULL!=display_var_KeyboardReport)
+        displayDrawLayoutStates();
+      // Macros
+      switch(display_var_macroState){
+        case MACRO_STATE_INIT:
+          displayDrawStrCenter(U8G_PSTR("Macro"), 38);
+          break;
+        case MACRO_STATE_REC_INIT:
+          displayDrawStrCenter(U8G_PSTR("<Record macro>"), 32);
+          displayDrawStrCenter(U8G_PSTR("Macro number?"), 32+11);
+          break;
+        case MACRO_STATE_DEL:
+          displayDrawStrCenter(U8G_PSTR("<Delete macro>"), 32);
+          displayDrawStrCenter(U8G_PSTR("Macro number?"), 32+11);
+          break;
+        case MACRO_STATE_UNLOCK:
+          displayDrawStrCenter(U8G_PSTR("<Unlock macros>"), 32);
+          displayDrawStrCenter(U8G_PSTR("Type password:"), 32+11);
+          break;
+      }
+      break;
+    case DEVICE_STATE_Suspended:
+      displayDrawStrCenter(U8G_PSTR("Suspended"), 11);
+      if(display_var_USB_Device_RemoteWakeupEnabled){
+        displayDrawStrCenter(U8G_PSTR("Press any key"), 32);
+        displayDrawStrCenter(U8G_PSTR("to wake up"), 32+11);
+      }
+      break;
+  }
+  // last iteration
+  if(!u8g_NextPage(&u8g)){
+    // force new display update if required
+    if(displayUpdateAgain){
+      displayUpdateAgain=false;
+      displayFirstLoopRun=true;
+      return;
+    }else{
+      displayDoUpdate=false;
+      displayFirstLoopRun=true;
     }
-  }while(u8g_NextPage(&u8g));
-  last_USB_DeviceState=USB_DeviceState;
+  }
 }
 
 void Keyboard::displayDrawLEDs(){
@@ -834,7 +866,7 @@ void Keyboard::displayDrawLEDs(){
 
 void Keyboard::setLEDs(uint8_t report){
   LEDReport=report;
-  displayForceUpdate=true;
+  displayForceUpdate();
 }
 
 void Keyboard::displayDrawLayoutStates(){
@@ -886,14 +918,14 @@ void Keyboard::loopTask(){
   // display
   if(USB_DeviceState!=last_USB_DeviceState){
     last_USB_DeviceState=USB_DeviceState;
-    displayForceUpdate=true;
+    displayForceUpdate();
   }
   if(USB_DeviceState==DEVICE_STATE_Suspended){
     if(USB_Device_RemoteWakeupEnabled!=last_USB_Device_RemoteWakeupEnabled)
-      displayForceUpdate=true;
+      displayForceUpdate();
     last_USB_Device_RemoteWakeupEnabled=USB_Device_RemoteWakeupEnabled;
   }
-  if(displayForceUpdate)
+  if(displayDoUpdate)
     displayUpdate();
 
   // scan keys during suspend
@@ -942,7 +974,9 @@ Keyboard::Keyboard(FILE *S){
   sequence=NULL;
   // Display
   displayInit();
-  displayForceUpdate=0;
+  displayDoUpdate=false;
+  displayUpdateAgain=false;
+  displayFirstLoopRun=true;
 }
 
 //

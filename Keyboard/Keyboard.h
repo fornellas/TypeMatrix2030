@@ -127,7 +127,15 @@ private:
 
   u8g_t u8g;
   void displayInit();
-  uint8_t displayForceUpdate;
+  bool displayDoUpdate;
+  bool displayUpdateAgain;
+  bool displayFirstLoopRun;
+  uint8_t display_var_USB_DeviceState;
+  uint8_t display_var_LEDReport;
+  volatile USB_KeyboardReport_Data_t *display_var_KeyboardReport;
+  uint8_t display_var_macroState;
+  uint8_t display_var_USB_Device_RemoteWakeupEnabled;
+  void displayForceUpdate();
   void displayDrawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x);
   void displayDrawLEDs();
   void displayDrawLayoutStates();

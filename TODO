@@ -1,3 +1,5 @@
+BASE
+
 OK- Clean up VirtualSerial
 OK- Integrate LUFA Keyboard example
 OK  - Add keyboard
@@ -7,6 +9,13 @@ OK- Integrate old code
 OK  - Convert Wire to LUFA calls
 OK- Validate each key
 OK- Implement key sequences
+- Support multiple HID pages
+  - Fix extra shortcuts
+  - Evaluate shortcut changes
+OK- Wake up Host.
+
+NEW FEATURES
+
 OK- Non buggy Alt-Tab
 OK- Actual Ctrl+X/C/V
 - Password protected key presses sequences.
@@ -16,22 +25,21 @@ OK- More layouts
 OK  - QWERTY US
 OK  - QWERTY US > Dvorak
 OK  - ABNT2 > Dvorak
+OK  - ABNT2 > US
 OK  - Save keyboard layout conf.
 OK  - Fn+ left hand keys => Ctrl+QWERTY layout for shortcuts.
-- Slow display update: loosing key presses during update (~300ms).
-- Support multiple HID pages
-  - Fix extra shortcuts
-  - Evaluate shortcut changes
-OK- Wake up Host.
-- Remove bootloader / decrease serial timeout.
-- Change board (Teensy 2.0++).
+OK - Slow display update: loosing key presses during update (~300ms).
 - Better indicators
 OK  - Num / Caps / Scroll Lock
 OK  - Keypad
 OK  - QWERTY / DVORAK / DVORAK(ABNT2)
   - Key recording / lock status.
 - OLED Screen.
+
+IMPROVEMENTS
+
+- Remove bootloader / decrease serial timeout.
+- Change board (Teensy 2.0++).
 - Bluetooth.
   - Battery charger.
   - Auto Bluetooth off / changing with cable.
-- Validate power consumption (Descriptons.c)

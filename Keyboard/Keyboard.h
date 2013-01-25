@@ -112,7 +112,7 @@ private:
   // Key sequencing
   //
 
-  // aidd a key sequence to be outputted by scanAll()
+  // add a key sequence to be outputted by scanAll()
   // seq will be freed with free() in the end
   // [number of keys] [key1] [key2] ...
   // [number of keys] [key1] [key2] ...

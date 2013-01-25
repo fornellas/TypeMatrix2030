@@ -652,10 +652,7 @@ void Keyboard::scanPairs(uint8_t lowPin, ...){
   gpio|=((uint32_t)MCPread16(MCP23017_ADDR_1, MCP23017_GPIOA)<<16);
 
   // test each supplied pin
-  while(true){
-    scanPin=va_arg(ap, int);
-    if(scanPin==-1)
-      break;
+  while((scanPin=va_arg(ap, int))!=-1){
     if(~gpio&(1L<<scanPin))
       processRawEvent(lowPin, scanPin, PRESSED);
     else

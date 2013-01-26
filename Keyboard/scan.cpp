@@ -16,8 +16,127 @@ extern "C" {
 #define PRESSED 1
 #define RELEASED 0
 
-#define SETMOD(key, value) case key: KeyboardReport->Modifier|=value;break;
+/*
 
+*Pull down resistor ; INT / PCINT
+
+Track	Port
+0	B0*
+1	B4*
+2	B5*
+3	B6*
+4	B7*
+5	E4*
+6	E5*
+7	E6*
+8	A0
+9	A1
+10	A2
+11	A3
+12	A4
+13	A5
+14	A6
+15	A7
+16	C0
+17	C1
+18	C2
+19	C3
+20	C4
+21	C5
+22	C6
+23	C7
+24	D4
+25	E7*
+	
+*/
+
+void Keyboard::portInit(){
+  // set all output low
+  DDRA=0xFF;		PORTA=0x00;
+  DDRB|=0b11110001;	PORTB&=~0b11110001;
+  DDRC=0xFF;		PORTC=0x00;
+  DDRD|=0b00010011;	PORTD&=~0b00010011;
+  DDRD|=0b11110000;	PORTE&=~0b11110000;
+}
+
+volatile uint8_t *Keyboard::getPinDDR(uint8_t pin){
+  if(pin<5)
+    return &DDRB;
+  if(pin<8||pin==25)
+    return &DDRE;
+  if(pin<16)
+    return &DDRA;
+  if(pin<24)
+    return &DDRC;
+  return &DDRD; // 24
+}
+
+volatile uint8_t *Keyboard::getPinPORT(uint8_t pin){
+  if(pin<5)
+    return &PORTB;
+  if(pin<8||pin==25)
+    return &PORTE;
+  if(pin<16)
+    return &PORTA;
+  if(pin<24)
+    return &PORTC;
+  return &PORTD; // 24
+}
+
+volatile uint8_t *Keyboard::getPinPIN(uint8_t pin){
+  if(pin<5)
+    return &PINB;
+  if(pin<8||pin==25)
+    return &PINE;
+  if(pin<16)
+    return &PINA;
+  if(pin<24)
+    return &PINC;
+  return &PIND; // 24
+}
+
+uint8_t Keyboard::getPinBit(uint8_t pin){
+  if(pin==0)
+    return 0;
+  if(pin<5)
+    return pin+3;
+  if(pin<8)
+    return pin-1;
+  if(pin<16)
+    return pin-8;
+  if(pin<24)
+    return pin-16;
+  if(pin==24)
+    return 4;
+  return 7; // 25
+}
+
+void Keyboard::setPinInLow(uint8_t pin){
+  volatile uint8_t *ddr=getPinDDR(pin);
+  volatile uint8_t *port=getPinPORT(pin);
+  uint8_t bit=getPinBit(pin);
+  (*ddr)&=~(1<<bit);
+  (*port)&=~(1<<bit);
+}
+
+void Keyboard::setPinOut(uint8_t pin, uint8_t value){
+  volatile uint8_t *ddr=getPinDDR(pin);
+  volatile uint8_t *port=getPinPORT(pin);
+  uint8_t bit=getPinBit(pin);
+  (*ddr)|=(1<<bit);
+  if(value)
+    (*port)|=(1<<bit);
+  else
+    (*port)&=~(1<<bit);
+}
+
+uint8_t Keyboard::readPin(uint8_t inPin){
+  volatile uint8_t *pin=getPinPIN(inPin);
+  uint8_t bit=getPinBit(inPin);
+  return (*pin&(1<<bit));
+}
+
+#define SETMOD(key, value) case key: KeyboardReport->Modifier|=value;break;
 void Keyboard::press(const uint8_t key){
   if(key==NO_KEY)
     return;
@@ -572,26 +691,44 @@ void Keyboard::processRawEvent(uint8_t a, uint8_t b, const bool state){
 }
 
 void Keyboard::scanPairs(uint8_t lowPin, ...){
-  // set current pin to low output
+  // set current pin to input with pull down resistor
+#ifndef TEENSY
   MCPsetPin(lowPin, false);
+#else
+  setPinInLow(lowPin);
+#endif
   // pin list
   va_list ap;
   int8_t scanPin;
   va_start(ap, lowPin);
 
   // read all pins
+#ifndef TEENSY
   uint32_t gpio=MCPreadPins();
+#endif
 
   // test each supplied pin
   while((scanPin=va_arg(ap, int))!=-1){
+#ifndef TEENSY
     if(~gpio&(1L<<scanPin))
+#else
+    setPinOut(scanPin, 1);
+    if(readPin(lowPin))
+#endif
       processRawEvent(lowPin, scanPin, PRESSED);
     else
       processRawEvent(lowPin, scanPin, RELEASED);
+#ifdef TEENSY
+    setPinOut(scanPin, 0);
+#endif
   }
   va_end(ap);
   // reset current pin to input
+#ifndef TEENSY
   MCPsetPin(lowPin, true);
+#else
+  setPinOut(lowPin, 0);
+#endif
 }
 
 void Keyboard::scanAll(){
@@ -605,6 +742,11 @@ void Keyboard::scanAll(){
   scanPairs(6, 9, 10, 11, 12, 14, 15, 16, 22, 24, -1);
   scanPairs(7, 8, 9, 10, 11, 12, 13, 15, 19, 24, -1);
   scanPairs(25, 10, 11, 13, 14, 15, 16, 21, 22, 24, -1);
+for(int i=0;i<90;i++){
+if(keyState[i])
+fprintf_P(Stream, PSTR("Pressed: %d\r\n"), i);
+}
+
   // Playback key sequences
   playKeySequence();
 }

@@ -55,7 +55,7 @@ extern "C" {
 //
 // Methods
 //
-
+#ifndef TEENSY
 void Keyboard::MCPinit(){
   // reset MCPs
   MCPreset(&MCP23017_RESET_DDR_0, &MCP23017_RESET_PORT_0, MCP23017_RESET_BIT_0);
@@ -127,3 +127,4 @@ uint16_t Keyboard::MCPread16(uint8_t i2cAddr, uint8_t baseReg){
   r|=((uint16_t)v[1])<<8;
   return r;
 }
+#endif

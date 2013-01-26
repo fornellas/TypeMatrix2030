@@ -47,6 +47,8 @@
 
 extern USB_ClassInfo_HID_Device_t Keyboard_HID_Interface;
 
+#define TEENSY
+
 class Keyboard {
 private:
   //
@@ -59,7 +61,7 @@ private:
   //
   // I/O expander
   //
-
+#ifndef TEENSY
   // Init
   void MCPinit();
   // reset MCP
@@ -73,11 +75,24 @@ private:
   void MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2);
   // reads 16bit values starting at baseReg
   uint16_t MCPread16(uint8_t i2cAddr, uint8_t baseReg);
-
+#endif
   //
   // Key scannig
   //
 
+#ifdef TEENSY
+  // Init ports
+  void portInit();
+  // translate keyboard track to pin mapping
+  volatile uint8_t *getPinDDR(uint8_t pin);
+  volatile uint8_t *getPinPORT(uint8_t pin);
+  volatile uint8_t *getPinPIN(uint8_t pin);
+  uint8_t getPinBit(uint8_t pin);
+  // I/O
+  void setPinInLow(uint8_t pin);
+  void setPinOut(uint8_t pin, uint8_t value);
+  uint8_t readPin(uint8_t pin);
+#endif
   // Send key press to USB driver
   void press(const uint8_t key);
   // Module specic key processing

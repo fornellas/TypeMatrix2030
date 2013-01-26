@@ -2,7 +2,8 @@
 ## Common
 ##
 
-MCU=atmega32u4
+MCU=at90usb1286
+#MCU=atmega32u4
 TARGET=target
 LUFA_PATH=$(HOME)/src/lufa/LUFA
 ARCH=AVR8
@@ -45,7 +46,7 @@ SRC=\
 F_USB=$(F_CPU)
 #LUFA_PATH=
 # Optional
-BOARD=LEONARDO
+#BOARD=
 OPTIMIZATION=2
 #C_STANDARD=
 CPP_STANDARD=c++0x

@@ -6,14 +6,18 @@
 #define U8G_A0 PN(3,6)		// PD6 / 12
 #define U8G_RESET PN(2,7)	// PC7 / 13
 
+#define DISABLE_DISPLAY
 
 void Keyboard::displayInit(){
+#ifndef DISABLE_DISPLAY
   u8g_InitSPI(&u8g, &u8g_dev_st7565_lm6059_sw_spi, U8G_SCK, U8G_MOSI, U8G_CS, U8G_A0, U8G_RESET);
   u8g_SetRot180(&u8g);
   u8g_SetFont(&u8g, u8g_font_6x10);
+#endif
 }
 
 void Keyboard::displayDrawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x){
+#ifndef DISABLE_DISPLAY
   if(on){
     u8g_SetColorIndex(&u8g, 1);
     u8g_DrawBox(&u8g, x, 0, 13, 16);
@@ -24,24 +28,30 @@ void Keyboard::displayDrawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x)
     u8g_DrawFrame(&u8g, x, 0, 13, 16);
     u8g_DrawStrP(&u8g, x+4, 11, str);
   }
+#endif
 }
 
 void Keyboard::displayDrawStrCenter(u8g_pgm_uint8_t *str, uint8_t y){
+#ifndef DISABLE_DISPLAY
   uint8_t x;
   x=u8g_GetWidth(&u8g)/2-u8g_GetStrWidthP(&u8g, str)/2;
   u8g_DrawStrP(&u8g, x, y, str);
+#endif
 }
 
 void Keyboard::displayForceUpdate(){
+#ifndef DISABLE_DISPLAY
   if(displayDoUpdate)
     displayUpdateAgain=true;
   else{
     displayDoUpdate=true;
     displayUpdateAgain=false;
   }
+#endif
 }
 
 void Keyboard::displayUpdate(){
+#ifndef DISABLE_DISPLAY
   /* Causes screen corruption
   // break current loop if new update asked
   if(displayUpdateAgain){
@@ -117,9 +127,11 @@ void Keyboard::displayUpdate(){
       displayFirstLoopRun=true;
     }
   }
+#endif
 }
 
 void Keyboard::displayDrawLEDs(){
+#ifndef DISABLE_DISPLAY
   // Keyboard LEDs
   if(LEDReport & HID_KEYBOARD_LED_NUMLOCK)
     displayDrawIndicator(U8G_PSTR("1"), 1, 0);
@@ -133,14 +145,18 @@ void Keyboard::displayDrawLEDs(){
     displayDrawIndicator(U8G_PSTR("S"), 1, 28);
   else
     displayDrawIndicator(U8G_PSTR("S"), 0, 28);
+#endif
 }
 
 void Keyboard::setLEDs(uint8_t report){
+#ifndef DISABLE_DISPLAY
   LEDReport=report;
   displayForceUpdate();
+#endif
 }
 
 void Keyboard::displayDrawLayoutStates(){
+#ifndef DISABLE_DISPLAY
   // Keypad
   if(keypad)
     displayDrawIndicator(U8G_PSTR("K"), 1, 48);
@@ -173,4 +189,5 @@ void Keyboard::displayDrawLayoutStates(){
       displayDrawIndicator(U8G_PSTR("2"), 1, 115);
       break;
   }
+#endif
 }

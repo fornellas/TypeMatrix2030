@@ -60,8 +60,14 @@ private:
   // I/O expander
   //
 
+  // Init
+  void MCPinit();
   // reset MCP
   void MCPreset(volatile uint8_t *ddr, volatile uint8_t *port, uint8_t bit);
+  // set pin to LOW output or back to input
+  void MCPsetPin(uint8_t lowPin, bool dir);
+  // read all pins
+  uint32_t MCPreadPins();
   // writes two 8/16bit vales starting at baseReg address
   void MCPwrite8(uint8_t i2cAddr, uint8_t baseReg, uint8_t v);
   void MCPwrite16(uint8_t i2cAddr, uint8_t baseReg, uint8_t v1, uint8_t v2);
@@ -85,7 +91,6 @@ private:
   void processRawEvent(uint8_t a, uint8_t b, const bool state);
   // set lowPin to low and scan other asked pins for low signal. Last arg must be -1.
   void scanPairs(uint8_t lowPin, ...);
-
 
   //
   // States

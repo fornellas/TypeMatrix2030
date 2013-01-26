@@ -742,10 +742,6 @@ void Keyboard::scanAll(){
   scanPairs(6, 9, 10, 11, 12, 14, 15, 16, 22, 24, -1);
   scanPairs(7, 8, 9, 10, 11, 12, 13, 15, 19, 24, -1);
   scanPairs(25, 10, 11, 13, 14, 15, 16, 21, 22, 24, -1);
-for(int i=0;i<90;i++){
-if(keyState[i])
-fprintf_P(Stream, PSTR("Pressed: %d\r\n"), i);
-}
 
   // Playback key sequences
   playKeySequence();

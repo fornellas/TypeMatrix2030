@@ -245,8 +245,10 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
       if(state&&!keyState[key]&&!fn){
         keypad=!keypad;
         displayForceUpdate();
-        return true;
+      }else if(state&&!keyState[key]&&fn){
+        KP(HID_KEYBOARD_SC_NUM_LOCK);
       }
+      return true;
       break;
     case 83: // App Menu / Ctrl+C
       if((state&&!keyState[83])&&fn){

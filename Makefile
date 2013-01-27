@@ -3,23 +3,10 @@
 ##
 
 MCU=at90usb1286
-#MCU=atmega32u4
 TARGET=target
 LUFA_PATH=$(HOME)/src/lufa/LUFA
 ARCH=AVR8
 U8G_PATH=$(HOME)/src/u8glib/src
-
-##
-## AVRDUDE
-##
-
-# Mandatory
-#MCU=
-#TARGET=
-# Optional
-AVRDUDE_PROGRAMMER=avr109
-AVRDUDE_PORT=/dev/serial/by-id/usb-Arduino_LLC_Arduino_Leonardo-if00
-#AVRDUDE_FLAGS=
 
 ##
 ## SOURCES
@@ -66,20 +53,19 @@ OBJDIR=build
 ## Custom
 ##
 
-MONITOR_PORT=/dev/serial/by-id/usb-TypeMatrix__Hacked___2030_USB_Keyboard__Hacked___840323030343514161C1-if00
+MONITOR_PORT=/dev/serial/by-id/usb-TypeMatrix__Hacked___2030_USB_Keyboard__Hacked___A4036313439351D0B0C0-if00
+
+TEENSY_LOADER=$(HOME)/local/teensy_loader_cli/teensy_loader_cli
 
 all:
 
-waitforport:
-	while ! [ -e $(AVRDUDE_PORT) ] ; do true ; done
+teensy: $(TARGET).hex
+	$(TEENSY_LOADER) -mmcu=$(MCU) -w -v $(TARGET).hex
 
-avrdude: waitforport
-
-monitor:
+monitor: 
 	while ! [ -e $(MONITOR_PORT) ] ; do true ; done
 	screen $(MONITOR_PORT)
 
 include $(LUFA_PATH)/Build/lufa_core.mk
-include $(LUFA_PATH)/Build/lufa_avrdude.mk
 include $(LUFA_PATH)/Build/lufa_sources.mk
 include $(LUFA_PATH)/Build/lufa_build.mk

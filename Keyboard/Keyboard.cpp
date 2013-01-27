@@ -53,11 +53,7 @@ Keyboard::Keyboard(FILE *S){
   PORTD|=(1<<0); // SCL pull up
   TWI_Init(TWI_BIT_PRESCALE_1, TWI_BITLENGTH_FROM_FREQ(1, 100000L));
   // Init ports
-#ifndef TEENSY
-  MCPinit();
-#else
   portInit();
-#endif
   // States
   for(int i=0;i<NUM_KEYS;i++)
     keyState[i]=0;

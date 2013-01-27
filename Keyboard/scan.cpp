@@ -51,12 +51,12 @@ Track	Port
 */
 
 void Keyboard::portInit(){
-  // set all output low
-  DDRA=0xFF;		PORTA=0x00;
-  DDRB|=0b11110001;	PORTB&=~0b11110001;
-  DDRC=0xFF;		PORTC=0x00;
-  DDRD|=0b00010011;	PORTD&=~0b00010011;
-  DDRD|=0b11110000;	PORTE&=~0b11110000;
+  // set all input without pull ups (tri-state hi-z)
+  DDRA=0x00;		PORTA=0x00;
+  DDRB&=~0b11110001;	PORTB&=~0b11110001;
+  DDRC=0x00;		PORTC=0x00;
+  DDRD&=~0b00010011;	PORTD&=~0b00010011;
+  DDRD&=~0b11110000;	PORTE&=~0b11110000;
 }
 
 volatile uint8_t *Keyboard::getPinDDR(uint8_t pin){
@@ -692,43 +692,25 @@ void Keyboard::processRawEvent(uint8_t a, uint8_t b, const bool state){
 
 void Keyboard::scanPairs(uint8_t lowPin, ...){
   // set current pin to input with pull down resistor
-#ifndef TEENSY
-  MCPsetPin(lowPin, false);
-#else
   setPinInLow(lowPin);
-#endif
+
   // pin list
   va_list ap;
   int8_t scanPin;
   va_start(ap, lowPin);
 
-  // read all pins
-#ifndef TEENSY
-  uint32_t gpio=MCPreadPins();
-#endif
-
   // test each supplied pin
   while((scanPin=va_arg(ap, int))!=-1){
-#ifndef TEENSY
-    if(~gpio&(1L<<scanPin))
-#else
     setPinOut(scanPin, 1);
     if(readPin(lowPin))
-#endif
       processRawEvent(lowPin, scanPin, PRESSED);
     else
       processRawEvent(lowPin, scanPin, RELEASED);
-#ifdef TEENSY
-    setPinOut(scanPin, 0);
-#endif
+    setPinInLow(scanPin);
   }
   va_end(ap);
   // reset current pin to input
-#ifndef TEENSY
-  MCPsetPin(lowPin, true);
-#else
-  setPinOut(lowPin, 0);
-#endif
+  setPinInLow(lowPin);
 }
 
 void Keyboard::scanAll(){
@@ -742,7 +724,6 @@ void Keyboard::scanAll(){
   scanPairs(6, 9, 10, 11, 12, 14, 15, 16, 22, 24, -1);
   scanPairs(7, 8, 9, 10, 11, 12, 13, 15, 19, 24, -1);
   scanPairs(25, 10, 11, 13, 14, 15, 16, 21, 22, 24, -1);
-
   // Playback key sequences
   playKeySequence();
 }

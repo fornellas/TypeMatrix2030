@@ -1,4 +1,4 @@
 TypeMatrix2030
 ==============
 
-Arduino Leonardo based hardware rework.
+Teensy 2.0++ based hardware rework.

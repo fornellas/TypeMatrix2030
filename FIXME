@@ -1,3 +1,4 @@
+- Some shortcuts break with non us host map: CX, CC, CV.
 // http://source.android.com/tech/input/keyboard-devices.html
 // http://www.usb.org/developers/devclass_docs/Hut1_12v2.pdf
 //#define KEY_WWW 0x0C 0x0223

@@ -242,18 +242,21 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
   uint8_t *seq=NULL;
   switch(key){
     case 8: // Play / Ctrl+X
-      if((state&&!keyState[key])&&fn){
-        if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
-          seq[0]=1;
-          seq[1]=HID_KEYBOARD_SC_LEFT_CONTROL;
-          seq[2]=2;
-          seq[3]=HID_KEYBOARD_SC_LEFT_CONTROL;
-          seq[4]=HID_KEYBOARD_SC_X;
-          seq[5]=0x00;
-          addKeySequence(seq);
-        }
-        return true;
+      if(state&&!keyState[key]){
+        if(fn){
+          if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
+            seq[0]=1;
+            seq[1]=HID_KEYBOARD_SC_LEFT_CONTROL;
+            seq[2]=2;
+            seq[3]=HID_KEYBOARD_SC_LEFT_CONTROL;
+            seq[4]=HID_KEYBOARD_SC_X;
+            seq[5]=0x00;
+            addKeySequence(seq);
+          }
+        }else
+          KP(KEY_PLAY);
       }
+      return true;
       break;
     case 20: // Shuffle / Ctrl+V
       if(state&&!keyState[key]){
@@ -279,8 +282,8 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
             break;
           }
         }
-        return true;
       }
+      return true;
       break;
     case 34: // Fn
       if(state)
@@ -288,19 +291,22 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
       else
         fn=0;
       return true;
-    case 49: // Desktop
-      if((state&&!keyState[key])&&!fn){
-        if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
-          seq[0]=1;
-          seq[1]=HID_KEYBOARD_SC_LEFT_GUI;
-          seq[2]=2;
-          seq[3]=HID_KEYBOARD_SC_LEFT_GUI;
-          seq[4]=HID_KEYBOARD_SC_D;
-          seq[5]=0x00;
-          addKeySequence(seq);
-        }
-        return true;
+    case 49: // Desktop / previous
+      if(state&&!keyState[key]){
+        if(!fn){
+          if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
+            seq[0]=1;
+            seq[1]=HID_KEYBOARD_SC_LEFT_GUI;
+            seq[2]=2;
+            seq[3]=HID_KEYBOARD_SC_LEFT_GUI;
+            seq[4]=HID_KEYBOARD_SC_D;
+            seq[5]=0x00;
+            addKeySequence(seq);
+          }
+        }else
+          KP(KEY_MEDIA_PREVIOUS);
       }
+      return true;
       break;
     case 50: // F1 / Keyboard layout
       if((state&&!keyState[key])&&fn){
@@ -370,18 +376,21 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
       return true;
       break;
     case 83: // App Menu / Ctrl+C
-      if((state&&!keyState[83])&&fn){
-        if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
-          seq[0]=1;
-          seq[1]=HID_KEYBOARD_SC_LEFT_CONTROL;
-          seq[2]=2;
-          seq[3]=HID_KEYBOARD_SC_LEFT_CONTROL;
-          seq[4]=HID_KEYBOARD_SC_C;
-          seq[5]=0x00;
-          addKeySequence(seq);
-        }
-        return true;
+      if(state&&!keyState[key]){
+        if(fn){
+          if(NULL!=(seq=(uint8_t *)malloc(sizeof(uint8_t)*6))){
+            seq[0]=1;
+            seq[1]=HID_KEYBOARD_SC_LEFT_CONTROL;
+            seq[2]=2;
+            seq[3]=HID_KEYBOARD_SC_LEFT_CONTROL;
+            seq[4]=HID_KEYBOARD_SC_C;
+            seq[5]=0x00;
+            addKeySequence(seq);
+          }
+        }else
+          KP(HID_KEYBOARD_SC_APPLICATION);
       }
+      return true;
       break;
   }
   return false;

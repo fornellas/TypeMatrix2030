@@ -249,7 +249,14 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
             seq[1]=HID_KEYBOARD_SC_LEFT_CONTROL;
             seq[2]=2;
             seq[3]=HID_KEYBOARD_SC_LEFT_CONTROL;
-            seq[4]=HID_KEYBOARD_SC_X;
+            switch(layout){
+              case DVORAK_DVORAK:
+                seq[4]=HID_KEYBOARD_SC_B;
+                break;
+              default:
+                seq[4]=HID_KEYBOARD_SC_X;
+                break;
+            }
             seq[5]=0x00;
             addKeySequence(seq);
           }
@@ -266,7 +273,14 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
             seq[1]=HID_KEYBOARD_SC_LEFT_CONTROL;
             seq[2]=2;
             seq[3]=HID_KEYBOARD_SC_LEFT_CONTROL;
-            seq[4]=HID_KEYBOARD_SC_V;
+            switch(layout){
+              case DVORAK_DVORAK:
+                seq[4]=HID_KEYBOARD_SC_DOT_AND_GREATER_THAN_SIGN;
+                break;
+              default:
+                seq[4]=HID_KEYBOARD_SC_V;
+                break;
+            }
             seq[5]=0x00;
             addKeySequence(seq);
           }
@@ -323,6 +337,9 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
           case ABNT2_DVORAK:
             layout=ABNT2_US;
             break;
+          case DVORAK_DVORAK:
+            return true;
+            break;
         }
         displayForceUpdate();
         eeprom_busy_wait();
@@ -340,10 +357,11 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
             layout=ABNT2_DVORAK;
             break;
           case ABNT2_US:
-            layout=US_US;
-            break;
           case ABNT2_DVORAK:
-            layout=US_DVORAK;
+            layout=DVORAK_DVORAK;
+            break;
+          case DVORAK_DVORAK:
+            layout=US_US;
             break;
         }
         displayForceUpdate();
@@ -383,7 +401,14 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
             seq[1]=HID_KEYBOARD_SC_LEFT_CONTROL;
             seq[2]=2;
             seq[3]=HID_KEYBOARD_SC_LEFT_CONTROL;
-            seq[4]=HID_KEYBOARD_SC_C;
+            switch(layout){
+              case DVORAK_DVORAK:
+                seq[4]=HID_KEYBOARD_SC_I;
+                break;
+              default:
+                seq[4]=HID_KEYBOARD_SC_C;
+                break;
+            }
             seq[5]=0x00;
             addKeySequence(seq);
           }
@@ -441,6 +466,7 @@ void Keyboard::processKeyEvent(const uint8_t key, const bool state){
   if(state){
     switch(layout){
       case US_US:
+      case DVORAK_DVORAK:
         if(fn&&!keypad)
           KP(pgm_read_byte_near(us_us_fn+key));
         else if(!fn&&keypad)

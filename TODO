@@ -26,6 +26,7 @@ OK  - QWERTY US
 OK  - QWERTY US > Dvorak
 OK  - ABNT2 > Dvorak
 OK  - ABNT2 > US
+OK - DVORAK > DVORAK (for Ctrl+X/C/V)
 OK  - Save keyboard layout conf.
 OK  - Fn+ left hand keys => Ctrl+QWERTY layout for shortcuts.
 OK - Slow display update: loosing key presses during update (~300ms).
@@ -35,11 +36,12 @@ OK  - Keypad
 OK  - QWERTY / DVORAK / DVORAK(ABNT2)
   - Key recording / lock status.
 - OLED Screen.
+  - Update layout for new Dvorak_Dvorak layout.
 
 IMPROVEMENTS
 
-- Remove bootloader / decrease serial timeout.
-- Change board (Teensy 2.0++).
+OK- Remove bootloader / decrease serial timeout.
+OK- Change board (Teensy 2.0++).
 - Bluetooth.
   - Battery charger.
   - Auto Bluetooth off / changing with cable.

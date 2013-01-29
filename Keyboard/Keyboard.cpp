@@ -39,6 +39,29 @@ void Keyboard::loopTask(){
   if(DEVICE_STATE_Suspended==USB_DeviceState)
     if(USB_Device_RemoteWakeupEnabled)
       scanAll();
+/*
+static uint8_t l;
+if(layout!=l){
+l=layout;
+switch(l){
+case 0:
+fprintf(Stream, "US_US\r\n");
+break;
+case 1:
+fprintf(Stream, "US_DVORAK\r\n");
+break;
+case 2:
+fprintf(Stream, "ABNT2_US\r\n");
+break;
+case 3:
+fprintf(Stream, "ABNT2_DVORAK\r\n");
+break;
+case 4:
+fprintf(Stream, "DVORAK_DVORAK\r\n");
+break;
+}
+}
+*/
 }
 
 //

@@ -10,21 +10,34 @@
 
 #include <u8g.h>
 
+#ifdef __cplusplus
+
+//
+// General
+//
+
 #define NUM_KEYS 90
 
 #define KP(key) press(key)
 
-#ifdef __cplusplus
-
-#define NO_KEY		0
-#define NO_LED_REPORT	0xFF
+#define NO_KEY			0x00
+#define NO_LED_REPORT		0xFF
 #define NO_USB_DEVICE_STATE	0xFF
+
+//
+// Layout
+//
 
 #define US_US 		0
 #define US_DVORAK 	1
 #define ABNT2_US	2
 #define ABNT2_DVORAK	3
-#define LAYOUT_MAX 	3
+#define DVORAK_DVORAK	4
+#define LAYOUT_MAX 	4
+
+//
+// EEPROM
+//
 
 #define EEPROM_LAYOUT 0
 

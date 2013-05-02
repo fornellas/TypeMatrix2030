@@ -1,3 +1,8 @@
+FIXES
+
+- Shift + CAPSLOCK generating multiple events.
+- Fn+F1 send F1 if Fn released before F1. Validate for other keys.
+
 BASE
 
 OK- Clean up VirtualSerial
@@ -37,6 +42,8 @@ OK  - QWERTY / DVORAK / DVORAK(ABNT2)
   - Key recording / lock status.
 - OLED Screen.
   - Update layout for new Dvorak_Dvorak layout.
+  - LDR for auto contrast with gamma correction.
+  - Support for receiving display updates via HID protocol
 
 IMPROVEMENTS
 

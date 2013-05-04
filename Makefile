@@ -29,7 +29,7 @@ SRC=\
   $(wildcard LUFA/*.c) \
   $(wildcard Keyboard/*.cpp) $(wildcard Keyboard/layouts/*.cpp) \
   $(wildcard $(U8G_PATH)/*.c) \
-  $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS) $(LUFA_SRC_TWI)
+  $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
 F_USB=$(F_CPU)
 #LUFA_PATH=
 # Optional

@@ -43,12 +43,17 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
   .Config = {
     .Header                 = {.Size = sizeof(USB_Descriptor_Configuration_Header_t), .Type = DTYPE_Configuration},
     .TotalConfigurationSize = sizeof(USB_Descriptor_Configuration_t),
+#ifdef SERIAL_DEBUG
     .TotalInterfaces        = 3,
+#else
+    .TotalInterfaces        = 1,
+#endif
     .ConfigurationNumber    = 1,
     .ConfigurationStrIndex  = NO_DESCRIPTOR,
     .ConfigAttributes       = (USB_CONFIG_ATTR_RESERVED | USB_CONFIG_ATTR_REMOTEWAKEUP),
     .MaxPowerConsumption    = USB_CONFIG_POWER_MA(100)
     },
+#ifdef SERIAL_DEBUG
   // CDC
   .CDC_CCI_Interface = {
     .Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
@@ -107,10 +112,15 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
     .EndpointSize           = CDC_TXRX_EPSIZE,
     .PollingIntervalMS      = 0x05
     },
+#endif
   // Keyboard
   .HID_Interface = {
     .Header                 = {.Size = sizeof(USB_Descriptor_Interface_t), .Type = DTYPE_Interface},
+#ifdef SERIAL_DEBUG
     .InterfaceNumber        = 2,
+#else
+    .InterfaceNumber        = 0,
+#endif
     .AlternateSetting       = 0x00,
     .TotalEndpoints         = 1,
     .Class                  = HID_CSCP_HIDClass,

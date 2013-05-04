@@ -1,7 +1,9 @@
 #include "LUFA.h"
 #include "../Keyboard/Keyboard.h"
 
+#ifdef SERIAL_DEBUG
 extern FILE USBSerialStream;
+#endif
 
 /** Buffer to hold the previously generated Keyboard HID report, for comparison purposes inside the HID class driver. */
 static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
@@ -12,7 +14,11 @@ static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
  */
 USB_ClassInfo_HID_Device_t Keyboard_HID_Interface = {
   .Config = {
+#ifdef SERIAL_DEBUG
     .InterfaceNumber              = 2,
+#else
+    .InterfaceNumber              =0,
+#endif
     .ReportINEndpoint             = {
       .Address              = KEYBOARD_EPADDR,
       .Size                 = KEYBOARD_EPSIZE,
@@ -23,6 +29,7 @@ USB_ClassInfo_HID_Device_t Keyboard_HID_Interface = {
     },
   };
 
+#ifdef SERIAL_DEBUG
 /** LUFA CDC Class driver interface configuration and state information. This structure is
  *  passed to all CDC Class driver functions, so that multiple instances of the same class
  *  within a device can be differentiated from one another.
@@ -47,6 +54,7 @@ USB_ClassInfo_CDC_Device_t VirtualSerial_CDC_Interface = {
          },
      },
   };
+#endif
 
 /** Configures the board hardware and chip peripherals for the demo's functionality. */
 void SetupHardware(void){
@@ -62,14 +70,18 @@ void SetupHardware(void){
 
 /** Event handler for the library USB Configuration Changed event. */
 void EVENT_USB_Device_ConfigurationChanged(void){
+#ifdef SERIAL_DEBUG
   CDC_Device_ConfigureEndpoints(&VirtualSerial_CDC_Interface);
+#endif
   HID_Device_ConfigureEndpoints(&Keyboard_HID_Interface);
   USB_Device_EnableSOFEvents();
 }
 
 /** Event handler for the library USB Control Request reception event. */
 void EVENT_USB_Device_ControlRequest(void){
+#ifdef SERIAL_DEBUG
   CDC_Device_ProcessControlRequest(&VirtualSerial_CDC_Interface);
+#endif
   HID_Device_ProcessControlRequest(&Keyboard_HID_Interface);
 }
 

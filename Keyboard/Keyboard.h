@@ -10,6 +10,8 @@
 
 #include <u8g.h>
 
+//#define SERIAL_DEBUG 1
+
 #ifdef __cplusplus
 
 //
@@ -66,8 +68,10 @@ private:
   // Facilities
   //
 
+#ifdef SERIAL_DEBUG
   // Serial
   FILE *Stream;
+#endif
 
   //
   // Key scannig
@@ -162,7 +166,11 @@ public:
   // Main loop
   void loopTask();
   // Constructor
+#ifdef SERIAL_DEBUG
   Keyboard(FILE *S);
+#else
+  Keyboard();
+#endif
 };
 
 #endif

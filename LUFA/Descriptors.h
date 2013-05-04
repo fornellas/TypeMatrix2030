@@ -5,6 +5,8 @@
 
 #include <LUFA/Drivers/USB/USB.h>
 
+#include "../Keyboard/Keyboard.h"
+
 //
 // Macros
 //
@@ -16,6 +18,7 @@
 // Size in bytes of the Keyboard HID reporting IN endpoint.
 #define KEYBOARD_EPSIZE              8
 
+#ifdef SERIAL_DEBUG
 // CDC
 
 // Endpoint address of the CDC device-to-host notification IN endpoint.
@@ -28,6 +31,7 @@
 #define CDC_NOTIFICATION_EPSIZE        8
 // Size in bytes of the CDC data IN and OUT endpoints.
 #define CDC_TXRX_EPSIZE                16
+#endif
 
 /* Type Defines: */
 /** Type define for the device configuration descriptor structure. This must be defined in the
@@ -42,6 +46,7 @@ typedef struct{
   USB_HID_Descriptor_HID_t HID_KeyboardHID;
   USB_Descriptor_Endpoint_t HID_ReportINEndpoint;
 
+#ifdef SERIAL_DEBUG
   // CDC Control Interface
   USB_Descriptor_Interface_t               CDC_CCI_Interface;
   USB_CDC_Descriptor_FunctionalHeader_t    CDC_Functional_Header;
@@ -53,6 +58,7 @@ typedef struct{
   USB_Descriptor_Interface_t               CDC_DCI_Interface;
   USB_Descriptor_Endpoint_t                CDC_DataOutEndpoint;
   USB_Descriptor_Endpoint_t                CDC_DataInEndpoint;
+#endif
 } USB_Descriptor_Configuration_t;
 
 /* Function Prototypes: */

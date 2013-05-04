@@ -39,42 +39,42 @@ void Keyboard::loopTask(){
   if(DEVICE_STATE_Suspended==USB_DeviceState)
     if(USB_Device_RemoteWakeupEnabled)
       scanAll();
-/*
-static uint8_t l;
-if(layout!=l){
-l=layout;
-switch(l){
-case 0:
-fprintf(Stream, "US_US\r\n");
-break;
-case 1:
-fprintf(Stream, "US_DVORAK\r\n");
-break;
-case 2:
-fprintf(Stream, "ABNT2_US\r\n");
-break;
-case 3:
-fprintf(Stream, "ABNT2_DVORAK\r\n");
-break;
-case 4:
-fprintf(Stream, "DVORAK_DVORAK\r\n");
-break;
-}
-}
-*/
+#ifdef SERIAL_DEBUG
+  static uint8_t l;
+  if(layout!=l){
+    l=layout;
+    switch(l){
+      case 0:
+        fprintf(Stream, "US_US\r\n");
+        break;
+      case 1:
+        fprintf(Stream, "US_DVORAK\r\n");
+        break;
+      case 2:
+        fprintf(Stream, "ABNT2_US\r\n");
+        break;
+      case 3:
+        fprintf(Stream, "ABNT2_DVORAK\r\n");
+        break;
+      case 4:
+        fprintf(Stream, "DVORAK_DVORAK\r\n");
+        break;
+    }
+  }
+#endif
 }
 
 //
 // Constructor
 //
 
+#ifdef SERIAL_DEBUG
 Keyboard::Keyboard(FILE *S){
   // Serial
   Stream=S;
-  // TWI
-  PORTD|=(1<<1); // SDA pull up
-  PORTD|=(1<<0); // SCL pull up
-  TWI_Init(TWI_BIT_PRESCALE_1, TWI_BITLENGTH_FROM_FREQ(1, 100000L));
+#else
+Keyboard::Keyboard(){
+#endif
   // Init ports
   portInit();
   // States

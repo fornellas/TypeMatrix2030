@@ -10,7 +10,11 @@
 #define U8G_SCK PN(1,1)
 #define U8G_MOSI PN(1,2)
 
-#define BORDER 2
+#define TOGGLE_BORDER 2
+#define TOGGLE_SPACING 2
+
+#define ICON_WIDTH 2 // bytes
+#define ICON_HEIGHT 13 // pixels
 
 const uint8_t icon_computer[] U8G_PROGMEM = {
   B1111111, B11111111,
@@ -60,6 +64,8 @@ void Keyboard::displayForceUpdate(){
 }
 
 void Keyboard::displayUpdate(){
+  uint8_t offset, y;
+  u8g_pgm_uint8_t *str;
   /* Causes screen corruption
   // break current loop if new update asked
   if(displayUpdateAgain){
@@ -100,63 +106,49 @@ void Keyboard::displayUpdate(){
       break;
     // May be implemented by the user project. This state indicates that the device has been enumerated by the host and is ready for USB communications to begin.
     case DEVICE_STATE_Configured:
-      uint8_t offset;
-      // LEDs
       u8g_SetFont(&u8g, u8g_font_fur17);
-      offset=0;
+      // LEDs
       if(display_var_LEDReport!=NO_LED_REPORT){
-        if(LEDReport & HID_KEYBOARD_LED_NUMLOCK)
-          offset+=displayDrawToggle(true, 0, 0, U8G_PSTR("1"));
-        else
-          offset+=displayDrawToggle(false, 0, 0, U8G_PSTR("1"));
-        if(LEDReport & HID_KEYBOARD_LED_CAPSLOCK)
-          offset+=displayDrawToggle(true, offset+=BORDER, 0, U8G_PSTR("A"));
-        else
-          offset+=displayDrawToggle(false, offset+=BORDER, 0, U8G_PSTR("A"));
-        if(LEDReport & HID_KEYBOARD_LED_SCROLLLOCK)
-          offset+=displayDrawToggle(true, offset+=BORDER, 0, U8G_PSTR("S"));
-        else
-          offset+=displayDrawToggle(false, offset+=BORDER, 0, U8G_PSTR("S"));
+        offset=0;
+        offset+=TOGGLE_SPACING+displayDrawToggle(LEDReport & HID_KEYBOARD_LED_NUMLOCK, 0, 0, U8G_PSTR("1"));
+        offset+=TOGGLE_SPACING+displayDrawToggle(LEDReport & HID_KEYBOARD_LED_CAPSLOCK, offset, 0, U8G_PSTR("A"));
+        displayDrawToggle(LEDReport & HID_KEYBOARD_LED_SCROLLLOCK, offset, 0, U8G_PSTR("S"));
       }
-      // Keypad
       if(NULL!=display_var_KeyboardReport) {
-        if(keypad)
-          displayDrawToggle(true, 107, 0, U8G_PSTR("K"));
-        else
-          displayDrawToggle(false, 107, 0, U8G_PSTR("K"));
+        // Keypad
+        str=U8G_PSTR("K");
+        offset=u8g_GetWidth(&u8g)-displayGetToggleWidth(str);
+        displayDrawToggle(keypad, offset, 0, str);
+        // Fn
+        str=U8G_PSTR("Fn");
+        offset-=TOGGLE_SPACING+displayGetToggleWidth(str);
+        displayDrawToggle(fn, offset, 0, str);
         // Layout
-        int y;
-        y=u8g_GetFontAscent(&u8g)+2+BORDER*2;
-        offset=13+BORDER;
+        y=displayGetToggleHeight()+3;
         u8g_SetFont(&u8g, u8g_font_6x10);
         switch(layout){
           case US_US:
+            displayDrawKeyboardLayout(y, true, false, true, false, false);
             break;
           case US_DVORAK:
-            ++y;
-            offset=16+BORDER*2;
-            u8g_DrawBitmapP(&u8g, 0, y+BORDER, 2, 13, icon_keyboard);
-            offset+=displayDrawToggle(false, offset, y+BORDER, U8G_PSTR("US"));
-            displayDrawToggle(true, --offset, y+BORDER, U8G_PSTR("Dvorak"));
-            y+=u8g_GetFontAscent(&u8g)+2+BORDER*2+4;
-            u8g_DrawBitmapP(&u8g, 0, y, 2, 13, icon_computer);
-            offset=16+BORDER*2;
-            offset+=displayDrawToggle(true, offset, y, U8G_PSTR("US"));
-            offset+=displayDrawToggle(false, --offset, y, U8G_PSTR("Dvorak"));
-            offset+=displayDrawToggle(false, --offset, y, U8G_PSTR("ABNT2"));
+            displayDrawKeyboardLayout(y, false, true, true, false, false);
             break;
           case ABNT2_US:
+            displayDrawKeyboardLayout(y, true, false, false, false, true);
             break;
           case ABNT2_DVORAK:
+            displayDrawKeyboardLayout(y, false, true, false, false, true);
             break;
           case DVORAK_DVORAK:
+            displayDrawKeyboardLayout(y, false, true, false, true, false);
             break;
         }
       }
       // Key counter
       // FIXME
       u8g_SetFontPosTop(&u8g);
-      u8g_DrawStrP(&u8g, 60, 56, U8G_PSTR("1341"));
+      str=U8G_PSTR("237841");
+      u8g_DrawStrP(&u8g, u8g_GetWidth(&u8g)/2-u8g_GetStrWidthP(&u8g, str)/2, 56, str);
 /*
       // Macros
       switch(display_var_macroState){
@@ -181,16 +173,10 @@ void Keyboard::displayUpdate(){
     // May be implemented by the user project. This state indicates that the USB bus has been suspended by the host, and the device should power down to a minimal power level until the bus is resumed.
     case DEVICE_STATE_Suspended:
       u8g_SetFont(&u8g, u8g_font_helvB12);
-      displayDrawStrCenter(0, 0, U8G_PSTR("Suspended"), U8G_PSTR("By"), U8G_PSTR("USB Host"), NULL);
-/*
-      u8g_SetFont(&u8g, u8g_font_helvB12);
-      if(display_var_USB_Device_RemoteWakeupEnabled){
-        displayDrawStrCenter(U8G_PSTR("Press any key"), 0, u8g_GetFontLineSpacing(&u8g)/2*-1-1);
-        displayDrawStrCenter(U8G_PSTR("to wake up"), 0, u8g_GetFontLineSpacing(&u8g)/2+1);
-      }else{
-        displayDrawStrCenter(U8G_PSTR("Suspended"), 0, 0);
-      }
-*/
+      if(display_var_USB_Device_RemoteWakeupEnabled)
+        displayDrawStrCenter(0, 0, U8G_PSTR("Suspended:"), U8G_PSTR("Press Any Key"), U8G_PSTR("To Wake Up"), NULL);
+      else
+        displayDrawStrCenter(0, 0, U8G_PSTR("Suspended"), NULL);
       break;
   }
   // last iteration
@@ -233,10 +219,18 @@ void Keyboard::displayDrawStrCenter(int8_t x_offset, int8_t y_offset, ...){
   va_end(ap);
 }
 
-uint8_t Keyboard::displayDrawToggle(bool state, uint8_t x, uint8_t y, u8g_pgm_uint8_t *str, ...){
-  uint8_t width=u8g_GetStrWidthP(&u8g, str)+2+BORDER*2;
+uint8_t Keyboard::displayGetToggleWidth(u8g_pgm_uint8_t *str){
+  return u8g_GetStrWidthP(&u8g, str)+2+TOGGLE_BORDER*2;
+}
+
+uint8_t Keyboard::displayGetToggleHeight(){
+  return u8g_GetFontAscent(&u8g)+2+TOGGLE_BORDER*2;
+}
+
+uint8_t Keyboard::displayDrawToggle(bool state, uint8_t x, uint8_t y, u8g_pgm_uint8_t *str){
+  uint8_t width=displayGetToggleWidth(str);
   u8g_SetFontRefHeightText(&u8g);
-  uint8_t height=u8g_GetFontAscent(&u8g)+2+BORDER*2;
+  uint8_t height=displayGetToggleHeight();
   u8g_SetColorIndex(&u8g, 1);
   if(state){
     u8g_DrawBox(&u8g, x, y, width, height);
@@ -245,100 +239,33 @@ uint8_t Keyboard::displayDrawToggle(bool state, uint8_t x, uint8_t y, u8g_pgm_ui
     u8g_DrawFrame(&u8g, x, y, width, height);
   }
   u8g_SetFontPosTop(&u8g);
-  u8g_DrawStrP(&u8g, x+1+BORDER, y+BORDER, str);
+  u8g_DrawStrP(&u8g, x+1+TOGGLE_BORDER, y+TOGGLE_BORDER, str);
   u8g_SetColorIndex(&u8g, 1);
   return width;
+}
+
+void Keyboard::displayDrawKeyboardLayout(uint8_t y, bool kb_us, bool kb_dvorak, bool host_us, bool host_dvorak, bool host_abnt2){
+  uint8_t offset;
+  u8g_pgm_uint8_t *us=U8G_PSTR("US");
+  u8g_pgm_uint8_t *dvorak=U8G_PSTR("Dvorak");
+  u8g_pgm_uint8_t *abnt2=U8G_PSTR("ABNT2");
+  // keyoard layout
+  offset=(u8g_GetWidth(&u8g)-(ICON_WIDTH*8+2+displayGetToggleWidth(us)+displayGetToggleWidth(dvorak)-1))/2; // center
+  u8g_DrawBitmapP(&u8g, offset, y, ICON_WIDTH, ICON_HEIGHT, icon_keyboard);
+  offset+=ICON_WIDTH*8+2;
+  offset+=-1+displayDrawToggle(kb_us, offset, y, us);
+  displayDrawToggle(kb_dvorak, offset, y, dvorak);
+  // host layout
+  offset=(u8g_GetWidth(&u8g)-(ICON_WIDTH*8+2+displayGetToggleWidth(us)+displayGetToggleWidth(dvorak)+displayGetToggleWidth(abnt2)-1))/2; // center
+  y+=ICON_HEIGHT+2;
+  u8g_DrawBitmapP(&u8g, offset, y, ICON_WIDTH, ICON_HEIGHT, icon_computer);
+  offset+=ICON_WIDTH*8+2;
+  offset+=-1+displayDrawToggle(host_us, offset, y, us);
+  offset+=-1+displayDrawToggle(host_dvorak, offset, y, dvorak);
+  offset+=-1+displayDrawToggle(host_abnt2, offset, y, abnt2);
 }
 
 void Keyboard::setLEDs(uint8_t report){
   LEDReport=report;
   displayForceUpdate();
 }
-
-
-/*
-void Keyboard::displayDrawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x){
-  u8g_SetColorIndex(&u8g, 1);
-  if(on){
-    u8g_DrawBox(&u8g, x, 0, 13, 16);
-    u8g_SetColorIndex(&u8g, 0);
-  }else{
-    u8g_DrawFrame(&u8g, x, 0, 13, 16);
-  }
-  u8g_DrawStrP(&u8g, x+4, 11, str);
-}
-
-void Keyboard::displayDrawIndicator2(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x){
-  u8g_SetColorIndex(&u8g, 1);
-  if(on){
-    u8g_DrawBox(&u8g, x, 0, 27, 16);
-    u8g_SetColorIndex(&u8g, 0);
-  }else{
-    u8g_DrawFrame(&u8g, x, 0, 27, 16);
-  }
-  u8g_DrawStrP(&u8g, x+6, 11, str);
-}
-
-void Keyboard::displayDrawLEDs(){
-  // Keyboard LEDs
-  if(LEDReport & HID_KEYBOARD_LED_NUMLOCK)
-    displayDrawIndicator(U8G_PSTR("1"), 1, 0);
-  else
-    displayDrawIndicator(U8G_PSTR("1"), 0, 0);
-  if(LEDReport & HID_KEYBOARD_LED_CAPSLOCK)
-    displayDrawIndicator(U8G_PSTR("A"), 1, 14);
-  else
-    displayDrawIndicator(U8G_PSTR("A"), 0, 14);
-  if(LEDReport & HID_KEYBOARD_LED_SCROLLLOCK)
-    displayDrawIndicator(U8G_PSTR("S"), 1, 28);
-  else
-    displayDrawIndicator(U8G_PSTR("S"), 0, 28);
-}
-
-void Keyboard::displayDrawLayoutStates(){
-  // Keypad
-  if(keypad)
-    displayDrawIndicator(U8G_PSTR("K"), 1, 43);
-  else
-    displayDrawIndicator(U8G_PSTR("K"), 0, 43);
-  // Layout
-  switch(layout){
-    case US_US:
-      displayDrawIndicator(U8G_PSTR("U"), 1, 58);
-      displayDrawIndicator(U8G_PSTR("D"), 0, 72);
-      displayDrawIndicator(U8G_PSTR("U"), 1, 87);
-      displayDrawIndicator(U8G_PSTR("A"), 0, 101);
-      displayDrawIndicator(U8G_PSTR("D"), 0, 115);
-      break;
-    case US_DVORAK:
-      displayDrawIndicator(U8G_PSTR("U"), 0, 58);
-      displayDrawIndicator(U8G_PSTR("D"), 1, 72);
-      displayDrawIndicator(U8G_PSTR("U"), 1, 87);
-      displayDrawIndicator(U8G_PSTR("A"), 0, 101);
-      displayDrawIndicator(U8G_PSTR("D"), 0, 115);
-      break;
-    case ABNT2_US:
-      displayDrawIndicator(U8G_PSTR("U"), 1, 58);
-      displayDrawIndicator(U8G_PSTR("D"), 0, 72);
-      displayDrawIndicator(U8G_PSTR("U"), 0, 87);
-      displayDrawIndicator(U8G_PSTR("A"), 1, 101);
-      displayDrawIndicator(U8G_PSTR("D"), 0, 115);
-      break;
-    case ABNT2_DVORAK:
-      displayDrawIndicator(U8G_PSTR("U"), 0, 58);
-      displayDrawIndicator(U8G_PSTR("D"), 1, 72);
-      displayDrawIndicator(U8G_PSTR("U"), 0, 87);
-      displayDrawIndicator(U8G_PSTR("A"), 1, 101);
-      displayDrawIndicator(U8G_PSTR("D"), 0, 115);
-      break;
-    case DVORAK_DVORAK:
-      displayDrawIndicator(U8G_PSTR("U"), 0, 58);
-      displayDrawIndicator(U8G_PSTR("D"), 1, 72);
-      displayDrawIndicator(U8G_PSTR("U"), 0, 87);
-      displayDrawIndicator(U8G_PSTR("A"), 0, 101);
-      displayDrawIndicator(U8G_PSTR("D"), 1, 115);
-      break;
-  }
-}
-
-*/

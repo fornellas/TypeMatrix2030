@@ -47,6 +47,7 @@ OK  - QWERTY / DVORAK / DVORAK(ABNT2)
 
 IMPROVEMENTS
 
+- Change Max keys in keyboard report to constant
 OK- Remove bootloader / decrease serial timeout.
 OK- Change board (Teensy 2.0++).
 - Bluetooth.

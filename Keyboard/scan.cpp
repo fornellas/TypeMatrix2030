@@ -301,9 +301,10 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
       break;
     case 34: // Fn
       if(state)
-        fn=1;
+        fn=true;
       else
-        fn=0;
+        fn=false;
+      displayForceUpdate();
       return true;
     case 49: // Desktop / previous
       if(state&&!keyState[key]){
@@ -351,17 +352,19 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
       if((state&&!keyState[key])&&fn){
         switch(layout){
           case US_US:
-            layout=ABNT2_US;
-            break;
-          case US_DVORAK:
-            layout=ABNT2_DVORAK;
-            break;
-          case ABNT2_US:
-          case ABNT2_DVORAK:
             layout=DVORAK_DVORAK;
             break;
-          case DVORAK_DVORAK:
+          case US_DVORAK:
+            layout=DVORAK_DVORAK;
+            break;
+          case ABNT2_US:
             layout=US_US;
+            break;
+          case ABNT2_DVORAK:
+            layout=US_DVORAK;
+            break;
+          case DVORAK_DVORAK:
+            layout=ABNT2_DVORAK;
             break;
         }
         displayForceUpdate();

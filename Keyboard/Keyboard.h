@@ -30,10 +30,10 @@
 // Layout
 //
 
-#define US_US 		0
-#define US_DVORAK 	1
-#define ABNT2_US	2
-#define ABNT2_DVORAK	3
+#define     US_US 		0
+#define     US_DVORAK 	1
+#define  ABNT2_US	2
+#define  ABNT2_DVORAK	3
 #define DVORAK_DVORAK	4
 #define LAYOUT_MAX 	4
 
@@ -106,9 +106,9 @@ private:
   // States
   //
 
-  uint8_t keyState[NUM_KEYS];
-  uint8_t keypad;
-  uint8_t fn;
+  bool keyState[NUM_KEYS];
+  bool keypad;
+  bool fn;
   uint8_t layout;
   volatile uint8_t LEDReport;
   uint8_t last_USB_DeviceState;
@@ -152,14 +152,10 @@ private:
   uint8_t display_var_USB_Device_RemoteWakeupEnabled;
   void displayForceUpdate();
   void displayDrawStrCenter(int8_t x_offset, int8_t y_offset, ...);
-  uint8_t displayDrawToggle(bool state, uint8_t x, uint8_t y, u8g_pgm_uint8_t *str, ...);
-/*
-  void displayDrawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x);
-  void displayDrawIndicator2(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x);
-  void displayDrawLEDs();
-  void displayDrawLayoutStates();
-
-*/
+  uint8_t displayGetToggleWidth(u8g_pgm_uint8_t *str);
+  uint8_t displayGetToggleHeight();
+  uint8_t displayDrawToggle(bool state, uint8_t x, uint8_t y, u8g_pgm_uint8_t *str);
+  void displayDrawKeyboardLayout(uint8_t y, bool kb_us, bool kb_dvorak, bool host_us, bool host_dvorak, bool host_abnt2);
 public:
   // Facilities
   volatile USB_KeyboardReport_Data_t *KeyboardReport;

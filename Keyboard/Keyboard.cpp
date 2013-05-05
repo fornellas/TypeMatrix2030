@@ -79,9 +79,9 @@ Keyboard::Keyboard(){
   portInit();
   // States
   for(int i=0;i<NUM_KEYS;i++)
-    keyState[i]=0;
-  keypad=0;
-  fn=0;
+    keyState[i]=false;
+  keypad=false;
+  fn=false;
   LEDReport=NO_LED_REPORT;
   last_USB_DeviceState=NO_USB_DEVICE_STATE;
   last_USB_Device_RemoteWakeupEnabled=USB_Device_RemoteWakeupEnabled;

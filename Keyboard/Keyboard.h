@@ -151,10 +151,15 @@ private:
   uint8_t display_var_macroState;
   uint8_t display_var_USB_Device_RemoteWakeupEnabled;
   void displayForceUpdate();
+  void displayDrawStrCenter(int8_t x_offset, int8_t y_offset, ...);
+  uint8_t displayDrawToggle(bool state, uint8_t x, uint8_t y, u8g_pgm_uint8_t *str, ...);
+/*
   void displayDrawIndicator(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x);
+  void displayDrawIndicator2(u8g_pgm_uint8_t *str, uint8_t on, uint8_t x);
   void displayDrawLEDs();
   void displayDrawLayoutStates();
-  void displayDrawStrCenter(u8g_pgm_uint8_t *str, uint8_t y);
+
+*/
 public:
   // Facilities
   volatile USB_KeyboardReport_Data_t *KeyboardReport;

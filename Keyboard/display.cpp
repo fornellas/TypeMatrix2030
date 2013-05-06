@@ -1,6 +1,7 @@
 #include "Keyboard.h"
 
 #include <LUFA/Drivers/Peripheral/SPI.h>
+#include <stdlib.h>
 
 #include "binary.h"
 
@@ -55,27 +56,21 @@ void Keyboard::displayInit(){
 }
 
 void Keyboard::displayForceUpdate(){
-  if(displayDoUpdate)
+  if(displayUpdating)
     displayUpdateAgain=true;
-  else{
-    displayDoUpdate=true;
-    displayUpdateAgain=false;
-  }
+  else
+    displayUpdating=1;
 }
 
 void Keyboard::displayUpdate(){
   uint8_t offset, y;
   u8g_pgm_uint8_t *str;
-  /* Causes screen corruption
-  // break current loop if new update asked
-  if(displayUpdateAgain){
-    displayUpdateAgain=false;
-    displayFirstLoopRun=true;
-  } */
+  char strBuff[11];
+  if(displayUpdating==0)
+    return;
   // first iteration, save vars for processing
-  if(displayFirstLoopRun){
+  if(displayUpdating++==1){
     u8g_FirstPage(&u8g);
-    displayFirstLoopRun=false;
     display_var_USB_DeviceState=USB_DeviceState;
     display_var_LEDReport=LEDReport;
     display_var_KeyboardReport=KeyboardReport;
@@ -147,8 +142,8 @@ void Keyboard::displayUpdate(){
       // Key counter
       // FIXME
       u8g_SetFontPosTop(&u8g);
-      str=U8G_PSTR("237841");
-      u8g_DrawStrP(&u8g, u8g_GetWidth(&u8g)/2-u8g_GetStrWidthP(&u8g, str)/2, 56, str);
+      ultoa(keyPresses, strBuff, 10);
+      u8g_DrawStr(&u8g, u8g_GetWidth(&u8g)/2-u8g_GetStrWidth(&u8g, strBuff)/2, 56, strBuff);
 /*
       // Macros
       switch(display_var_macroState){
@@ -182,14 +177,11 @@ void Keyboard::displayUpdate(){
   // last iteration
   if(!u8g_NextPage(&u8g)){
     // force new display update if required
-    if(displayUpdateAgain){
-      displayUpdateAgain=false;
-      displayFirstLoopRun=true;
-      return;
-    }else{
-      displayDoUpdate=false;
-      displayFirstLoopRun=true;
-    }
+    if(displayUpdateAgain)
+      displayUpdating=1;
+    else
+      displayUpdating=0;
+    displayUpdateAgain=false;
   }
 }
 

@@ -41,7 +41,8 @@
 // EEPROM
 //
 
-#define EEPROM_LAYOUT 0
+#define EEPROM_LAYOUT 0 // uint8_t
+#define EEPROM_KEYPRESSES 1 // uint32_t
 
 //
 // Macros
@@ -143,9 +144,8 @@ private:
 
   u8g_t u8g;
   void displayInit();
-  bool displayDoUpdate;
+  uint8_t displayUpdating;
   bool displayUpdateAgain;
-  bool displayFirstLoopRun;
   uint8_t display_var_USB_DeviceState;
   uint8_t display_var_LEDReport;
   volatile USB_KeyboardReport_Data_t *display_var_KeyboardReport;
@@ -157,6 +157,11 @@ private:
   uint8_t displayGetToggleHeight();
   uint8_t displayDrawToggle(bool state, uint8_t x, uint8_t y, u8g_pgm_uint8_t *str);
   void displayDrawKeyboardLayout(uint8_t y, bool kb_us, bool kb_dvorak, bool host_us, bool host_dvorak, bool host_abnt2);
+  //
+  // Key press counter
+  //
+  uint32_t eepromKeyPresses;
+  uint32_t keyPresses;
 public:
   // Facilities
   volatile USB_KeyboardReport_Data_t *KeyboardReport;

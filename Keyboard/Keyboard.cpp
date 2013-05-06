@@ -32,8 +32,7 @@ void Keyboard::loopTask(){
       displayForceUpdate();
     last_USB_Device_RemoteWakeupEnabled=USB_Device_RemoteWakeupEnabled;
   }
-  if(displayDoUpdate)
-    displayUpdate();
+  displayUpdate();
 
   // scan keys during suspend
   if(DEVICE_STATE_Suspended==USB_DeviceState)
@@ -89,6 +88,10 @@ Keyboard::Keyboard(){
   KeyboardReport=NULL;
   macroState=MACRO_STATE_NONE;
   macroLocked=true;
+  // Key preses
+  eeprom_busy_wait();
+  keyPresses=eeprom_read_dword((const uint32_t *)EEPROM_KEYPRESSES);
+  eepromKeyPresses=keyPresses;
   // Load layout
   eeprom_busy_wait();
   layout=eeprom_read_byte((const uint8_t *)EEPROM_LAYOUT);
@@ -101,9 +104,8 @@ Keyboard::Keyboard(){
   sequence=NULL;
   // Display
   displayInit();
-  displayDoUpdate=false;
+  displayUpdating=0;
   displayUpdateAgain=false;
-  displayFirstLoopRun=true;
 }
 
 //

@@ -300,11 +300,9 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
       return true;
       break;
     case 34: // Fn
-      if(state)
-        fn=true;
-      else
-        fn=false;
-      displayForceUpdate();
+      fn=state;
+      if(state!=keyState[key])
+        displayForceUpdate();
       return true;
     case 49: // Desktop / previous
       if(state&&!keyState[key]){
@@ -465,6 +463,11 @@ bool Keyboard::processDvorakQwertyKeys(const uint8_t key, const bool state){
 }
 
 void Keyboard::processKeyEvent(const uint8_t key, const bool state){
+  // key counting
+  if(state&&!keyState[key]) {
+    keyPresses++;
+    displayForceUpdate();
+  }
   // special keys
   if(processSuspendKeys(state))
     goto end;

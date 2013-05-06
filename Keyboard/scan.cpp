@@ -339,14 +339,18 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
             layout=ABNT2_US;
             break;
           case DVORAK_DVORAK:
-            return true;
             break;
         }
+        fn_used=true;
         displayForceUpdate();
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
         return true;
       }
+      if(!state&&keyState[key])
+        fn_used=false;
+      if(fn_used)
+        return true;
       break;
     case 51: // F2 / Host layout
       if((state&&!keyState[key])&&fn){
@@ -367,11 +371,16 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
             layout=ABNT2_DVORAK;
             break;
         }
+        fn_used=true;
         displayForceUpdate();
         eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
         return true;
       }
+      if(!state&&keyState[key])
+        fn_used=false;
+      if(fn_used)
+        return true;
       break;
     case 61: // BTab
       if((state&&!keyState[key])&&((!fn&&keypad)||(fn&&!keypad))){
@@ -459,8 +468,8 @@ void Keyboard::processKeyEvent(const uint8_t key, const bool state){
   // special keys
   if(processSuspendKeys(state))
     goto end;
-  if(processMacroKeys(key, state))
-    goto end;
+//  if(processMacroKeys(key, state))
+//    goto end;
   if(processCommonKeys(key, state))
     goto end;
   if(processDvorakQwertyKeys(key, state))

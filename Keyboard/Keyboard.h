@@ -109,6 +109,7 @@ private:
   bool keyState[NUM_KEYS];
   bool keypad;
   bool fn;
+  bool fn_used;
   uint8_t layout;
   volatile uint8_t LEDReport;
   uint8_t last_USB_DeviceState;

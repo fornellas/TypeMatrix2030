@@ -82,6 +82,7 @@ Keyboard::Keyboard(){
     keyState[i]=false;
   keypad=false;
   fn=false;
+  fn_used=false;
   LEDReport=NO_LED_REPORT;
   last_USB_DeviceState=NO_USB_DEVICE_STATE;
   last_USB_Device_RemoteWakeupEnabled=USB_Device_RemoteWakeupEnabled;

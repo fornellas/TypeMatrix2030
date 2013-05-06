@@ -1,7 +1,7 @@
 FIXES
 
 - Shift + CAPSLOCK generating multiple events.
-- Fn+F1 send F1 if Fn released before F1. Validate for other keys.
+OK - Fn+F1 send F1 if Fn released before F1. Validate for other keys.
 
 BASE
 

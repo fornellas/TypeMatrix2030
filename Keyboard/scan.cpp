@@ -465,7 +465,11 @@ bool Keyboard::processDvorakQwertyKeys(const uint8_t key, const bool state){
 void Keyboard::processKeyEvent(const uint8_t key, const bool state){
   // key counting
   if(state&&!keyState[key]) {
-    keyPresses++;
+    if(++keyPresses-eepromKeyPresses>10){
+      eeprom_busy_wait();
+      eeprom_write_dword((uint32_t *)EEPROM_KEYPRESSES, keyPresses);
+      eepromKeyPresses=keyPresses;
+    }
     displayForceUpdate();
   }
   // special keys

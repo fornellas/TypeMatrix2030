@@ -14,6 +14,8 @@
 
 #ifdef __cplusplus
 
+#include "EnduranceEEPROM.h"
+
 //
 // General
 //
@@ -42,7 +44,13 @@
 //
 
 #define EEPROM_LAYOUT 0 // uint8_t
-#define EEPROM_KEYPRESSES 1 // uint32_t
+#define EEPROM_KEYPRESSES_0 (EEPROM_LAYOUT+sizeof(uint8_t)) 
+#define EEPROM_KEYPRESSES_0_LOCATIONS 255
+#define EEPROM_KEYPRESSES_0_WRITE_INTERVAL 5
+#define EEPROM_KEYPRESSES_1 (EEPROM_KEYPRESSES_0+EEPROM_KEYPRESSES_0_LOCATIONS*2) 
+#define EEPROM_KEYPRESSES_1_LOCATIONS 4
+#define EEPROM_KEYPRESSES_2 (EEPROM_KEYPRESSES_1+EEPROM_KEYPRESSES_1_LOCATIONS*2)
+#define EEPROM_KEYPRESSES_3 (EEPROM_KEYPRESSES_2+sizeof(uint8_t))
 
 //
 // Macros
@@ -160,8 +168,15 @@ private:
   //
   // Key press counter
   //
-  uint32_t eepromKeyPresses;
-  uint32_t keyPresses;
+  EnduranceEEPROM *keyPresses0;
+  EnduranceEEPROM *keyPresses1;
+  uint32_t ramKeyPresses;
+
+  void keyPressesInit();
+  uint32_t readKeyPresses();
+  void keyPress();
+
+  void saveKeyPresses();
 public:
   // Facilities
   volatile USB_KeyboardReport_Data_t *KeyboardReport;

@@ -341,7 +341,6 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
         }
         fn_used=true;
         displayForceUpdate();
-        eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
         return true;
       }
@@ -371,7 +370,6 @@ bool Keyboard::processCommonKeys(const uint8_t key, const bool state){
         }
         fn_used=true;
         displayForceUpdate();
-        eeprom_busy_wait();
         eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
         return true;
       }
@@ -465,11 +463,7 @@ bool Keyboard::processDvorakQwertyKeys(const uint8_t key, const bool state){
 void Keyboard::processKeyEvent(const uint8_t key, const bool state){
   // key counting
   if(state&&!keyState[key]) {
-    if(++keyPresses-eepromKeyPresses>10){
-      eeprom_busy_wait();
-      eeprom_write_dword((uint32_t *)EEPROM_KEYPRESSES, keyPresses);
-      eepromKeyPresses=keyPresses;
-    }
+    keyPress();
     displayForceUpdate();
   }
   // special keys

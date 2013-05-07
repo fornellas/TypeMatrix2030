@@ -89,15 +89,11 @@ Keyboard::Keyboard(){
   macroState=MACRO_STATE_NONE;
   macroLocked=true;
   // Key preses
-  eeprom_busy_wait();
-  keyPresses=eeprom_read_dword((const uint32_t *)EEPROM_KEYPRESSES);
-  eepromKeyPresses=keyPresses;
+  keyPressesInit();
   // Load layout
-  eeprom_busy_wait();
   layout=eeprom_read_byte((const uint8_t *)EEPROM_LAYOUT);
   if(layout>LAYOUT_MAX){
     layout=US_US;
-    eeprom_busy_wait();
     eeprom_write_byte((uint8_t *)EEPROM_LAYOUT, layout);
   }
   // Sequences

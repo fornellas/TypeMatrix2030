@@ -142,7 +142,7 @@ void Keyboard::displayUpdate(){
       // Key counter
       // FIXME
       u8g_SetFontPosTop(&u8g);
-      ultoa(keyPresses, strBuff, 10);
+      ultoa(readKeyPresses(), strBuff, 10);
       u8g_DrawStr(&u8g, u8g_GetWidth(&u8g)/2-u8g_GetStrWidth(&u8g, strBuff)/2, 56, strBuff);
 /*
       // Macros

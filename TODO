@@ -1,6 +1,6 @@
 FIXES
 
-- Shift + CAPSLOCK generating multiple events.
+OK - Shift + CAPSLOCK generating multiple events.
 OK - Fn+F1 send F1 if Fn released before F1. Validate for other keys.
 
 BASE
@@ -26,6 +26,7 @@ OK- Actual Ctrl+X/C/V
 - Password protected key presses sequences.
   - Auto lock after inactivity.
 OK - Key press counter
+  - Allow partial odometer.
 OK- More layouts
 OK  - QWERTY US
 OK  - QWERTY US > Dvorak

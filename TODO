@@ -2,6 +2,7 @@ FIXES
 
 OK - Shift + CAPSLOCK generating multiple events.
 OK - Fn+F1 send F1 if Fn released before F1. Validate for other keys.
+- Use EEMEM for EEPROM address control.
 
 BASE
 

@@ -44,6 +44,8 @@
 //
 
 #define EEPROM_LAYOUT 0 // uint8_t
+// Values to ensure endurance of 15000/day for 15 years == 109500000 key presses
+// Assuminh 100000 erase/write EEPROM cycles
 #define EEPROM_KEYPRESSES_0 (uint16_t)(EEPROM_LAYOUT+sizeof(uint8_t))
 #define EEPROM_KEYPRESSES_0_LOCATIONS 255
 #define EEPROM_KEYPRESSES_0_WRITE_INTERVAL 5

@@ -20,14 +20,14 @@ const USB_Descriptor_HIDReport_Datatype_t PROGMEM KeyboardReport[] = {
  */
 const USB_Descriptor_Device_t PROGMEM DeviceDescriptor = {
   .Header                 = {.Size = sizeof(USB_Descriptor_Device_t), .Type = DTYPE_Device},
-  .USBSpecification       = VERSION_BCD(01.10),
+  .USBSpecification       = VERSION_BCD(1,1,0),
   .Class                  = USB_CSCP_NoDeviceClass,
   .SubClass               = USB_CSCP_NoDeviceSubclass,
   .Protocol               = USB_CSCP_NoDeviceProtocol,
   .Endpoint0Size          = FIXED_CONTROL_ENDPOINT_SIZE,
   .VendorID               = 0x03EB, // Atmel
   .ProductID              = 0x2042, // Keyboard Demo Application
-  .ReleaseNumber          = VERSION_BCD(00.01),
+  .ReleaseNumber          = VERSION_BCD(0,0,1),
   .ManufacturerStrIndex   = 0x01,
   .ProductStrIndex        = 0x02,
   .SerialNumStrIndex      = USE_INTERNAL_SERIAL,
@@ -68,7 +68,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
   .CDC_Functional_Header = {
     .Header                 = {.Size = sizeof(USB_CDC_Descriptor_FunctionalHeader_t), .Type = DTYPE_CSInterface},
     .Subtype                = CDC_DSUBTYPE_CSInterface_Header,
-    .CDCSpecification       = VERSION_BCD(01.10),
+    .CDCSpecification       = VERSION_BCD(1,1,0),
     },
   .CDC_Functional_ACM = {
     .Header                 = {.Size = sizeof(USB_CDC_Descriptor_FunctionalACM_t), .Type = DTYPE_CSInterface},
@@ -130,7 +130,7 @@ const USB_Descriptor_Configuration_t PROGMEM ConfigurationDescriptor = {
     },
   .HID_KeyboardHID = {
     .Header                 = {.Size = sizeof(USB_HID_Descriptor_HID_t), .Type = HID_DTYPE_HID},
-    .HIDSpec                = VERSION_BCD(01.11),
+    .HIDSpec                = VERSION_BCD(1,1,1),
     .CountryCode            = 0x00,
     .TotalReportDescriptors = 1,
     .HIDReportType          = HID_DTYPE_Report,

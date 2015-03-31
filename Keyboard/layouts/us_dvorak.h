@@ -5,7 +5,7 @@
 
 #include <LUFA/Drivers/USB/USB.h>
 
-uint16_t PROGMEM us_dvorak[NUM_KEYS]={
+const uint16_t PROGMEM us_dvorak[NUM_KEYS]={
   // 0 Q
   HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE,
   // 1 W
@@ -59,7 +59,7 @@ uint16_t PROGMEM us_dvorak[NUM_KEYS]={
   // 25 4$
   HID_KEYBOARD_SC_4_AND_DOLLAR,
   // 26 7&
-  HID_KEYBOARD_SC_7_AND_AND_AMPERSAND,
+  HID_KEYBOARD_SC_7_AND_AMPERSAND,
   // 27 8*
   HID_KEYBOARD_SC_8_AND_ASTERISK,
   // 28 9(
@@ -188,7 +188,7 @@ uint16_t PROGMEM us_dvorak[NUM_KEYS]={
   HID_KEYBOARD_SC_DOWN_ARROW, 
   };
 
-uint16_t PROGMEM us_dvorak_fn[NUM_KEYS]={
+const uint16_t PROGMEM us_dvorak_fn[NUM_KEYS]={
   // 0 Q
   HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE,
   // 1 W
@@ -242,7 +242,7 @@ uint16_t PROGMEM us_dvorak_fn[NUM_KEYS]={
   // 25 4$
   HID_KEYBOARD_SC_4_AND_DOLLAR,
   // 26 7&
-  HID_KEYBOARD_SC_7_AND_AND_AMPERSAND,
+  HID_KEYBOARD_SC_7_AND_AMPERSAND,
   // 27 8*
   HID_KEYBOARD_SC_8_AND_ASTERISK,
   // 28 9(
@@ -371,7 +371,7 @@ uint16_t PROGMEM us_dvorak_fn[NUM_KEYS]={
   HID_KEYBOARD_SC_KEYPAD_00,
   };
 
-uint16_t PROGMEM us_dvorak_keypad[NUM_KEYS]={
+const uint16_t PROGMEM us_dvorak_keypad[NUM_KEYS]={
   // 0 Q
   HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE,
   // 1 W
@@ -425,7 +425,7 @@ uint16_t PROGMEM us_dvorak_keypad[NUM_KEYS]={
   // 25 4$
   HID_KEYBOARD_SC_4_AND_DOLLAR,
   // 26 7&
-  HID_KEYBOARD_SC_7_AND_AND_AMPERSAND,
+  HID_KEYBOARD_SC_7_AND_AMPERSAND,
   // 27 8*
   HID_KEYBOARD_SC_8_AND_ASTERISK,
   // 28 9(
